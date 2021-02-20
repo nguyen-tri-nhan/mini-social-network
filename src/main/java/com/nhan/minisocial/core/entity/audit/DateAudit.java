@@ -1,4 +1,4 @@
-package com.nhan.minisocial.core.audit;
+package com.nhan.minisocial.core.entity.audit;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.annotation.CreatedDate;

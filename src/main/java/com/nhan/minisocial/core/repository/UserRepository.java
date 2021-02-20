@@ -1,4 +1,4 @@
-package com.nhan.minisocial.core;
+package com.nhan.minisocial.core.repository;
 
 import com.nhan.minisocial.core.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
