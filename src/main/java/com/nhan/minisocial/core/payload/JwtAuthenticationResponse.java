@@ -1,12 +1,12 @@
 package com.nhan.minisocial.core.payload;
 
-public class JwtAuthenticationRespone {
+public class JwtAuthenticationResponse {
 
     private String accessToken;
 
     private String tokenType = "Bearer";
 
-    public JwtAuthenticationRespone(String accessToken) {
+    public JwtAuthenticationResponse(String accessToken) {
         this.accessToken = accessToken;
     }
 

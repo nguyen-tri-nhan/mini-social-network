@@ -19,4 +19,6 @@ public interface ArticleRepository extends JpaRepository<ArticleEntity, Long> {
     long findByIdIn(List<Long> articleId);
 
     long findByIdIn(List<Long> articleId, Sort sort);
+
+    List<ArticleEntity> findAllByUserEntity(long userId);
 }

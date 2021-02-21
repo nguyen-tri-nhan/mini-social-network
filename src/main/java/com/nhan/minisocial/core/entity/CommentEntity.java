@@ -20,8 +20,6 @@ public class CommentEntity extends UserDateAudit {
 
     private boolean visible;
 
-    private boolean seen;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
@@ -60,14 +58,6 @@ public class CommentEntity extends UserDateAudit {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
-    }
-
-    public boolean isSeen() {
-        return seen;
-    }
-
-    public void setSeen(boolean seen) {
-        this.seen = seen;
     }
 
     public UserEntity getUser() {

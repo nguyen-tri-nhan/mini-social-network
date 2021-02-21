@@ -1,10 +1,10 @@
 package com.nhan.minisocial.core.payload;
 
-public class ApiRespone {
+public class ApiResponse {
     private Boolean success;
     private String message;
 
-    public ApiRespone(Boolean success, String message) {
+    public ApiResponse(Boolean success, String message) {
         this.success = success;
         this.message = message;
     }

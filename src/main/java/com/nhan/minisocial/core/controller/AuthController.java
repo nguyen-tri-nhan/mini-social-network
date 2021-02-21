@@ -5,8 +5,8 @@ import com.nhan.minisocial.core.entity.RoleEntity;
 import com.nhan.minisocial.core.entity.RoleName;
 import com.nhan.minisocial.core.entity.UserEntity;
 import com.nhan.minisocial.core.exception.AppException;
-import com.nhan.minisocial.core.payload.ApiRespone;
-import com.nhan.minisocial.core.payload.JwtAuthenticationRespone;
+import com.nhan.minisocial.core.payload.ApiResponse;
+import com.nhan.minisocial.core.payload.JwtAuthenticationResponse;
 import com.nhan.minisocial.core.payload.LoginRequest;
 import com.nhan.minisocial.core.payload.SignUpRequest;
 import com.nhan.minisocial.core.repository.RoleRepository;
@@ -62,17 +62,17 @@ public class AuthController {
 
         String jwt = jwtTokenProvider.generateToken(authentication);
 
-        return ResponseEntity.ok(new JwtAuthenticationRespone(jwt));
+        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
     }
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest){
         if(userRepository.existsByUsername(signUpRequest.getUsername())){
-            return new ResponseEntity(new ApiRespone(false, "Username is already taken!"),
+            return new ResponseEntity(new ApiResponse(false, "Username is already taken!"),
                     HttpStatus.BAD_REQUEST);
         }
         if(userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return new ResponseEntity(new ApiRespone(false, "Email Address already in use!"),
+            return new ResponseEntity(new ApiResponse(false, "Email Address already in use!"),
                     HttpStatus.BAD_REQUEST);
         }
         //create user
@@ -94,6 +94,6 @@ public class AuthController {
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path("/api/users/{username}")
                 .buildAndExpand(result.getUsername()).toUri();
-        return ResponseEntity.created(location).body(new ApiRespone(true, "User registered successfully"));
+        return ResponseEntity.created(location).body(new ApiResponse(true, "User registered successfully"));
     }
 }
