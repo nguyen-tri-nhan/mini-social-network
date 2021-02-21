@@ -4,10 +4,7 @@
 
 ## Technique
 - ### Frontend
-    - #### Now
-        - Thymeleaf (in writing)
-    - #### Future
-        - React
+    - #### React
 - ### Backend
     - Spring boot (in studying)
 - ### Database
