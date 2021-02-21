@@ -21,4 +21,36 @@ public class VoteEntity extends UserDateAudit {
     @ManyToOne
     @JoinColumn(name = "article_id")
     private ArticleEntity article;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public byte getVote() {
+        return vote;
+    }
+
+    public void setVote(byte vote) {
+        this.vote = vote;
+    }
+
+    public UserEntity getUser() {
+        return user;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
+    }
+
+    public ArticleEntity getArticle() {
+        return article;
+    }
+
+    public void setArticle(ArticleEntity article) {
+        this.article = article;
+    }
 }
