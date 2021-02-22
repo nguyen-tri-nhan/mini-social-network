@@ -1,14 +1,18 @@
 package com.nhan.minisocial.core.payload;
 
+import com.nhan.minisocial.core.entity.CommentEntity;
+
 import java.time.Instant;
 import java.util.List;
 
 public class ArticleResponse {
     private long id;
     private String description;
+    private String image;
     private Instant createDate;
+    private UserSummary createdBy;
     private long vote;
-    private List<CommentResponse> comments;
+    private List<CommentEntity> comments;
 
     public long getId() {
         return id;
@@ -30,6 +34,22 @@ public class ArticleResponse {
         return createDate;
     }
 
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public UserSummary getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(UserSummary createdBy) {
+        this.createdBy = createdBy;
+    }
+
     public void setCreateDate(Instant createDate) {
         this.createDate = createDate;
     }
@@ -42,11 +62,11 @@ public class ArticleResponse {
         this.vote = vote;
     }
 
-    public List<CommentResponse> getComments() {
+    public List<CommentEntity> getComments() {
         return comments;
     }
 
-    public void setComments(List<CommentResponse> comments) {
+    public void setComments(List<CommentEntity> comments) {
         this.comments = comments;
     }
 }
