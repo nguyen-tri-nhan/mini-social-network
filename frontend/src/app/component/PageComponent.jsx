@@ -6,3 +6,5 @@ class PageComponent extends React.Component{
         super(props);
     }
 }
+
+export default PageComponent
