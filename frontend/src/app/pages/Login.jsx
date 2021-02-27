@@ -1,79 +1,70 @@
 import _ from 'lodash';
-import React from 'react';
-import PageComponent from "../component/PageComponent";
-import { Alert, Button, Card, CardBody, CardHeader, Col, CustomInput, Form, FormGroup, Row, FormText, Spinner, Input, Label } from 'reactstrap';
-import { Link } from 'react-router-dom';
-import Popup from "reactjs-popup";
+import React, { useEffect } from 'react';
+import { Field, Formik } from "formik";
+import { Col, Container, Row, Form } from "reactstrap";
+import { ReactstrapInput } from "reactstrap-formik";
 
-class Login extends PageComponent {
-
-    user = null;
-    constructor(props) {
-        super(props);
-        this.user = {
-            username: '',
-            password: '',
+export default function Login() {
+    useEffect(
+        () => {
+            
         }
-        this.login = this.login.bind(this);
-    }
+    )
 
-    login(e) {
+    const onSubmit = (values) => {
+        console.log(values);
+        //Make API calls here
 
-    }
-
-    render() {
-        return (
-            <div>
-                <Row>
-                    <Col
-                        sm={{ size: 8, offset: 4 }}
-                        md={{ size: 7, offset: 5 }}
-                        lg={{ size: 4, offset: 6 }}>
-                        <Card>
-                            <CardHeader>
-                                <h1>Login</h1>
-                            </CardHeader>
-                            <CardBody>
-                                <Form data-trackid="login-form">
-                                    <br /><br /><br /><br /><br /><br /><br /><br />
-                                    <FormGroup>
-                                        <Input
-                                            required
-                                            type="text"
-                                            name="username"
-                                            placeholder="Username or email?"
-                                        />
-                                    </FormGroup>
-                                    <FormGroup>
-                                        <Input
-                                            required
-                                            type="password"
-                                            name="password"
-                                            placeholder="password"
-                                        />
-                                    </FormGroup>
-                                    <FormGroup>
-                                        <Col xs="auto" className="mt-2">
-                                            <Button type="submit" color="primary" className="px-4">
-                                                Login
-                                            </Button>
-                                        </Col>
-                                    </FormGroup>
-                                    <p>
-                                        Do not have an account? <a href="/signup">Click here</a>
-                                    </p>
-                                    <br /><br /><br /><br /><br /><br /><br /><br /><br />
-                                </Form>
-                            </CardBody>
-                        </Card>
-
-                    </Col>
-
-                </Row>
-            </div>
+        alert(
+            `Submitted Successfully ->  ${JSON.stringify(values, null, 2)}`
         );
     }
 
+    return (
+        <Formik
+            initialValues={{ email: "", password: "" }}
+            // validate={values => {
+            //     const errors = {};
+            //     if (!values.email) {
+            //         errors.email = "Required";
+            //     } else if (
+            //         !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
+            //     ) {
+            //         errors.email = "Invalid email address";
+            //     }
+            //     return errors;
+            // }}
+            onSubmit={onSubmit}
+            render={({ submitForm, isSubmitting, values }) => (
+                <Form>
+                    <Container style={{ paddingTop: "5px" }}>
+                        <Row>
+                            <Col xs="12">
+                                <Field
+                                    type="email"
+                                    label="Email"
+                                    name="email"
+                                    id="email"
+                                    component={ReactstrapInput}
+                                />
+                            </Col>
+                            <Col xs="12">
+                                <Field
+                                    type="password"
+                                    label="Password"
+                                    name="password"
+                                    id="password"
+                                    component={ReactstrapInput}
+                                />
+                            </Col>
+                            <Col xs="12">
+                                <button type="submit">Submit</button>
+                            </Col>
+                        </Row>
+                        <pre>{JSON.stringify(values, null, 2)}</pre>
+                    </Container>
+                </Form>
+            )}
+        />
+    );
 }
-
-export default Login

@@ -15,6 +15,7 @@
     "react-scripts": "4.0.3",
     "reactjs-popup": "^2.0.4",
     "reactstrap": "^8.9.0",
+    "reactstrap-formik": "^1.0.9",
     "toastr": "^2.1.4",
     "web-vitals": "^1.1.0"
   },
