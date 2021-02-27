@@ -4,27 +4,29 @@ import com.nhan.minisocial.core.entity.audit.UserDateAudit;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.Instant;
 
 @Entity
-@Table(name = "article")
-public class ArticleEntity extends UserDateAudit {
-
+@Table(name = "comment")
+public class Comment extends UserDateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @NotBlank
     private String description;
 
-    private String image;
+    private Instant commentDate;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity userEntity;
-
-    @NotNull
     private boolean visible;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "article_id")
+    private Article article;
 
     public long getId() {
         return id;
@@ -42,20 +44,12 @@ public class ArticleEntity extends UserDateAudit {
         this.description = description;
     }
 
-    public String getImage() {
-        return image;
+    public Instant getCommentDate() {
+        return commentDate;
     }
 
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public UserEntity getUserEntity() {
-        return userEntity;
-    }
-
-    public void setUserEntity(UserEntity userEntity) {
-        this.userEntity = userEntity;
+    public void setCommentDate(Instant commentDate) {
+        this.commentDate = commentDate;
     }
 
     public boolean isVisible() {
@@ -64,5 +58,21 @@ public class ArticleEntity extends UserDateAudit {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Article getArticle() {
+        return article;
+    }
+
+    public void setArticle(Article article) {
+        this.article = article;
     }
 }

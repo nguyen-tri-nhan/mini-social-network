@@ -1,9 +1,9 @@
 package com.nhan.minisocial.core.controller;
 
 
-import com.nhan.minisocial.core.entity.RoleEntity;
+import com.nhan.minisocial.core.entity.Role;
 import com.nhan.minisocial.core.entity.RoleName;
-import com.nhan.minisocial.core.entity.UserEntity;
+import com.nhan.minisocial.core.entity.User;
 import com.nhan.minisocial.core.exception.AppException;
 import com.nhan.minisocial.core.payload.ApiResponse;
 import com.nhan.minisocial.core.payload.JwtAuthenticationResponse;
@@ -22,7 +22,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -75,20 +74,20 @@ public class AuthController {
                     HttpStatus.BAD_REQUEST);
         }
         //create user
-        UserEntity user = new UserEntity(signUpRequest.getUsername(),
+        User user = new User(signUpRequest.getUsername(),
                 signUpRequest.getFirstname(),
                 signUpRequest.getLastname(),
                 signUpRequest.getPassword(),
                 signUpRequest.getEmail(),
                 signUpRequest.getAvatar());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        RoleEntity userRole = roleRepository.findByName(RoleName.ROLE_USER).orElseThrow(
+        Role userRole = roleRepository.findByName(RoleName.ROLE_USER).orElseThrow(
                 () -> new AppException("User Role Not set")
         );
 
         user.setRoles(Collections.singleton(userRole));
 
-        UserEntity result = userRepository.save(user);
+        User result = userRepository.save(user);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path("/api/users/{username}")

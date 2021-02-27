@@ -6,7 +6,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "vote")
-public class VoteEntity extends UserDateAudit {
+public class Vote extends UserDateAudit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,11 +16,11 @@ public class VoteEntity extends UserDateAudit {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private UserEntity user;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "article_id")
-    private ArticleEntity article;
+    private Article article;
 
     public long getId() {
         return id;
@@ -38,19 +38,19 @@ public class VoteEntity extends UserDateAudit {
         this.vote = vote;
     }
 
-    public UserEntity getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(UserEntity user) {
+    public void setUser(User user) {
         this.user = user;
     }
 
-    public ArticleEntity getArticle() {
+    public Article getArticle() {
         return article;
     }
 
-    public void setArticle(ArticleEntity article) {
+    public void setArticle(Article article) {
         this.article = article;
     }
 }

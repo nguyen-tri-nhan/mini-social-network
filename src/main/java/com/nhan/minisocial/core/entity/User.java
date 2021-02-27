@@ -14,7 +14,7 @@ import javax.validation.constraints.Size;
         @UniqueConstraint(columnNames = {"username"}),
         @UniqueConstraint(columnNames = {"email"})
 })
-public class UserEntity {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,12 +51,12 @@ public class UserEntity {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<RoleEntity> roles = new HashSet<>();
+    private Set<Role> roles = new HashSet<>();
 
-    public UserEntity() {
+    public User() {
     }
 
-    public UserEntity(String username, String firstname, String lastname, String password, String email, String avatar) {
+    public User(String username, String firstname, String lastname, String password, String email, String avatar) {
         this.username = username;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -121,11 +121,11 @@ public class UserEntity {
         this.avatar = avatar;
     }
 
-    public Set<RoleEntity> getRoles() {
+    public Set<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<RoleEntity> roles) {
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 }

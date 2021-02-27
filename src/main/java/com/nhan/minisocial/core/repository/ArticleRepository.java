@@ -1,6 +1,6 @@
 package com.nhan.minisocial.core.repository;
 
-import com.nhan.minisocial.core.entity.ArticleEntity;
+import com.nhan.minisocial.core.entity.Article;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -11,14 +11,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ArticleRepository extends JpaRepository<ArticleEntity, Long> {
-    Optional<ArticleEntity> findById(long articleId);
+public interface ArticleRepository extends JpaRepository<Article, Long> {
+    Optional<Article> findById(long articleId);
 
-    Page<ArticleEntity> findByCreatedBy(long userId, Pageable pageable);
+    Page<Article> findByCreatedBy(long userId, Pageable pageable);
 
     long findByIdIn(List<Long> articleId);
 
     long findByIdIn(List<Long> articleId, Sort sort);
 
-    List<ArticleEntity> findAllByUserEntity(long id);
+    List<Article> findAllByUserEntity(long id);
 }

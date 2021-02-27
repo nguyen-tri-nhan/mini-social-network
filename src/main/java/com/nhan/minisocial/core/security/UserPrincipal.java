@@ -1,7 +1,7 @@
 package com.nhan.minisocial.core.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nhan.minisocial.core.entity.UserEntity;
+import com.nhan.minisocial.core.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -92,7 +92,7 @@ public class UserPrincipal implements UserDetails {
         return authorities;
     }
 
-    public static UserPrincipal create(UserEntity user){
+    public static UserPrincipal create(User user){
         List<GrantedAuthority> authorities = user.getRoles().stream().map(
                 role -> new SimpleGrantedAuthority(role.getName().name())
         ).collect(Collectors.toList());

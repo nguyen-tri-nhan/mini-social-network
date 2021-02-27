@@ -1,6 +1,6 @@
 package com.nhan.minisocial.core.repository;
 
-import com.nhan.minisocial.core.entity.UserEntity;
+import com.nhan.minisocial.core.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,15 +8,15 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<UserEntity> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
-    Optional<UserEntity> findByUsernameOrEmail(String username, String email);
+    Optional<User> findByUsernameOrEmail(String username, String email);
 
-    List<UserEntity> findByIdIn(List<Long> userIds);
+    List<User> findByIdIn(List<Long> userIds);
 
-    Optional<UserEntity> findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
     Boolean existsByEmail(String email);
 

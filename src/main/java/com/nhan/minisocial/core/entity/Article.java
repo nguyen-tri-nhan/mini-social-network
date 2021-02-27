@@ -1,13 +1,27 @@
-package com.nhan.minisocial.article.resource;
+package com.nhan.minisocial.core.entity;
 
-import com.nhan.minisocial.core.entity.User;
-import com.nhan.minisocial.core.resource.BaseResource;
+import com.nhan.minisocial.core.entity.audit.UserDateAudit;
 
-public class ArticleResource extends BaseResource {
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+
+@Entity
+@Table(name = "article")
+public class Article extends UserDateAudit {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     private String description;
+
     private String image;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @NotNull
     private boolean visible;
 
     public long getId() {
@@ -34,11 +48,11 @@ public class ArticleResource extends BaseResource {
         this.image = image;
     }
 
-    public User getUser() {
+    public User getUserEntity() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUserEntity(User user) {
         this.user = user;
     }
 

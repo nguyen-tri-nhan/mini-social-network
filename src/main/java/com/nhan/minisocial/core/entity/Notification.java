@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "notification")
-public class NotificationEntity extends UserDateAudit {
+public class Notification extends UserDateAudit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,15 +19,15 @@ public class NotificationEntity extends UserDateAudit {
 
     @ManyToOne
     @JoinColumn(name = "from_user")
-    private UserEntity fromUser;
+    private User fromUser;
 
     @ManyToOne
     @JoinColumn(name = "to_user")
-    private UserEntity toUser;
+    private User toUser;
 
     @ManyToOne
     @JoinColumn(name = "article_id")
-    private ArticleEntity article;
+    private Article article;
 
     public long getId() {
         return id;
@@ -53,27 +53,27 @@ public class NotificationEntity extends UserDateAudit {
         this.seen = seen;
     }
 
-    public UserEntity getFromUser() {
+    public User getFromUser() {
         return fromUser;
     }
 
-    public void setFromUser(UserEntity fromUser) {
+    public void setFromUser(User fromUser) {
         this.fromUser = fromUser;
     }
 
-    public UserEntity getToUser() {
+    public User getToUser() {
         return toUser;
     }
 
-    public void setToUser(UserEntity toUser) {
+    public void setToUser(User toUser) {
         this.toUser = toUser;
     }
 
-    public ArticleEntity getArticle() {
+    public Article getArticle() {
         return article;
     }
 
-    public void setArticle(ArticleEntity article) {
+    public void setArticle(Article article) {
         this.article = article;
     }
 }
