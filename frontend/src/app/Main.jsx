@@ -1,6 +1,6 @@
 import logo from '../../src/logo.svg';
 import Login from "./pages/Login";
-import SignUp from './pages/popup/SignUp';
+import SignUp from './pages/SignUp';
 import {
   BrowserRouter as Router,
   Switch,
