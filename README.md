@@ -4,14 +4,14 @@
 
 ## Technique
 - ### Frontend
-    - [#### React](http://reactjs.org/docs/)
+    - [React](http://reactjs.org/docs/)
 - ### Backend
-    - [#### Spring boot (in studying)](https://spring.io/)
+    - [Spring boot (in studying)](https://spring.io/)
 - ### Database
-    - [#### MS SQL Server](https://docs.microsoft.com/en-us/sql/sql-server/?view=sql-server-ver15)
+    - [MS SQL Server](https://docs.microsoft.com/en-us/sql/sql-server/?view=sql-server-ver15)
 - ### Others
-    - [#### Liquibase](https://docs.liquibase.com/home.html)
-    - [#### Docker (in processing)](https://docs.docker.com/)
+    - [Liquibase](https://docs.liquibase.com/home.html)
+    - [Docker (in processing)](https://docs.docker.com/)
 
 ## To run project
 ### Database
