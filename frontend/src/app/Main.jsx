@@ -11,12 +11,14 @@ import {
 function Main() {
   return (
     <div className="App">
-      <Router>
-        <Switch>
-          <Route path="/login" exact component={Login} />
-          <Route path="/signup" exact component={SignUp} />
-        </Switch>
-      </Router>
+      <div className="container">
+        <Router>
+          <Switch>
+            <Route path="/login" exact component={Login} />
+            <Route path="/signup" exact component={SignUp} />
+          </Switch>
+        </Router>
+      </div>
     </div>
   );
 }

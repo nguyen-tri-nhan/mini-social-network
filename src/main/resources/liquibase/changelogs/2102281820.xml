@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd"
+        logicalFilePath="">
+
+    <changeSet id="2102281820-0" author="kit">
+        <comment>ROLE</comment>
+        <sql>
+            CREATE TABLE roles(
+                id BIGINT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+                name VARCHAR(60)
+            )
+        </sql>
+        <sql>
+            INSERT INTO roles(name) VALUES('ROLE_ADMIN')
+            INSERT INTO roles(name) VALUES('ROLE_USER')
+        </sql>
+    </changeSet>
+
+
+</databaseChangeLog>

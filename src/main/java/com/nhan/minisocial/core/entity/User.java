@@ -26,10 +26,12 @@ public class User {
 
     @NotBlank
     @Size(max = 20)
+    @Column(columnDefinition = "nvarchar(255)")
     private String firstname;
 
     @NotBlank
     @Size(max = 20)
+    @Column(columnDefinition = "nvarchar(255)")
     private String lastname;
 
     @NotBlank

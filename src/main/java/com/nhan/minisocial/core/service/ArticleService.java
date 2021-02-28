@@ -1,4 +1,4 @@
-package com.nhan.minisocial.article.service;
+package com.nhan.minisocial.core.service;
 
 import com.nhan.minisocial.core.entity.Article;
 import com.nhan.minisocial.core.repository.ArticleRepository;
@@ -23,7 +23,7 @@ public class ArticleService {
     }
 
     public List<Article> getArticleByUser(long id) {
-        return articleRepository.findAllByUserEntity(id);
+        return articleRepository.findAllByUser(id);
     }
 
     public Article save(Article entity) {

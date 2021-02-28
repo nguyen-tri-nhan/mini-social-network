@@ -1,4 +1,4 @@
-package com.nhan.minisocial.article.resource;
+package com.nhan.minisocial.core.resource;
 
 import com.nhan.minisocial.core.entity.User;
 import com.nhan.minisocial.core.resource.BaseResource;
