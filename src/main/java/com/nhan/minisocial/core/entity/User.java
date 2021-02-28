@@ -1,13 +1,10 @@
 package com.nhan.minisocial.core.entity;
 
-import org.hibernate.annotations.NaturalId;
-
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "users", uniqueConstraints = {
@@ -21,31 +18,19 @@ public class User {
     private long id;
 
     @NotBlank
-    @Size(max = 15)
     private String username;
 
     @NotBlank
-    @Size(max = 20)
-    @Column(columnDefinition = "nvarchar(255)")
     private String firstname;
 
     @NotBlank
-    @Size(max = 20)
-    @Column(columnDefinition = "nvarchar(255)")
     private String lastname;
 
-    @NotBlank
-    @Size(max = 100)
     private String password;
 
-    @NaturalId
-    @NotBlank
-    @Size(max = 40)
     @Email
     private String email;
 
-    @NotBlank
-    @Size(max = 100)
     private String avatar;
 
     @ManyToMany(fetch = FetchType.EAGER)

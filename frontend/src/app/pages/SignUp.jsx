@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { } from "reactstrap-formik";
 import { Form, Field, Formik, ErrorMessage } from "formik";
-import { Card, CardHeader, CardBody, Col, Container, Row, CardColumns } from "reactstrap";
+import { Card, CardHeader, CardBody, Col, Container, Row, CardColumns, CardFooter } from "reactstrap";
 import Service from "../service/Service"
 
 export default function SignUp() {
@@ -49,7 +49,7 @@ export default function SignUp() {
                         >
                             {
                                 () => (
-                                    <Form>
+                                    <Form method="post">
                                         <ErrorMessage name="password" component="div"
                                             className="alert alert-warning" />
                                         <fieldset className="form-group">
@@ -83,6 +83,9 @@ export default function SignUp() {
                             }
                         </Formik>
                     </CardBody>
+                    <CardFooter>
+                        <p>Already have an account? <a href="/login">Login</a></p>
+                    </CardFooter>
                 </Card>
             </Col>
         </div>

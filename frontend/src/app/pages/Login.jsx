@@ -1,59 +1,59 @@
-import _ from 'lodash';
-import React, { useEffect } from 'react';
-import { Field, Formik } from "formik";
-import { Col, Container, Row, Form } from "reactstrap";
-import { ReactstrapInput } from "reactstrap-formik";
+import { useState } from "react"
+import { Card, CardHeader, CardBody, Col, Container, Row, CardColumns, CardFooter } from "reactstrap";
+import Service from "../service/Service"
+import { Formik, Form, Field } from "formik";
 
 export default function Login() {
-    useEffect(
-        () => {
-            
-        }
-    )
+
+    const [user, setUser] = useState({
+        usernameOrEmail: '',
+        password: '',
+    })
 
     const onSubmit = (values) => {
-        console.log(values);
-        //Make API calls here
-
-        alert(
-            `Submitted Successfully ->  ${JSON.stringify(values, null, 2)}`
-        );
+        let user = {
+            usernameOrEmail: values.usernameOrEmail,
+            password: values.password
+        }
+        console.log(user)
     }
 
+    let { usernameOrEmail, password } = user
     return (
-        <Formik
-            initialValues={{ email: "", password: "" }}
-            onSubmit={onSubmit}
-            render={({ submitForm, isSubmitting, values }) => (
-                <Form>
-                    <Container style={{ paddingTop: "5px" }}>
-                        <Row>
-                            <Col xs="12">
-                                <Field
-                                    type="email"
-                                    label="Email"
-                                    name="email"
-                                    id="email"
-                                    component={ReactstrapInput}
-                                />
-                            </Col>
-                            <Col xs="12">
-                                <Field
-                                    type="password"
-                                    label="Password"
-                                    name="password"
-                                    id="password"
-                                    component={ReactstrapInput}
-                                />
-                            </Col>
-                            <Col xs="12">
-                                <button type="submit">Submit</button>
-                            </Col>
-                        </Row>
-                        <pre>{JSON.stringify(values, null, 2)}</pre>
-                    </Container>
-                </Form>
-            )}
-        />
+        <div>
+            <Row>
+                <Col>
+                    <Card>
+                        <CardHeader>
+                            <h3>Login</h3>
+                        </CardHeader>
+                        <CardBody>
+                            <Formik
+                                initialValues={{ usernameOrEmail, password }}
+                                onSubmit={onSubmit}
+                                validateOnChange={false}
+                                validateOnBlur={false}
+                                enableReinitialize={true}
+                            >
+                                <Form method="post">
+                                    <fieldset className="form-group">
+                                        <label htmlFor="usernameOrEmail" >Username or Email </label>
+                                        <Field className="form-control" type="text" name="usernameOrEmail" id="usernameOrEmail" />
+                                    </fieldset>
+                                    <fieldset className="form-group ">
+                                        <label>Password</label>
+                                        <Field className="form-control" type="password" name="password" />
+                                    </fieldset>
+                                    <button className="btn btn-primary" type="submit">Login</button>
+                                </Form>
+                            </Formik>
+                        </CardBody>
+                        <CardFooter>
+                            <p>Do not have an account yet? <a href="/signup">Register here!</a></p>
+                        </CardFooter>
+                    </Card>
+                </Col>
+            </Row>
+        </div>
     );
 }

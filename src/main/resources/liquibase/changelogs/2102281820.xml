@@ -19,6 +19,20 @@
             INSERT INTO roles(name) VALUES('ROLE_USER')
         </sql>
     </changeSet>
+    <changeSet id="2102281820-0" author="minisocial">
+        <comment>USER</comment>
+        <sql>
+            CREATE TABLE users(
+            id BIGINT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+            username VARCHAR(15) NOT NULL UNIQUE,
+            firstname NVARCHAR(20) NOT NULL,
+            lastname NVARCHAR(20) NOT NULL,
+            email VARCHAR(40) NOT NULL UNIQUE,
+            password VARCHAR(100) NOT NULL,
+            avatar VARCHAR(100)
+            )
+        </sql>
+    </changeSet>
 
 
 </databaseChangeLog>
