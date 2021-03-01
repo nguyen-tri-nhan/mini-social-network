@@ -16,13 +16,18 @@ public class ArticleResourceService {
     @Autowired
     private UserService userService;
 
-    private Article createOrUpdate(Article article) {
+    public Article createOrUpdate(Article article) {
         return articleService.save(article);
     }
 
     public Article toEntity(ArticleResource articleResource, UserPrincipal userPrincipal){
         Article article = new Article();
         User user = userService.getUser(userPrincipal.getId());
-        return null;
+        article.setId(articleResource.getId());
+        article.setDescription(articleResource.getDescription());
+        article.setImage(articleResource.getImage());
+        article.setVisible(true);
+        article.setUserEntity(user);
+        return article;
     }
 }

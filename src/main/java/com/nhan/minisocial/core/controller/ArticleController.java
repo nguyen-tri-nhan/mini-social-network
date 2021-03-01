@@ -2,6 +2,7 @@ package com.nhan.minisocial.core.controller;
 
 
 import com.nhan.minisocial.core.api.Api;
+import com.nhan.minisocial.core.entity.Article;
 import com.nhan.minisocial.core.resource.ArticleResource;
 import com.nhan.minisocial.core.security.CurrentUser;
 import com.nhan.minisocial.core.security.UserPrincipal;
@@ -17,7 +18,6 @@ public class ArticleController {
 
     @PostMapping(Api.ArticleApi.GET)
     public ResponseEntity<?> postArticle(@CurrentUser UserPrincipal user, @Valid @RequestBody ArticleResource articleResource){
-
         return null;
     }
 }
