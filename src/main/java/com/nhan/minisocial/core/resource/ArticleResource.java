@@ -1,10 +1,11 @@
 package com.nhan.minisocial.core.resource;
 
-import com.nhan.minisocial.core.entity.User;
-import com.nhan.minisocial.core.resource.BaseResource;
 
 public class ArticleResource extends BaseResource {
     private long id;
+    private String description;
+    private String image;
+    private UserResource user;
 
     public long getId() {
         return id;
@@ -13,9 +14,6 @@ public class ArticleResource extends BaseResource {
     public void setId(long id) {
         this.id = id;
     }
-
-    private String description;
-    private String image;
 
     public String getDescription() {
         return description;
@@ -33,4 +31,11 @@ public class ArticleResource extends BaseResource {
         this.image = image;
     }
 
+    public UserResource getUser() {
+        return user;
+    }
+
+    public void setUser(UserResource user) {
+        this.user = user;
+    }
 }

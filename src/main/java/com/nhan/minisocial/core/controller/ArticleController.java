@@ -10,6 +10,7 @@ import com.nhan.minisocial.core.security.CurrentUser;
 import com.nhan.minisocial.core.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 public class ArticleController {
@@ -32,4 +34,9 @@ public class ArticleController {
                 .buildAndExpand(article.getId()).toUri();
         return ResponseEntity.created(location).body(new ApiResponse(true, "Article saved successfully"));
     }
+
+//    @GetMapping(Api.ArticleApi.COLLECTION)
+//    public List<ArticleResource> loadArticle(){
+//
+//    }
 }
