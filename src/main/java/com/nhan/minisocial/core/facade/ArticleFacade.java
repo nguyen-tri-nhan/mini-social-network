@@ -7,6 +7,8 @@ import com.nhan.minisocial.core.service.ArticleResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ArticleFacade {
 
@@ -16,5 +18,9 @@ public class ArticleFacade {
     public Article createOrUpdate(ArticleResource articleResource, UserPrincipal userPrincipal){
         Article article = articleResourceService.toEntity(articleResource, userPrincipal);
         return articleResourceService.createOrUpdate(article);
+    }
+
+    public List<ArticleResource> getAll(){
+        return null;
     }
 }
