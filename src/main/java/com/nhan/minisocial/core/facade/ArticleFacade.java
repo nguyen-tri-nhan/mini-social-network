@@ -21,6 +21,6 @@ public class ArticleFacade {
     }
 
     public List<ArticleResource> getAll(){
-        return null;
+        return articleResourceService.getAll();
     }
 }

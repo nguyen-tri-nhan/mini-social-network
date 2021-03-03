@@ -8,6 +8,8 @@ import com.nhan.minisocial.core.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ArticleResourceService {
 
@@ -35,10 +37,21 @@ public class ArticleResourceService {
         return article;
     }
 
+    public List<ArticleResource> getAll(){
+        return null;
+    }
+
+    private List<Article> getAllEntity(){
+        return articleService.getAll();
+    }
+
     private ArticleResource toResource(Article article){
         ArticleResource articleResource = new ArticleResource();
         UserResource user = userResourceService.toResource(article.getUser().getId());
-
+        articleResource.setId(article.getId());
+        articleResource.setDescription(article.getDescription());
+        articleResource.setImage(article.getImage());
+//        articleResource.setUser(article.getUser());
         return articleResource;
     }
 }
