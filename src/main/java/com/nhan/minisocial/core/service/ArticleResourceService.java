@@ -8,6 +8,7 @@ import com.nhan.minisocial.core.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,7 +27,7 @@ public class ArticleResourceService {
         return articleService.save(article);
     }
 
-    public Article toEntity(ArticleResource articleResource, UserPrincipal userPrincipal){
+    public Article toEntity(ArticleResource articleResource, UserPrincipal userPrincipal) {
         Article article = new Article();
         User user = userService.getUser(userPrincipal.getId());
         article.setId(articleResource.getId());
@@ -37,15 +38,20 @@ public class ArticleResourceService {
         return article;
     }
 
-    public List<ArticleResource> getAll(){
-        return null;
+    public List<ArticleResource> getAll() {
+        List<Article> articles = getAllEntity();
+        List<ArticleResource> articleResources = new ArrayList<>();
+        for (Article article : articles) {
+            articleResources.add(toResource(article));
+        }
+        return articleResources;
     }
 
-    private List<Article> getAllEntity(){
+    private List<Article> getAllEntity() {
         return articleService.getAll();
     }
 
-    private ArticleResource toResource(Article article){
+    private ArticleResource toResource(Article article) {
         ArticleResource articleResource = new ArticleResource();
         UserResource user = userResourceService.toResource(article.getUser().getId());
         articleResource.setId(article.getId());
