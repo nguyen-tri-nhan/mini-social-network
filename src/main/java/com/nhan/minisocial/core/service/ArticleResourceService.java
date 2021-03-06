@@ -53,11 +53,11 @@ public class ArticleResourceService {
 
     private ArticleResource toResource(Article article) {
         ArticleResource articleResource = new ArticleResource();
-        UserResource user = userResourceService.toResource(article.getUser().getId());
+        UserResource user = userResourceService.getUser(article.getUser().getId());
         articleResource.setId(article.getId());
         articleResource.setDescription(article.getDescription());
         articleResource.setImage(article.getImage());
-//        articleResource.setUser(article.getUser());
+        articleResource.setUser(user);
         return articleResource;
     }
 }

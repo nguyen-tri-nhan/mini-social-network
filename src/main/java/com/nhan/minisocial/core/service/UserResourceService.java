@@ -11,12 +11,17 @@ public class UserResourceService {
     @Autowired
     private UserService userService;
 
-    public UserResource toResource(long id){
+
+    private UserResource toResource(User user){
         UserResource userResource = new UserResource();
-        User user = userService.getUser(id);
         userResource.setId(user.getId());
         userResource.setAvatar(user.getAvatar());
         userResource.setFullname(user.getFirstname() + " " + user.getLastname());
         return userResource;
+    }
+
+    public UserResource getUser(long id){
+        User user = userService.getUser(id);
+        return toResource(user);
     }
 }
