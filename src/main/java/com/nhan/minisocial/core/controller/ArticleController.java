@@ -35,8 +35,8 @@ public class ArticleController {
         return ResponseEntity.created(location).body(new ApiResponse(true, "Article saved successfully"));
     }
 
-//    @GetMapping(Api.ArticleApi.COLLECTION)
-//    public List<ArticleResource> loadArticle(){
-//
-//    }
+    @GetMapping(Api.ArticleApi.COLLECTION)
+    public List<ArticleResource> loadArticle(){
+        return articleFacade.getAll();
+    }
 }
