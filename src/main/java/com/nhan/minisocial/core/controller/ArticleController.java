@@ -10,10 +10,7 @@ import com.nhan.minisocial.core.security.CurrentUser;
 import com.nhan.minisocial.core.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -38,5 +35,10 @@ public class ArticleController {
     @GetMapping(Api.ArticleApi.COLLECTION)
     public List<ArticleResource> loadArticle(){
         return articleFacade.getAll();
+    }
+
+    @GetMapping(Api.ArticleApi.GET)
+    public ArticleResource getArticle(@PathVariable long id){
+        return articleFacade.getArticle(id);
     }
 }

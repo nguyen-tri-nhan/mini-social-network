@@ -23,4 +23,8 @@ public class ArticleFacade {
     public List<ArticleResource> getAll(){
         return articleResourceService.getAll();
     }
+
+    public ArticleResource getArticle(long id){
+        return articleResourceService.getArticleResource(id);
+    }
 }

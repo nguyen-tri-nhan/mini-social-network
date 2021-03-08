@@ -47,6 +47,11 @@ public class ArticleResourceService {
         return articleResources;
     }
 
+    public ArticleResource getArticleResource(long id){
+        Article article = articleService.getOne(id);
+        return toResource(article);
+    }
+
     private List<Article> getAllEntity() {
         return articleService.getAll();
     }
