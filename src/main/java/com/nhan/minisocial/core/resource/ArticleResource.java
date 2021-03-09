@@ -3,6 +3,7 @@ package com.nhan.minisocial.core.resource;
 
 public class ArticleResource extends BaseResource {
     private long id;
+    private long votes;
     private String description;
     private String image;
     private UserResource user;
