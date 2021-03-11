@@ -23,6 +23,9 @@ public class ArticleResourceService {
     @Autowired
     private UserResourceService userResourceService;
 
+    @Autowired
+    private VoteService voteService;
+
     public Article createOrUpdate(Article article) {
         return articleService.save(article);
     }
@@ -59,10 +62,12 @@ public class ArticleResourceService {
     private ArticleResource toResource(Article article) {
         ArticleResource articleResource = new ArticleResource();
         UserResource user = userResourceService.getUser(article.getUser().getId());
+        long vote = voteService.countVoteByArticleId(article.getId());
         articleResource.setId(article.getId());
         articleResource.setDescription(article.getDescription());
         articleResource.setImage(article.getImage());
         articleResource.setUser(user);
+        articleResource.setVotes(vote);
         return articleResource;
     }
 }

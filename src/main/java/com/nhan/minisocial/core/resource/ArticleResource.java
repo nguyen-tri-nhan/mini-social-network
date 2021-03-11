@@ -39,4 +39,12 @@ public class ArticleResource extends BaseResource {
     public void setUser(UserResource user) {
         this.user = user;
     }
+
+    public long getVotes() {
+        return votes;
+    }
+
+    public void setVotes(long votes) {
+        this.votes = votes;
+    }
 }
