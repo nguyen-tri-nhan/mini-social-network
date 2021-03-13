@@ -1,6 +1,7 @@
 package com.nhan.minisocial.core.facade;
 
 import com.nhan.minisocial.core.entity.Article;
+import com.nhan.minisocial.core.payload.ArticleRequest;
 import com.nhan.minisocial.core.resource.ArticleResource;
 import com.nhan.minisocial.core.security.UserPrincipal;
 import com.nhan.minisocial.core.service.ArticleResourceService;
@@ -15,8 +16,8 @@ public class ArticleFacade {
     @Autowired
     private ArticleResourceService articleResourceService;
 
-    public Article createOrUpdate(ArticleResource articleResource, UserPrincipal userPrincipal){
-        Article article = articleResourceService.toEntity(articleResource, userPrincipal);
+    public Article createOrUpdate(ArticleRequest articleRequest, UserPrincipal userPrincipal){
+        Article article = articleResourceService.toEntity(articleRequest, userPrincipal);
         return articleResourceService.createOrUpdate(article);
     }
 

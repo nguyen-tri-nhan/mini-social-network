@@ -2,6 +2,7 @@ package com.nhan.minisocial.core.service;
 
 import com.nhan.minisocial.core.entity.Article;
 import com.nhan.minisocial.core.entity.User;
+import com.nhan.minisocial.core.payload.ArticleRequest;
 import com.nhan.minisocial.core.resource.ArticleResource;
 import com.nhan.minisocial.core.resource.UserResource;
 import com.nhan.minisocial.core.security.UserPrincipal;
@@ -30,12 +31,12 @@ public class ArticleResourceService {
         return articleService.save(article);
     }
 
-    public Article toEntity(ArticleResource articleResource, UserPrincipal userPrincipal) {
+    public Article toEntity(ArticleRequest articleRequest, UserPrincipal userPrincipal) {
         Article article = new Article();
         User user = userService.getUser(userPrincipal.getId());
-        article.setId(articleResource.getId());
-        article.setDescription(articleResource.getDescription());
-        article.setImage(articleResource.getImage());
+        article.setId(articleRequest.getId());
+        article.setDescription(articleRequest.getDescription());
+        article.setImage(articleRequest.getImage());
         article.setVisible(true);
         article.setUser(user);
         return article;

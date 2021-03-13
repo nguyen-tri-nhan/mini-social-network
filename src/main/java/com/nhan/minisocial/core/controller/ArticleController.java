@@ -5,6 +5,7 @@ import com.nhan.minisocial.core.api.Api;
 import com.nhan.minisocial.core.entity.Article;
 import com.nhan.minisocial.core.facade.ArticleFacade;
 import com.nhan.minisocial.core.payload.ApiResponse;
+import com.nhan.minisocial.core.payload.ArticleRequest;
 import com.nhan.minisocial.core.resource.ArticleResource;
 import com.nhan.minisocial.core.security.CurrentUser;
 import com.nhan.minisocial.core.security.UserPrincipal;
@@ -24,8 +25,8 @@ public class ArticleController {
     private ArticleFacade articleFacade;
 
     @PostMapping(Api.ArticleApi.POST)
-    public ResponseEntity<?> postArticle(@CurrentUser UserPrincipal user, @Valid @RequestBody ArticleResource articleResource){
-        Article article = articleFacade.createOrUpdate(articleResource, user);
+    public ResponseEntity<?> postArticle(@CurrentUser UserPrincipal user, @Valid @RequestBody ArticleRequest articleRequest){
+        Article article = articleFacade.createOrUpdate(articleRequest, user);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path(Api.ArticleApi.GET)
                 .buildAndExpand(article.getId()).toUri();
