@@ -2,6 +2,7 @@ package com.nhan.minisocial.core.resource;
 
 public class CommentResource extends BaseResource{
     private long id;
+    private long articleId;
     private String description;
     private UserResource user;
 
@@ -11,6 +12,14 @@ public class CommentResource extends BaseResource{
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public long getArticleId() {
+        return articleId;
+    }
+
+    public void setArticleId(long articleId) {
+        this.articleId = articleId;
     }
 
     public String getDescription() {
