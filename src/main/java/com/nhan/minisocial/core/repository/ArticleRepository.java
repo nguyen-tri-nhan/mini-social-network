@@ -14,11 +14,11 @@ import java.util.Optional;
 public interface ArticleRepository extends JpaRepository<Article, Long> {
     Optional<Article> findById(long articleId);
 
-    Page<Article> findByCreatedBy(long userId, Pageable pageable);
+    Page<Article> findArticlesByCreatedBy(long userId, Pageable pageable);
 
-    long findByIdIn(List<Long> articleId);
+    List<Article> findArticlesByCreatedBy(long userid);
 
-    long findByIdIn(List<Long> articleId, Sort sort);
+    long findArticlesByIdIn(List<Long> articleId, Sort sort);
 
     List<Article> findAllByUser(long id);
 }
