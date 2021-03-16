@@ -7,6 +7,7 @@ public class Api {
         public static final String COLLECTION = API + "/articles";
         public static final String POST = COLLECTION + "/POST";
         public static final String GET = COLLECTION + "/{id}";
+        public static final String COMMENT = GET + "/comment";
     }
 
     public static class VoteApi {
