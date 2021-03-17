@@ -6,12 +6,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CommentResourceService {
-    public Comment toEntity() {
+    private Comment toEntity() {
         // TODO: impl here
         return null;
     }
 
-    public CommentResource toResource(Comment comment){
+    private CommentResource toResource(Comment comment){
+        return null;
+    }
+
+    public CommentResource commentAnArticle() {
+
         return null;
     }
 }
