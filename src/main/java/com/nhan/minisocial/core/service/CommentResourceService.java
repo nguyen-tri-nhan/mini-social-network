@@ -1,6 +1,8 @@
 package com.nhan.minisocial.core.service;
 
+import com.nhan.minisocial.core.entity.Article;
 import com.nhan.minisocial.core.entity.Comment;
+import com.nhan.minisocial.core.payload.CommentRequest;
 import com.nhan.minisocial.core.resource.CommentResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,9 +13,16 @@ public class CommentResourceService {
     @Autowired
     private UserResourceService userResourceService;
 
-    private Comment toEntity() {
-        // TODO: impl here
-        return null;
+    @Autowired
+    private ArticleService articleService;
+
+    private Comment toEntity(CommentRequest commentRequest) {
+        Comment comment = new Comment();
+        Article article = articleService.getOne(commentRequest.getArticleId());
+        comment.setId(commentRequest.getId());
+        comment.setArticle(article);
+        comment.setDescription(commentRequest.getDescription());
+        return comment;
     }
 
     private CommentResource toResource(Comment comment){
