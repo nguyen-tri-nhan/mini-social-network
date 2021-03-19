@@ -4,6 +4,7 @@ import com.nhan.minisocial.core.entity.Article;
 import com.nhan.minisocial.core.entity.Comment;
 import com.nhan.minisocial.core.payload.CommentRequest;
 import com.nhan.minisocial.core.resource.CommentResource;
+import com.nhan.minisocial.core.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,8 +35,7 @@ public class CommentResourceService {
         return resource;
     }
 
-    public CommentResource commentAnArticle() {
+    public void commentAnArticle(UserPrincipal user, CommentRequest commentRequest) {
 
-        return null;
     }
 }
