@@ -35,7 +35,7 @@ public class CommentResourceService {
         return resource;
     }
 
-    public void commentAnArticle(UserPrincipal user, CommentRequest commentRequest) {
+    public void commentAnArticle(UserPrincipal user, long articleId, CommentRequest commentRequest) {
 
     }
 }

@@ -13,6 +13,6 @@ public class CommentFacade {
     private CommentResourceService commentResourceService;
 
     public void commentAPost(UserPrincipal user, long articleId, CommentRequest comment) {
-
+        commentResourceService.commentAnArticle(user, articleId, comment);
     }
 }
