@@ -2,6 +2,7 @@ package com.nhan.minisocial.core.service;
 
 import com.nhan.minisocial.core.entity.Article;
 import com.nhan.minisocial.core.entity.Comment;
+import com.nhan.minisocial.core.entity.User;
 import com.nhan.minisocial.core.payload.CommentRequest;
 import com.nhan.minisocial.core.resource.CommentResource;
 import com.nhan.minisocial.core.security.UserPrincipal;
@@ -17,11 +18,15 @@ public class CommentResourceService {
     @Autowired
     private ArticleService articleService;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private CommentService commentService;
+
     private Comment toEntity(CommentRequest commentRequest) {
         Comment comment = new Comment();
-        Article article = articleService.getOne(commentRequest.getArticleId());
         comment.setId(commentRequest.getId());
-        comment.setArticle(article);
         comment.setDescription(commentRequest.getDescription());
         return comment;
     }
@@ -35,7 +40,10 @@ public class CommentResourceService {
         return resource;
     }
 
-    public void commentAnArticle(UserPrincipal user, long articleId, CommentRequest commentRequest) {
-
+    public void commentAnArticle(UserPrincipal currentUser, long articleId, CommentRequest commentRequest) {
+        Comment comment = toEntity(commentRequest);
+        User user = userService.getUser(currentUser.getId());
+        comment.setUser(user);
+        commentService.save(comment);
     }
 }

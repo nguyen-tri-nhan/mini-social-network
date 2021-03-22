@@ -2,7 +2,6 @@ package com.nhan.minisocial.core.payload;
 
 public class CommentRequest {
     private long id;
-    private long articleId;
     private String description;
 
     public long getId() {
@@ -11,14 +10,6 @@ public class CommentRequest {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public long getArticleId() {
-        return articleId;
-    }
-
-    public void setArticleId(long articleId) {
-        this.articleId = articleId;
     }
 
     public String getDescription() {
