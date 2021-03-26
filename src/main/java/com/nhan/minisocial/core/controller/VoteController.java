@@ -17,6 +17,7 @@ public class VoteController {
 
     @PostMapping(Api.VoteApi.VOTE_ARTICLE)
     public void voteArticle(@CurrentUser User user, @PathVariable(name = "postId") long postId){
+//        voteFacade.voteArticle();
     }
 
     @PostMapping(Api.VoteApi.VOTE_COMMENT)
