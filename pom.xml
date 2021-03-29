@@ -14,11 +14,18 @@
     <name>minisocial</name>
     <description>Demo project for Spring Boot and React</description>
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <maven.compiler.useIncrementalCompilation>false</maven.compiler.useIncrementalCompilation>
+        <packaging.type>jar</packaging.type>
         <java.version>1.8</java.version>
         <liquibase-maven-plugin.version>3.6.3</liquibase-maven-plugin.version>
-        <mini.db.driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</mini.db.driver>
+        <mini.db.driver>org.postgresql.Driver</mini.db.driver>
         <mini.db.name>MiniSocial</mini.db.name>
-        <mini.db.url>localhost:1433</mini.db.url>
+        <mini.db.type>postgresql</mini.db.type>
+        <mini.db.url>localhost/MiniSocial</mini.db.url>
+        <mini.db.schema>public</mini.db.schema>
         <mini.db.username>postgres</mini.db.username>
         <mini.db.password>postgres</mini.db.password>
     </properties>
@@ -43,8 +50,8 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>mssql-jdbc</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -94,7 +101,7 @@
                 <version>${liquibase-maven-plugin.version}</version>
                 <configuration>
                     <driver>${mini.db.driver}</driver>
-                    <url>jdbc:sqlserver://${mini.db.url};databaseName=${mini.db.name}</url>
+                    <url>jdbc:${mini.db.type}://${mini.db.url}?currentSchema=${mini.db.schema}</url>
                     <username>${mini.db.username}</username>
                     <password>${mini.db.password}</password>
                     <verbose>true</verbose>

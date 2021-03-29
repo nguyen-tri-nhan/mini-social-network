@@ -8,7 +8,7 @@
 - ### Backend
     - [Spring boot (in studying)](https://spring.io/)
 - ### Database
-    - [MS SQL Server](https://docs.microsoft.com/en-us/sql/sql-server/?view=sql-server-ver15)
+    - [Postgresql](https://www.postgresql.org/docs/)
 - ### Others
     - [Liquibase](https://docs.liquibase.com/home.html)
     - [Docker (in processing)](https://docs.docker.com/)
