@@ -78,6 +78,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .antMatchers(HttpMethod.GET, "/api/minisocial/**", "/api/users/**")
                 .permitAll()
+                .antMatchers("/info")
+                .permitAll()
                 .anyRequest()
                 .authenticated();
 

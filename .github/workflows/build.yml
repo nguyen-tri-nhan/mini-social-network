@@ -30,6 +30,19 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
-      - name: Run build
+      - name: Build jar
         run: |
           mvn clean package
+
+      - name: Run project
+        run: |
+          docker-compose up -d --build
+
+      - name: Waiting for process
+        uses: juliangruber/sleep-action@v1
+        with:
+          time: 30s
+
+      - name: CURL
+        run: |
+          curl http://localhost:8080
