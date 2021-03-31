@@ -36,7 +36,7 @@ jobs:
 
       - name: Run project
         run: |
-          docker-compose up -d --build
+          docker-compose up --build
 
       - name: Waiting for process
         uses: juliangruber/sleep-action@v1
