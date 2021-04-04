@@ -18,6 +18,6 @@ public class CommentService {
     }
 
     public List<Comment> getComments(long articleId){
-        return commentRepository.findCommentsByArticle(articleId);
+        return commentRepository.findByArticleId(articleId);
     }
 }
