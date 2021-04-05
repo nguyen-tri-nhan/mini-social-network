@@ -13,6 +13,8 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
 
     List<Vote> findVotesByArticleId(long articleId);
 
-    long countVotesByArticleIdAndVote(long articleId, byte vote);
+    long countVoteByArticleIdAndVote(long articleId, byte vote);
+
+    long countVotesByArticleId(long articleId);
 
 }

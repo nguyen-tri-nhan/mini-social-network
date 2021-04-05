@@ -15,14 +15,18 @@ public class VoteService {
         return voteRepository.getOne(voteId);
     }
 
-    public long countVoteByArticleId(long id, byte vote){
-        return voteRepository.countVotesByArticleIdAndVote(id, vote);
+    public long countVoteByArticleIdAndVote(long id, byte vote){
+        return voteRepository.countVoteByArticleIdAndVote(id, vote);
     }
 
     public Vote update(long id, byte type) {
         Vote vote = voteRepository.getOne(id);
         vote.setVote(type);
         return voteRepository.save(vote);
+    }
+
+    public long countVoteByArticleId(long id) {
+        return voteRepository.countVotesByArticleId(id);
     }
 
     public Vote save(Vote vote) {
