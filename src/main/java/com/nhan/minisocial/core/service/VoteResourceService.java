@@ -38,4 +38,8 @@ public class VoteResourceService {
         Vote vote = toEntity(voteRequest);
         return voteService.save(vote);
     }
+
+    public long countVote(long articleId ,Byte vote) {
+        return voteService.countVoteByArticleId(articleId, vote);
+    }
 }

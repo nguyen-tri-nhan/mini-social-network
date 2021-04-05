@@ -15,8 +15,8 @@ public class VoteService {
         return voteRepository.getOne(voteId);
     }
 
-    public long countVoteByArticleId(long id){
-        return voteRepository.countVotesByArticleId(id);
+    public long countVoteByArticleId(long id, byte vote){
+        return voteRepository.countVotesByArticleIdAndVote(id, vote);
     }
 
     public Vote update(long id, byte type) {
