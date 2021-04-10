@@ -36,7 +36,7 @@ jobs:
 
       - name: Run project
         run: |
-          docker-compose up --build
+          docker-compose up -d --build
 
       - name: Waiting for process
         uses: juliangruber/sleep-action@v1
@@ -46,3 +46,21 @@ jobs:
       - name: CURL
         run: |
           curl http://localhost:8080
+
+      - name: getLog
+        if: ${{ always() }}
+        run: |
+          docker-compose logs --no-color >> log.txt
+
+      - name: Keep log file in artifact
+        if: ${{ always() }}
+        run: |
+          mkdir logArtifact
+          cp log.txt logArtifact
+
+      - name: Upload log artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: Log
+          path: logArtifact
