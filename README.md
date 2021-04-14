@@ -11,7 +11,7 @@
     - [Postgresql](https://www.postgresql.org/docs/)
 - ### Others
     - [Liquibase](https://docs.liquibase.com/home.html)
-    - [Docker (in processing)](https://docs.docker.com/)
+    - [Docker (in studying)](https://docs.docker.com/)
 
 ## To run project
 ### Database
