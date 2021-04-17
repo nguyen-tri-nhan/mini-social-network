@@ -12,9 +12,18 @@ class Service {
     signup(user) {
         return axios({
             method: 'post',
-
+            url: SIGNUP,
+            data: user,
         }
         )
+    }
+
+    login(username, password) {
+        return axios({
+            method: 'GET',
+            url: LOGIN,
+            data: {username, password},
+        })
     }
 }
 
