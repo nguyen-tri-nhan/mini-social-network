@@ -4,6 +4,7 @@ import com.nhan.minisocial.core.entity.audit.UserDateAudit;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity
 @Table(name = "article")
@@ -23,6 +24,9 @@ public class Article extends UserDateAudit {
 
     @NotNull
     private boolean visible;
+
+    @OneToMany
+    private List<Comment> comments;
 
     public long getId() {
         return id;
@@ -62,5 +66,13 @@ public class Article extends UserDateAudit {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }
