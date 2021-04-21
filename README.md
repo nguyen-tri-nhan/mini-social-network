@@ -15,7 +15,7 @@
 
 ## To run project
 ### Database
-Create a database name `MiniSocial` (preferably), I'll use Liquibase to mirrage column and root data.
+Create a database name `MiniSocial` (preferably).
 ### Backend
 Import project as maven
 Add `application-local.properties` to `src/main/resources` to config database.
