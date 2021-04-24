@@ -26,7 +26,6 @@ spring.datasource.username=<Your database name>
 spring.datasource.password=<Your database password>
 ```
 ### Docker
-Writing...
 [docs](https://www.callicoder.com/spring-boot-spring-security-jwt-mysql-react-app-part-3/)
 
 ## Feel free to contact me
