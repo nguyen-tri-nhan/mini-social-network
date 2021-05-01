@@ -16,16 +16,12 @@ public class Comment extends UserDateAudit {
     @NotBlank
     private String description;
 
-    private Instant commentDate;
-
     private boolean visible;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "article_id")
     private Article article;
 
     public long getId() {
@@ -42,14 +38,6 @@ public class Comment extends UserDateAudit {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Instant getCommentDate() {
-        return commentDate;
-    }
-
-    public void setCommentDate(Instant commentDate) {
-        this.commentDate = commentDate;
     }
 
     public boolean isVisible() {
