@@ -1,12 +1,15 @@
 package com.nhan.minisocial.core.resource;
 
 
+import java.util.List;
+
 public class ArticleResource extends BaseResource {
     private long id;
     private long votes;
     private String description;
     private String image;
     private UserResource user;
+    private List<CommentResource> comments;
 
     public long getId() {
         return id;
@@ -46,5 +49,13 @@ public class ArticleResource extends BaseResource {
 
     public void setVotes(long votes) {
         this.votes = votes;
+    }
+
+    public List<CommentResource> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<CommentResource> comments) {
+        this.comments = comments;
     }
 }
