@@ -28,6 +28,8 @@ public class Article extends UserDateAudit {
     @OneToMany
     private List<Comment> comments;
 
+    private boolean isStatistics;
+
     public long getId() {
         return id;
     }
@@ -74,5 +76,13 @@ public class Article extends UserDateAudit {
 
     public void setComments(List<Comment> comments) {
         this.comments = comments;
+    }
+
+    public boolean isStatistics() {
+        return isStatistics;
+    }
+
+    public void setStatistics(boolean statistics) {
+        isStatistics = statistics;
     }
 }
