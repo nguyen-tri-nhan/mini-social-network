@@ -26,6 +26,12 @@ public class ArticleService {
         return articleRepository.findAllByUser(id);
     }
 
+    public void makeUnstatisticsActicle(Long articleId) {
+        Article article = getOne(articleId);
+        article.setStatistics(false);
+        save(article);
+    }
+
     public Article save(Article entity) {
         return articleRepository.save(entity);
     }
