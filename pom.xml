@@ -28,6 +28,7 @@
         <mini.db.schema>public</mini.db.schema>
         <mini.db.username>postgres</mini.db.username>
         <mini.db.password>postgres</mini.db.password>
+        <powermock.version>2.0.2</powermock.version>
     </properties>
     <dependencies>
         <dependency>
@@ -85,6 +86,18 @@
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito2</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
