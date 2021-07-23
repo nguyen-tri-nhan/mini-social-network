@@ -20,7 +20,6 @@ public class UserPrincipal implements UserDetails {
 
     private String lastname;
 
-    @JsonIgnore
     private String email;
 
     @JsonIgnore

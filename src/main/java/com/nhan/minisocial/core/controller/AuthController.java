@@ -11,7 +11,9 @@ import com.nhan.minisocial.core.payload.LoginRequest;
 import com.nhan.minisocial.core.payload.SignUpRequest;
 import com.nhan.minisocial.core.repository.RoleRepository;
 import com.nhan.minisocial.core.repository.UserRepository;
+import com.nhan.minisocial.core.security.CurrentUser;
 import com.nhan.minisocial.core.security.JwtTokenProvider;
+import com.nhan.minisocial.core.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -94,4 +97,10 @@ public class AuthController {
                 .buildAndExpand(result.getUsername()).toUri();
         return ResponseEntity.created(location).body(new ApiResponse(true, "User registered successfully"));
     }
+
+    @GetMapping("/api/user/getme")
+    public UserPrincipal getMe(@CurrentUser UserPrincipal user) {
+        return user;
+    }
+
 }
