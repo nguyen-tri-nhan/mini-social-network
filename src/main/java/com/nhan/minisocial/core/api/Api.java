@@ -15,4 +15,9 @@ public class Api {
         public static final String VOTE_ARTICLE = COLLECTION + "/{postId}";
         public static final String VOTE_COMMENT = COLLECTION + "/{commentId}";
     }
+
+    public static class User {
+        public static final String USER = API + "/user";
+        public static final String GET_ME = USER + "/getme";
+    }
 }

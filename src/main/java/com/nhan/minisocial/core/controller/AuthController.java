@@ -1,6 +1,7 @@
 package com.nhan.minisocial.core.controller;
 
 
+import com.nhan.minisocial.core.api.Api;
 import com.nhan.minisocial.core.entity.Role;
 import com.nhan.minisocial.core.entity.RoleName;
 import com.nhan.minisocial.core.entity.User;
@@ -98,7 +99,7 @@ public class AuthController {
         return ResponseEntity.created(location).body(new ApiResponse(true, "User registered successfully"));
     }
 
-    @GetMapping("/api/user/getme")
+    @GetMapping(Api.User.GET_ME)
     public UserPrincipal getMe(@CurrentUser UserPrincipal user) {
         return user;
     }
