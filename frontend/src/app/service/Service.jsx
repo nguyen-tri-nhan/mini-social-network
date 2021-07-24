@@ -4,7 +4,7 @@ import { method } from "lodash";
 const API_URL = "http://localhost:8080"
 const API_V1 = `${API_URL}/api`;
 const AUTH = `${API_V1}/auth`;
-const LOGIN = `${API_URL}/login`;
+const LOGIN = `${AUTH}/signin`;
 const SIGNUP = `${AUTH}/signup`;
 class Service {
 
@@ -20,7 +20,7 @@ class Service {
 
     login(username, password) {
         return axios({
-            method: 'GET',
+            method: 'POST',
             url: LOGIN,
             data: {username, password},
         })
