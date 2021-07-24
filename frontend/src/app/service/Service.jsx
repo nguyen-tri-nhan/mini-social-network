@@ -18,11 +18,11 @@ class Service {
         )
     }
 
-    login(username, password) {
+    login(user) {
         return axios({
             method: 'POST',
             url: LOGIN,
-            data: {username, password},
+            data: user,
         })
     }
 }

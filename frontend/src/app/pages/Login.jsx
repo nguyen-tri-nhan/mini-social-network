@@ -15,7 +15,9 @@ export default function Login() {
             usernameOrEmail: values.usernameOrEmail,
             password: values.password
         }
-        console.log(user)
+        Service.login(user).then(({data}) => {
+            console.log(data);
+        })
     }
 
     let { usernameOrEmail, password } = user
