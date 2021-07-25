@@ -12,7 +12,7 @@ public class UserResourceService {
     private UserService userService;
 
 
-    private UserResource toResource(User user){
+    public UserResource toResource(User user){
         UserResource userResource = new UserResource();
         userResource.setId(user.getId());
         userResource.setAvatar(user.getAvatar());

@@ -62,12 +62,12 @@ public class ArticleResourceService {
 
     private ArticleResource toResource(Article article) {
         ArticleResource articleResource = new ArticleResource();
-        UserResource user = userResourceService.getUser(article.getUser().getId());
+        UserResource userResource = userResourceService.toResource(article.getUser());
         long vote = voteService.countVoteByArticleId(article.getId());
         articleResource.setId(article.getId());
         articleResource.setDescription(article.getDescription());
         articleResource.setImage(article.getImage());
-        articleResource.setUser(user);
+        articleResource.setUser(userResource);
         articleResource.setVotes(vote);
         return articleResource;
     }
