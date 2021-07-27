@@ -1,6 +1,7 @@
-import { useState } from "react"
-import { Card, CardHeader, CardBody, Col, Container, Row, CardColumns, CardFooter } from "reactstrap";
-import Service from "../service/Service"
+import { useState } from 'react';
+import { Card, CardHeader, CardBody, Col, Container, Row, CardColumns, CardFooter } from 'reactstrap';
+import Service from '../service/Service'
+import MAuth from '../model/MAuth'
 import { Formik, Form, Field } from "formik";
 
 export default function Login() {
@@ -11,13 +12,7 @@ export default function Login() {
     })
 
     const onSubmit = (values) => {
-        let user = {
-            usernameOrEmail: values.usernameOrEmail,
-            password: values.password
-        }
-        Service.login(user).then(({data}) => {
-            console.log(data);
-        })
+        MAuth.login(values);
     }
 
     let { usernameOrEmail, password } = user

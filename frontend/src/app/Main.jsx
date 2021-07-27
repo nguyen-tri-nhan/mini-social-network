@@ -1,12 +1,14 @@
 import logo from '../../src/logo.svg';
 import Login from "./pages/Login";
 import SignUp from './pages/SignUp';
+import Logout from "./pages/Logout";
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Link
 } from "react-router-dom";
+import MAuth from './model/MAuth';
 
 function Main() {
   return (
@@ -16,6 +18,7 @@ function Main() {
           <Switch>
             <Route path="/login" exact component={Login} />
             <Route path="/signup" exact component={SignUp} />
+            <Route path="/logout" exact component={Logout} />
           </Switch>
         </Router>
       </div>

@@ -6,6 +6,8 @@ const API_V1 = `${API_URL}/api`;
 const AUTH = `${API_V1}/auth`;
 const LOGIN = `${AUTH}/signin`;
 const SIGNUP = `${AUTH}/signup`;
+const USER = `${API_V1}/user`;
+const GET_ME = `${USER}/getme`;
 class Service {
 
 
@@ -23,6 +25,13 @@ class Service {
             method: 'POST',
             url: LOGIN,
             data: user,
+        })
+    }
+
+    getMe() {
+        return axios({
+            method: 'GET',
+            url: GET_ME,
         })
     }
 }
