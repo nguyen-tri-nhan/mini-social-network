@@ -1,5 +1,4 @@
-import axios from "axios";
-import { method } from "lodash";
+import http from './http';
 
 const API_URL = "http://localhost:8080"
 const API_V1 = `${API_URL}/api`;
@@ -8,32 +7,20 @@ const LOGIN = `${AUTH}/signin`;
 const SIGNUP = `${AUTH}/signup`;
 const USER = `${API_V1}/user`;
 const GET_ME = `${USER}/getme`;
-class Service {
+const Service = {
 
 
     signup(user) {
-        return axios({
-            method: 'post',
-            url: SIGNUP,
-            data: user,
-        }
-        )
-    }
+        return http.post(SIGNUP, user);
+    },
 
     login(user) {
-        return axios({
-            method: 'POST',
-            url: LOGIN,
-            data: user,
-        })
-    }
+        return http.post(LOGIN, user);
+    },
 
     getMe() {
-        return axios({
-            method: 'GET',
-            url: GET_ME,
-        })
-    }
+        return http.get(GET_ME);
+    },
 }
 
-export default new Service()
+export default Service;
