@@ -1,11 +1,11 @@
 import axios from "axios";
 import Service from "../service/Service";
 
-class MAuth {
+const MAuth = {
 
   isLoggedIn() {
     return localStorage.getItem("JWT") !== 'undefined';
-  }
+  },
 
   setHeader() {
     const token = localStorage.getItem("JWT");
@@ -14,9 +14,17 @@ class MAuth {
     } else {
       axios.defaults.headers.common.Authorization = `Bearer ${token}`;
     }
-  }
+  },
+
+  logout() {
+    console.log(localStorage.getItem("JWT"));
+    localStorage.setItem("JWT", undefined);
+    this.setHeader();
+    console.log(localStorage.getItem("JWT"));
+  },
 
   login(values) {
+    console.log('axios', axios.defaults.headers.common.Authorization);
     console.log(localStorage.getItem("JWT"));
     let user = {
       usernameOrEmail: values.usernameOrEmail,
@@ -29,7 +37,7 @@ class MAuth {
       this.setHeader();
       this.getMe();
     });
-  }
+  },
 
   getMe() {
     Service.getMe().then(({ data }) => {
@@ -39,4 +47,4 @@ class MAuth {
 
 }
 
-export default new MAuth();
+export default MAuth;
