@@ -1,31 +1,32 @@
 import axios from 'axios';
 import Service from '../service/Service';
+import Cookies from 'cookies-js';
 
 const MAuth = {
 
   isLoggedIn() {
-    return localStorage.getItem("JWT") !== 'undefined';
+    this.setHeader();
+    console.log('set header', axios.defaults.headers.common.Authorization);
+    return axios.defaults.headers.common.Authorization !== 'undefined';
   },
 
   setHeader() {
-    const token = localStorage.getItem("JWT");
-    if (token === null) {
-      axios.defaults.headers.common.Authorization = null;
-    } else {
+    const token = localStorage.getItem("JWT") || Cookies.get("JWT");
+    if (token !== 'undefined') {
       axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+    } else {
+      axios.defaults.headers.common.Authorization = `undefined`;
     }
   },
 
   logout() {
-    console.log(localStorage.getItem("JWT"));
     localStorage.setItem("JWT", undefined);
+    Cookies.set("JWT", undefined);
     this.setHeader();
-    console.log(localStorage.getItem("JWT"));
   },
 
   login(values) {
-    console.log('axios', axios.defaults.headers.common.Authorization);
-    console.log(localStorage.getItem("JWT"));
+    console.log('logged in?',this.isLoggedIn());
     let user = {
       usernameOrEmail: values.usernameOrEmail,
       password: values.password
@@ -34,6 +35,7 @@ const MAuth = {
       console.log(data);
       const { accessToken } = data;
       localStorage.setItem("JWT", accessToken);
+      Cookies.set("JWT", accessToken);
       this.setHeader();
       this.getMe();
     });
@@ -42,7 +44,7 @@ const MAuth = {
   getMe() {
     Service.getMe().then(({ data }) => {
       console.log(data);
-    })
+    });
   }
 
 }
