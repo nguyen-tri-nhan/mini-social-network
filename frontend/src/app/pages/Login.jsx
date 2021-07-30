@@ -15,7 +15,7 @@ export default function Login() {
         MAuth.login(values);
     }
 
-    let { usernameOrEmail, password } = user
+    let { usernameOrEmail, password } = user;
     return (
         <div>
             <Row>

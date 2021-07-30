@@ -31,14 +31,13 @@ const MAuth = {
       usernameOrEmail: values.usernameOrEmail,
       password: values.password
     }
-    Service.login(user).then(({ data }) => {
-      console.log(data);
-      const { accessToken } = data;
-      localStorage.setItem("JWT", accessToken);
-      Cookies.set("JWT", accessToken);
-      this.setHeader();
-      this.getMe();
-    });
+    Service.login(user)
+      .then(({ data }) => {
+        const { accessToken } = data;
+        localStorage.setItem("JWT", accessToken);
+        Cookies.set("JWT", accessToken);
+        this.setHeader();
+      });
   },
 
   getMe() {

@@ -9,7 +9,6 @@ import {
   Route,
   Link
 } from "react-router-dom";
-import MAuth from './model/MAuth';
 import PrivateRoute from './routes/PrivateRoute';
 
 function Main() {
