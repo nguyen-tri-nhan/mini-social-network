@@ -1,5 +1,5 @@
-import axios from "axios";
-import Service from "../service/Service";
+import axios from 'axios';
+import Service from '../service/Service';
 
 const MAuth = {
 
