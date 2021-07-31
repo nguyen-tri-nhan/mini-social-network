@@ -30,7 +30,7 @@ export default function SignUp() {
 
     }
 
-    let { username, firstname, lastname, email, password, avatar } = user
+    let { username, firstname, lastname, email, password } = user;
     return (
         <div>
             <Col>
