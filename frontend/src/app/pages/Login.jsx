@@ -15,7 +15,7 @@ export default function Login() {
 
     const onSubmit = (values) => {
         MAuth.login(values)
-        .then(() => MAuth.isLoggedIn && history.push("/"));
+        .then(() => MAuth.isLoggedIn() && history.push("/"));
     }
 
     let { usernameOrEmail, password } = user;
