@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Card, CardHeader, CardBody, Col, Container, Row, CardColumns, CardFooter } from 'reactstrap';
-import Service from '../service/Service'
+import { Card, CardHeader, CardBody, Col, Row, CardFooter } from 'reactstrap';
 import MAuth from '../model/MAuth'
 import { Formik, Form, Field } from "formik";
+import { useHistory } from 'react-router-dom';
 
 export default function Login() {
+
+    const history = useHistory();
 
     const [user, setUser] = useState({
         usernameOrEmail: '',
@@ -12,7 +14,8 @@ export default function Login() {
     })
 
     const onSubmit = (values) => {
-        MAuth.login(values);
+        MAuth.login(values)
+        .then(() => MAuth.isLoggedIn && history.push("/"));
     }
 
     let { usernameOrEmail, password } = user;

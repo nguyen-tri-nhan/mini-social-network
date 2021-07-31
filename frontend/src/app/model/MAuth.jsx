@@ -1,12 +1,10 @@
 import axios from 'axios';
 import Service from '../service/Service';
 import Cookies from 'cookies-js';
-
 const MAuth = {
 
   isLoggedIn() {
     this.setHeader();
-    console.log('set header', axios.defaults.headers.common.Authorization);
     return axios.defaults.headers.common.Authorization !== 'undefined';
   },
 
@@ -25,8 +23,7 @@ const MAuth = {
     this.setHeader();
   },
 
-  login(values) {
-    console.log('logged in?',this.isLoggedIn());
+  async login(values) {
     let user = {
       usernameOrEmail: values.usernameOrEmail,
       password: values.password
