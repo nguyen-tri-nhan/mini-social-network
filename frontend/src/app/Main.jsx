@@ -9,7 +9,7 @@ import {
   Route,
 } from "react-router-dom";
 import PrivateRoute from './routes/PrivateRoute';
-import PublicRoute from './routes/PublicRoute';
+import UnauthenticatedRoute from './routes/UnauthenticatedRoute';
 
 function Main() {
   return (
@@ -17,8 +17,8 @@ function Main() {
       <div className="container">
         <Router>
           <Switch>
-            <PublicRoute path="/login" exact component={Login} />
-            <PublicRoute path="/signup" exact component={SignUp} />
+            <UnauthenticatedRoute path="/login" exact component={Login} />
+            <UnauthenticatedRoute path="/signup" exact component={SignUp} />
             <Route path="/logout" exact component={Logout} />
             <PrivateRoute path="/" exact component={HomePage} />
           </Switch>
