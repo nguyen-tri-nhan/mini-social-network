@@ -8,7 +8,7 @@ import {
   Switch,
   Route,
 } from "react-router-dom";
-import PrivateRoute from './routes/PrivateRoute';
+import AuthenticatedRoute from './routes/AuthenticatedRoute';
 import UnauthenticatedRoute from './routes/UnauthenticatedRoute';
 
 function Main() {
@@ -20,7 +20,7 @@ function Main() {
             <UnauthenticatedRoute path="/login" exact component={Login} />
             <UnauthenticatedRoute path="/signup" exact component={SignUp} />
             <Route path="/logout" exact component={Logout} />
-            <PrivateRoute path="/" exact component={HomePage} />
+            <AuthenticatedRoute path="/" exact component={HomePage} />
           </Switch>
         </Router>
       </div>
