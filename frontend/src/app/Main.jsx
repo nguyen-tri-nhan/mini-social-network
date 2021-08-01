@@ -7,9 +7,9 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
 } from "react-router-dom";
 import PrivateRoute from './routes/PrivateRoute';
+import PublicRoute from './routes/PublicRoute';
 
 function Main() {
   return (
@@ -17,8 +17,8 @@ function Main() {
       <div className="container">
         <Router>
           <Switch>
-            <Route path="/login" exact component={Login} />
-            <Route path="/signup" exact component={SignUp} />
+            <PublicRoute path="/login" exact component={Login} />
+            <PublicRoute path="/signup" exact component={SignUp} />
             <Route path="/logout" exact component={Logout} />
             <PrivateRoute path="/" exact component={HomePage} />
           </Switch>
