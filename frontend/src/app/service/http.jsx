@@ -18,6 +18,7 @@ const http = {
     return this.send('delete', url, data, params);
   },
 
+  //try to catch error in this param
   send(method, url, data, params) {
     return axios({
       method: method,
