@@ -1,6 +1,19 @@
 version: '3.8'
 services:
-  app:
+
+#  client:
+#    build:
+#      context: .
+#      dockerfile: frontend/Dockerfile
+#    ports:
+#    - 8081:8081
+#    depends_on:
+#      - db
+#      - server
+#    networks:
+#      - minisocial
+
+  server:
     build: .
     ports:
       - 8080:8080
