@@ -1,6 +1,7 @@
 FROM node:10-alpine
 
-WORKDIR /frontend
-ENV PATH="./node_modules/.bin:$PATH"
+WORKDIR /app
+COPY package.json .
+RUN npm install
 COPY . .
 CMD ["npm", "start"]
