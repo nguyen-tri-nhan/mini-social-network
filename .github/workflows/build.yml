@@ -68,7 +68,7 @@ jobs:
 
       - name: CURL
         run: |
-          curl http://localhost:8080
+          curl http://localhost:8081
 #
 #      - name: getLog
 #        if: ${{ always() }}
