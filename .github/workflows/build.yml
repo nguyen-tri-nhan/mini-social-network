@@ -20,6 +20,11 @@ jobs:
         with:
           java-version: 8
 
+      - name: Set up Nodejs
+        uses: actions/setup-node@v2
+        with:
+          node-version: '10'
+
       - name: Cache maven packages
         uses: actions/cache@v2
         with:
@@ -30,9 +35,27 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
+      - name: Cache npm packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          NODE_OPTIONS: "--max-old-space-size=8192"
+        run:
+          set -x
+          npm ci
+          npm run build
+
+
       - name: Build jar
         run: |
-          mvn clean package
+          mvn -Dskip.npm=true -DskipTests=true clean package
 
       - name: Run project
         run: |
