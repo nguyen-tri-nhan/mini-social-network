@@ -5,12 +5,15 @@ services:
     ports:
       - 8080:8080
     environment:
+      MINISOCIAL_DATABASE_HOST: db
       SPRING_DATASOURCE_USERNAME: compose-postgres
       SPRING_DATASOURCE_PASSWORD: compose-postgres
       SPRING_LIQUIDBASE_ENABLED: 'true'
       SPRING_PROFILES_ACTIVE: fixed,override
     depends_on:
       - db
+    networks:
+      - minisocial
 
   db:
     image: 'postgres:12'
@@ -18,3 +21,9 @@ services:
       POSTGRES_USER: compose-postgres
       POSTGRES_PASSWORD: compose-postgres
       POSTGRES_DB: MiniSocial
+    networks:
+      - minisocial
+
+networks:
+  minisocial:
+    driver: bridge
