@@ -21,6 +21,9 @@ const http = {
   //try to catch error in this param
   send(method, url, data, params) {
     return axios({
+      headers: {
+        'Authorization': localStorage.getItem("JWT"),
+      },
       method: method,
       url: url,
       data: data,

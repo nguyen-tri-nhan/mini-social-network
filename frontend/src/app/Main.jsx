@@ -9,12 +9,29 @@ import {
   Route,
 } from "react-router-dom";
 import AuthenticatedRoute from './routes/AuthenticatedRoute';
+import MAuth from './model/MAuth';
 import UnauthenticatedRoute from './routes/UnauthenticatedRoute';
+import { useState, useEffect } from 'react';
+import NavigationBar from './component/NavigationBar';
 
-function Main() {
+
+const Main = () => {
+  const [user, setUser] = useState();
+  /**
+   * this useEffect() is call only 1 like component did mount
+   * tend to use in set user and others.
+   */
+  useEffect(() => {
+    MAuth.getMe().then(({data}) => {
+      setUser(data);
+    });
+  }, []);
+  console.log('user', user);
+
   return (
-    <div className="App">
+    <div className="Main">
       <div className="container">
+        <NavigationBar user={user} />
         <Router>
           <Switch>
             <UnauthenticatedRoute path="/login" exact component={Login} />
