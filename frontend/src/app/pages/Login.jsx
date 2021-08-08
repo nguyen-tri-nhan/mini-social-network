@@ -25,7 +25,7 @@ export default function Login() {
                 <Col>
                     <Card>
                         <CardHeader>
-                            <h3>Login</h3>
+                            <h3>Đăng nhập</h3>
                         </CardHeader>
                         <CardBody>
                             <Formik
@@ -37,19 +37,19 @@ export default function Login() {
                             >
                                 <Form method="post">
                                     <fieldset className="form-group">
-                                        <label htmlFor="usernameOrEmail" >Username or Email </label>
+                                        <label htmlFor="usernameOrEmail" >Tên đăng nhập hoặc email </label>
                                         <Field className="form-control" type="text" name="usernameOrEmail" id="usernameOrEmail" />
                                     </fieldset>
                                     <fieldset className="form-group ">
-                                        <label>Password</label>
+                                        <label>Mật khẩu</label>
                                         <Field className="form-control" type="password" name="password" />
                                     </fieldset>
-                                    <button className="btn btn-primary" type="submit">Login</button>
+                                    <button className="btn btn-primary" type="submit">Đăng nhập</button>
                                 </Form>
                             </Formik>
                         </CardBody>
                         <CardFooter>
-                            <p>Do not have an account yet? <a href="/signup">Register here!</a></p>
+                            <p>Chưa có tài khoản? <a href="/signup">Đăng ký ngay!</a></p>
                         </CardFooter>
                     </Card>
                 </Col>
