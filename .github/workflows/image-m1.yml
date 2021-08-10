@@ -53,17 +53,3 @@ jobs:
           push: true
           tags: ${{ steps.backend.outputs.tags }}
           labels: ${{ steps.backend.outputs.labels }}
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: frontend
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: nguyentrinhan/mini-social-client-m1
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: ./frontend
-          push: true
-          tags: ${{ steps.frontend.outputs.tags }}
-          labels: ${{ steps.frontend.outputs.labels }}
