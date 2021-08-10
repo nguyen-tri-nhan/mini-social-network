@@ -5,15 +5,12 @@ const MAuth = {
 
   isLoggedIn() {
     this.setHeader();
-    return axios.defaults.headers.common.Authorization !== 'undefined';
+    return localStorage.getItem("JWT") !== 'undefined';
   },
 
   setHeader() {
-    const token = localStorage.getItem("JWT") || Cookies.get("JWT");
-    if (token !== 'undefined') {
-      axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-    } else {
-      axios.defaults.headers.common.Authorization = `undefined`;
+    if(Cookies.get("JWT")) {
+      localStorage.setItem("JWT", Cookies.get("JWT"));
     }
   },
 
@@ -31,16 +28,14 @@ const MAuth = {
     Service.login(user)
       .then(({ data }) => {
         const { accessToken } = data;
-        localStorage.setItem("JWT", accessToken);
-        Cookies.set("JWT", accessToken);
+        localStorage.setItem("JWT", `Bearer ${accessToken}`);
+        Cookies.set("JWT", `Bearer ${accessToken}`);
         this.setHeader();
       });
   },
 
   getMe() {
-    Service.getMe().then(({ data }) => {
-      console.log(data);
-    });
+    return Service.getMe();
   }
 
 }

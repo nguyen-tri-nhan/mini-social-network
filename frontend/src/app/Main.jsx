@@ -1,4 +1,3 @@
-import logo from '../../src/logo.svg';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import Logout from './pages/Logout';
@@ -10,17 +9,20 @@ import {
 } from "react-router-dom";
 import AuthenticatedRoute from './routes/AuthenticatedRoute';
 import UnauthenticatedRoute from './routes/UnauthenticatedRoute';
+import RouteConstants from './routes/RouteConstants';
 
-function Main() {
+
+const Main = () => {
+
   return (
-    <div className="App">
+    <div className="Main">
       <div className="container">
         <Router>
           <Switch>
-            <UnauthenticatedRoute path="/login" exact component={Login} />
-            <UnauthenticatedRoute path="/signup" exact component={SignUp} />
-            <Route path="/logout" exact component={Logout} />
-            <AuthenticatedRoute path="/" exact component={HomePage} />
+            <UnauthenticatedRoute path={RouteConstants.login} exact component={Login} />
+            <UnauthenticatedRoute path={RouteConstants.signup} exact component={SignUp} />
+            <Route path={RouteConstants.logout} exact component={Logout} />
+            <AuthenticatedRoute path={RouteConstants.root} exact component={HomePage} />
           </Switch>
         </Router>
       </div>
