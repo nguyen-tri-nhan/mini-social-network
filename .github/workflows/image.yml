@@ -1,7 +1,6 @@
 name: push image
 
 on:
-  pull_request:
   push:
     branches:
       - release
