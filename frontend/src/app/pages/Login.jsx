@@ -37,9 +37,9 @@ export default function Login() {
     }
     return (
         <div>
-            <Row>
-                <Col>
-                    <Card>
+            <Row xl="12" sm="12" xs="12" md="12">
+                <Col xl="12" sm="12" xs="12" md="12">
+                    <Card className="login-card">
                         <CardHeader>
                             <h3>Đăng nhập</h3>
                         </CardHeader>
