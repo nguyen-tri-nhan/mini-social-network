@@ -1,19 +1,18 @@
 import { useState } from 'react';
 import {
-    Card,
-    CardHeader,
-    CardBody,
-    Col,
-    Row,
-    CardFooter,
-    Form,
-    FormGroup,
-    Input,
-    Label,
-    Button
-} from 'reactstrap';
+    Button,
+    Checkbox,
+    Container,
+    CssBaseline,
+    FormControlLabel,
+    Grid,
+    Link,
+    TextField,
+    Typography
+} from '@material-ui/core';
 import MAuth from '../model/MAuth'
 import { useHistory } from 'react-router-dom';
+import RouteConstants from '../routes/RouteConstants';
 
 export default function Login() {
 
@@ -23,9 +22,8 @@ export default function Login() {
     const [password, setPassword] = useState('');
 
     const onSubmit = (e) => {
-        e.preventDefault();
         MAuth.login({usernameOrEmail, password})
-            .then(() => MAuth.isLoggedIn() && history.push("/"));
+            .then(() => history.push("/"));
     }
 
     const onUserNameChange = (e) => {
@@ -37,36 +35,66 @@ export default function Login() {
     }
     return (
         <div>
-            <Row xl="12" sm="12" xs="12" md="12">
-                <Col xl="12" sm="12" xs="12" md="12">
-                    <Card className="login-card">
-                        <CardHeader>
-                            <h3>Đăng nhập</h3>
-                        </CardHeader>
-                        <CardBody>
-                            <Form onSubmit={onSubmit}>
-                                <FormGroup>
-                                    <Input placeholder="Tên đăng nhập hoặc email" 
-                                            name="usernameOrEmail" 
-                                            onChange={onUserNameChange} 
-                                            required/>
-                                </FormGroup>
-                                <FormGroup>
-                                    <Input placeholder="Mật khẩu"
-                                            name="password" 
-                                            type="password"
-                                            onChange={onPasswordChange} 
-                                            required/>
-                                </FormGroup>
-                                <button className="btn btn-primary" type="submit">Đăng nhập</button>
-                            </Form>
-                        </CardBody>
-                        <CardFooter>
-                            <p>Chưa có tài khoản? <a href="/signup">Đăng ký ngay!</a></p>
-                        </CardFooter>
-                    </Card>
-                </Col>
-            </Row>
+            <Container component="main" maxWidth="xs">
+            <CssBaseline/>
+            <div className="login-box">
+                <Typography component="h1" variant="h5">
+                    Đăng nhập
+                </Typography>
+                <form className="login-form" noValidate>
+                    <TextField
+                        onChange={onUserNameChange}
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="username"
+                        label="Tên đăng nhập hoặc email"
+                        name="username"
+                        autoComplete="username"
+                        autoFocus
+                    />
+                    <TextField
+                        onChange={onPasswordChange}
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="password"
+                        label="Mật khẩu"
+                        type="password"
+                        id="password"
+                        autoComplete="current-password"
+                    />
+                    <FormControlLabel
+                        control={<Checkbox value="remember" color="primary"/>}
+                        label="Ghi nhớ tài khoản"
+                    />
+                    <Button
+                        // type="submit"
+                        onClick={onSubmit}
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        className="btn-login"
+                    >
+                        Đăng nhập
+                    </Button>
+                    <Grid container>
+                        <Grid item xs>
+                            <Link href="#" variant="body2">
+                                Quên mật khẩu?
+                            </Link>
+                        </Grid>
+                        <Grid item>
+                            <Link href= {RouteConstants.signup} variant="body2">
+                                {"Chưa có tài khoản? Đăng ký ngay"}
+                            </Link>
+                        </Grid>
+                    </Grid>
+                </form>
+            </div>
+        </Container>
         </div>
     );
 }
