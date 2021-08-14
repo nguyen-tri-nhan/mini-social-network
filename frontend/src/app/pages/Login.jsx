@@ -46,12 +46,17 @@ export default function Login() {
                         <CardBody>
                             <Form onSubmit={onSubmit}>
                                 <FormGroup>
-                                    <Label for="usernameOrEmail">Tên đăng nhập hoặc email</Label>
-                                    <Input name="usernameOrEmail" onChange={onUserNameChange}/>
+                                    <Input placeholder="Tên đăng nhập hoặc email" 
+                                            name="usernameOrEmail" 
+                                            onChange={onUserNameChange} 
+                                            required/>
                                 </FormGroup>
                                 <FormGroup>
-                                    <Label for="password">Mật khẩu</Label>
-                                    <Input name="password" type="password"onChange={onPasswordChange}/>
+                                    <Input placeholder="Mật khẩu"
+                                            name="password" 
+                                            type="password"
+                                            onChange={onPasswordChange} 
+                                            required/>
                                 </FormGroup>
                                 <button className="btn btn-primary" type="submit">Đăng nhập</button>
                             </Form>
