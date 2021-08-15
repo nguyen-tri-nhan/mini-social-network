@@ -18,6 +18,7 @@
 Create a database name `MiniSocial` (preferably).
 ### Backend
 Import project as maven
+
 Add `application-local.properties` to `src/main/resources` to config database.
 ```
 minisocial.database.host=localhost
@@ -26,7 +27,19 @@ spring.datasource.username=<Your database name>
 spring.datasource.password=<Your database password>
 ```
 ### Docker
-[docs](https://www.callicoder.com/spring-boot-spring-security-jwt-mysql-react-app-part-3/)
+[Docs](https://www.callicoder.com/spring-boot-spring-security-jwt-mysql-react-app-part-3/)
+
+To run project with this code
+- `git clone https://github.com/nguyen-tri-nhan/mini-social-network.git`
+- `docker-compose up -d --build`
+
+To run by release
+- reference to [docker-compose.yml](/docker-compose.yml)
+- replace build step in server by `nguyentrinhan/mini-social-server:release`
+- replace build step in client by `nguyentrinhan/mini-social-client:release`
+
+
+
 
 ## Feel free to contact me
 <p align="center">
