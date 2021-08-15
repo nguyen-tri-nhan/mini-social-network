@@ -20,12 +20,12 @@ const MAuth = {
     this.setHeader();
   },
 
-  async login(values) {
+  async login(values, errorHandler) {
     let user = {
       usernameOrEmail: values.usernameOrEmail,
       password: values.password
     }
-    Service.login(user)
+    Service.login(user, errorHandler)
       .then(({ data }) => {
         const { accessToken } = data;
         localStorage.setItem("JWT", `Bearer ${accessToken}`);

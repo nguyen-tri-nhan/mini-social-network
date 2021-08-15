@@ -20,11 +20,25 @@ export default function Login() {
 
 	const [usernameOrEmail, setUsernameOrEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const [loginError, setLoginError] = useState(false);
+
+	const onLoginError = () => {
+		setLoginError(true);
+	}
 
 	const onSubmit = (e) => {
-		MAuth.login({ usernameOrEmail, password })
+		MAuth.login({ usernameOrEmail, password }, onLoginError)
 			.then(() => MAuth.isLoggedIn() && history.push("/"));
 	}
+
+	const renderLoginError = (show) => {
+		return (
+			show &&
+			<Grid item xs>
+				<Typography>Tài khoản hoặc mật khẩu không đúng</Typography>
+			</Grid>
+		);
+	};
 
 	const onUserNameChange = (e) => {
 		setUsernameOrEmail(e.target.value);
@@ -80,6 +94,9 @@ export default function Login() {
 						>
 							Đăng nhập
 						</Button>
+						<Grid container>
+							{renderLoginError(loginError)}
+						</Grid>
 						<Grid container>
 							<Grid item xs>
 								<Link href="#" variant="body2">

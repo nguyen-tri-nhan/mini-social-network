@@ -14,8 +14,8 @@ const Service = {
         return http.post(SIGNUP, user);
     },
 
-    login(user) {
-        return http.post(LOGIN, user);
+    login(user, errorHandler) {
+        return http.post(LOGIN, user, null, errorHandler);
     },
 
     getMe() {
