@@ -19,8 +19,8 @@ const http = {
   },
 
   //try to catch error in this param
-  send(method, url, data, params) {
-    return axios({
+  send(method, url, data, params, errorHandler) {
+    let config = {
       headers: {
         'Authorization': localStorage.getItem("JWT"),
       },
@@ -28,7 +28,18 @@ const http = {
       url: url,
       data: data,
       params: params,
-    });
+    };
+    return new Promise((resolve, reject) => {
+      axios(config)
+        .then((response) => resolve(response))
+        .catch((error) => {
+          if (errorHandler) {
+            errorHandler();
+          } else {
+            console.log(error);
+          }
+        });
+    })
   }
 }
 
