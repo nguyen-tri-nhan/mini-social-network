@@ -2,20 +2,20 @@ import axios from 'axios';
 
 const http = {
 
-  get(url, data, params) {
-    return this.send('get', url, data, params);
+  get(url, data, params, errorHandler) {
+    return this.send('get', url, data, params, errorHandler);
   },
 
-  post(url, data, params) {
-    return this.send('post', url, data, params);
+  post(url, data, params, errorHandler) {
+    return this.send('post', url, data, params, errorHandler);
   },
 
-  put(url, data, params) {
-    return this.send('put', url, data, params);
+  put(url, data, params, errorHandler) {
+    return this.send('put', url, data, params, errorHandler);
   },
 
-  delete(url, data, params) {
-    return this.send('delete', url, data, params);
+  delete(url, data, params, errorHandler) {
+    return this.send('delete', url, data, params, errorHandler);
   },
 
   //try to catch error in this param
