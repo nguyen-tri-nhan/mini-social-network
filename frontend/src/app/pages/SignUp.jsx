@@ -15,14 +15,8 @@ import Service from "../service/Service"
 
 export default function SignUp() {
 
-	const [user, setUser] = useState({
-		username: '',
-		firstname: '',
-		lastname: '',
-		email: '',
-		password: '',
-		avatar: 'default.jpg',
-	});
+	document.title = 'Đăng ký';
+
 
 	const [username, setUsername] = useState('');
 	const [firstname, setFirstname] = useState('');

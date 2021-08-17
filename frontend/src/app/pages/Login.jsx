@@ -16,6 +16,8 @@ import RouteConstants from '../routes/RouteConstants';
 
 export default function Login() {
 
+	document.title = 'Đăng nhập';
+
 	const history = useHistory();
 
 	const [usernameOrEmail, setUsernameOrEmail] = useState('');
