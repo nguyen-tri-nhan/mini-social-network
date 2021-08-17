@@ -20,8 +20,6 @@ services:
       MINISOCIAL_DATABASE_HOST: db
       SPRING_DATASOURCE_USERNAME: compose-postgres
       SPRING_DATASOURCE_PASSWORD: compose-postgres
-      SPRING_LIQUIDBASE_ENABLED: 'true'
-      SPRING_PROFILES_ACTIVE: fixed,override
     depends_on:
       - db
     networks:
