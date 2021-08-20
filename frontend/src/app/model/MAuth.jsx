@@ -1,4 +1,3 @@
-import axios from 'axios';
 import Service from '../service/Service';
 import Cookies from 'cookies-js';
 const MAuth = {
