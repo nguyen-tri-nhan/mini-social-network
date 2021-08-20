@@ -14,7 +14,7 @@ import MAuth from '../model/MAuth'
 import { useHistory } from 'react-router-dom';
 import RouteConstants from '../routes/RouteConstants';
 
-export default function Login() {
+const Login = () => {
 
 	document.title = 'Đăng nhập';
 
@@ -117,3 +117,5 @@ export default function Login() {
 		</div>
 	);
 }
+
+export default Login;

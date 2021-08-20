@@ -13,7 +13,7 @@ import {
 } from '@material-ui/core';
 import Service from "../service/Service"
 
-export default function SignUp() {
+const SignUp = () => {
 
 	document.title = 'Đăng ký';
 
@@ -172,3 +172,5 @@ export default function SignUp() {
 		</div>
 	)
 }
+
+export default SignUp;
