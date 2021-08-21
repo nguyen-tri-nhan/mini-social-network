@@ -80,7 +80,7 @@ const RightNavbarMenu = () => {
                   <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
                     <MenuItem onClick={handleClose}>Profile</MenuItem>
                     <MenuItem onClick={handleClose}>My account</MenuItem>
-                    <MenuItem onClick={onLogoutClick}>Logout</MenuItem>
+                    <MenuItem onClick={onLogoutClick}><ExitToApp /> Logout</MenuItem>
                   </MenuList>
                 </ClickAwayListener>
               </Paper>
