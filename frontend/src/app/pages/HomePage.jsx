@@ -1,12 +1,13 @@
 import React from 'react';
+import CreateArticleForm from '../component/CreateArticleForm';
 
 const HomePage = (props) => {
   document.title = 'Trang chủ';
-  return(
+  return (
     <>
-    <div>
-      <h1>hello world</h1>
-    </div>
+      <div className="container">
+        <CreateArticleForm />
+      </div>
     </>
   );
 }
