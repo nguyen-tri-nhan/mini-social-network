@@ -1,0 +1,20 @@
+.nav-bar {
+  flex-grow: 1;
+}
+
+.tool-bar {
+  display: flex;
+  flex-direction: row;
+}
+
+.logo {
+  flex-basis: 15%;
+}
+
+.search-bar {
+  flex-basis: 80%;
+}
+
+.navbar-menu-btn {
+  color: white;
+}

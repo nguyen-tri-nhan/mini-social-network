@@ -6,21 +6,21 @@ import {
   CssBaseline,
   IconButton
 } from '@material-ui/core';
-import { ExitToApp } from '@material-ui/icons';
+import { ExitToApp, Notifications } from '@material-ui/icons';
 import HideOnScroll from './HideOnScroll';
-import { Button } from 'reactstrap';
+import RightNavbarMenu from './RightNavbarMenu';
+
 
 const renderNavbar = (user, ...props) => {
   return (
     <div className='nav-bar'>
-      <CssBaseline />
       <HideOnScroll {...props}>
         <AppBar>
-          <Toolbar>
-            <Typography variant="h6">{user.fullname}</Typography>
-            {/* <IconButton color={"inherit"} size={"small"}>
-              <ExitToApp />
-            </IconButton> */}
+          <Toolbar className="tool-bar">
+            <Typography variant="h6" className="logo">{user.fullname}</Typography>
+            <Typography variant="h6" className="search-bar">Search bar</Typography>
+            <Notifications />
+            <RightNavbarMenu className="right-menu"/>
           </Toolbar>
         </AppBar>
       </HideOnScroll>
@@ -32,7 +32,6 @@ const renderNavbar = (user, ...props) => {
 const renderLoading = (...props) => {
   return (
     <div className='nav-bar'>
-      <CssBaseline />
       <HideOnScroll {...props}>
         <AppBar>
           <Toolbar>
