@@ -1,23 +1,3 @@
-// import Button from '@material-ui/core/Button';
-
-// const NavigationBar = ({ user }) => {
-//   return (
-//     <div className="nav-bar">
-//       {user ? (
-//         <div>
-//           hello {user.fullname}
-//         </div>
-//       ) : (
-//         <div>
-//           loading
-//         </div>
-//       )}
-//     </div>
-//   )
-// }
-
-// export default NavigationBar;
-
 import React from 'react';
 import {
   AppBar,
@@ -38,9 +18,9 @@ const renderNavbar = (user, ...props) => {
         <AppBar>
           <Toolbar>
             <Typography variant="h6">{user.fullname}</Typography>
-            <IconButton color={"inherit"} size={"small"}>
+            {/* <IconButton color={"inherit"} size={"small"}>
               <ExitToApp />
-            </IconButton>
+            </IconButton> */}
           </Toolbar>
         </AppBar>
       </HideOnScroll>
