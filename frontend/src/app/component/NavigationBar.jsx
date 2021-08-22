@@ -6,9 +6,9 @@ import {
   CssBaseline,
   IconButton
 } from '@material-ui/core';
-import { ExitToApp, Notifications } from '@material-ui/icons';
 import HideOnScroll from './HideOnScroll';
 import RightNavbarMenu from './RightNavbarMenu';
+import Notification from './Notification';
 
 
 const renderNavbar = (user, ...props) => {
@@ -19,7 +19,7 @@ const renderNavbar = (user, ...props) => {
           <Toolbar className="tool-bar">
             <Typography variant="h6" className="logo">{user.fullname}</Typography>
             <Typography variant="h6" className="search-bar">Search bar</Typography>
-            <Notifications />
+            <Notification />
             <RightNavbarMenu className="right-menu"/>
           </Toolbar>
         </AppBar>

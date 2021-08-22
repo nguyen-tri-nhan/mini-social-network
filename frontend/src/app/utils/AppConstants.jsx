@@ -1,6 +1,8 @@
 export const Product = {
   NAME: 'Mini Social Network',
   OWNER: 'Nguyễn Trí Nhân',
+  FACEBOOK: 'https://www.facebook.com/nguyentrinhan.dev/',
+  GITHUB: 'https://github.com/nguyen-tri-nhan',
 }
 
 export const Regex = {
