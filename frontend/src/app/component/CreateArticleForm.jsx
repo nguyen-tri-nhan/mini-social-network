@@ -1,17 +1,18 @@
 import { useState } from "react";
 import {
   TextField,
-  TextareaAutosize,
   Dialog,
   DialogActions,
   DialogContent,
   Button,
 } from '@material-ui/core';
+import { Camera, Image } from '@material-ui/icons';
 const CreateArticleForm = (props) => {
 
   const [outerInput, setOuterInput] = useState();
   const [openDialog, setOpenDialog] = useState(false);
-  const [image, setImage] = useState();
+  const [image, setImage] = useState('');
+  const [imageFile, setImageFile] = useState();
 
   const onCreateArticleOpenDialog = () => {
     setOpenDialog(true);
@@ -30,6 +31,8 @@ const CreateArticleForm = (props) => {
     if (e.target.files && e.target.files[0]) {
       let img = e.target.files[0];
       setImage(URL.createObjectURL(img));
+      setImageFile(img);
+      console.log(img);
     }
   }
 
@@ -54,7 +57,13 @@ const CreateArticleForm = (props) => {
               onChange={onArticleTextAreaChange}
             />
             {image && <img alt="temporary" src={image} />}
-            <input type="file" accept="image/*" onChange={onInputImageChange} />
+            <label htmlFor="input-image" className="input-img-label"><Image /></label>
+            <input
+              id="input-image"
+              style={{display:'none'}}
+              type="file"
+              accept="image/*"
+              onChange={onInputImageChange} />
           </div>
         </DialogContent>
         <DialogActions>
