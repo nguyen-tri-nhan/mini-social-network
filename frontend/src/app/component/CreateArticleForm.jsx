@@ -32,8 +32,13 @@ const CreateArticleForm = (props) => {
       let img = e.target.files[0];
       setImage(URL.createObjectURL(img));
       setImageFile(img);
-      console.log(img);
     }
+  }
+
+  const onImageDeleting = (e) => {
+    e.target.files = '';
+    setImage('');
+    setImageFile('');
   }
 
   return (
@@ -60,13 +65,22 @@ const CreateArticleForm = (props) => {
             <label htmlFor="input-image" className="input-img-label"><Image /></label>
             <input
               id="input-image"
-              style={{display:'none'}}
+              style={{ display: 'none' }}
               type="file"
               accept="image/*"
               onChange={onInputImageChange} />
           </div>
         </DialogContent>
         <DialogActions>
+          <Button color="primary">
+            Đăng bài
+          </Button>
+          {
+            image &&
+            <Button onClick={onImageDeleting}>
+              Xoá ảnh
+            </Button>
+          }
           <Button onClick={onCreateArticleCloseDialog}>
             Huỷ
           </Button>
