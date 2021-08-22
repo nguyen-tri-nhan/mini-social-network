@@ -11,6 +11,7 @@ const CreateArticleForm = (props) => {
 
   const [outerInput, setOuterInput] = useState();
   const [openDialog, setOpenDialog] = useState(false);
+  const [image, setImage] = useState();
 
   const onCreateArticleOpenDialog = () => {
     setOpenDialog(true);
@@ -23,6 +24,13 @@ const CreateArticleForm = (props) => {
   const onArticleTextAreaChange = (e) => {
     const value = e.target.value;
     setOuterInput(value);
+  }
+
+  const onInputImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      let img = e.target.files[0];
+      setImage(URL.createObjectURL(img));
+    }
   }
 
   return (
@@ -45,6 +53,8 @@ const CreateArticleForm = (props) => {
               rows="7"
               onChange={onArticleTextAreaChange}
             />
+            {image && <img alt="temporary" src={image} />}
+            <input type="file" accept="image/*" onChange={onInputImageChange} />
           </div>
         </DialogContent>
         <DialogActions>
