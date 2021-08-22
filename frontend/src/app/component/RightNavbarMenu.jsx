@@ -7,7 +7,7 @@ import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import { makeStyles } from '@material-ui/core/styles';
-import { ExitToApp, Menu } from '@material-ui/icons';
+import { ExitToApp, ArrowDropDown } from '@material-ui/icons';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -67,7 +67,7 @@ const RightNavbarMenu = () => {
           aria-haspopup="true"
           onClick={handleToggle}
         >
-          <Menu className="navbar-menu-btn"/>
+          <ArrowDropDown className="navbar-menu-btn"/>
         </Button>
         <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
           {({ TransitionProps, placement }) => (
