@@ -9,6 +9,10 @@
     - [Spring boot (in studying)](https://spring.io/)
 - ### Database
     - [Postgresql](https://www.postgresql.org/docs/)
+  
+- ### Image storage
+    - [Imgur](https://apidocs.imgur.com/)
+
 - ### Others
     - [Liquibase](https://docs.liquibase.com/home.html)
     - [Docker](https://docs.docker.com/)
