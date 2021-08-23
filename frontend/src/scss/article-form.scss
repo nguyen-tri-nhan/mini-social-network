@@ -9,3 +9,34 @@
   }
 
 }
+
+.preview-image-uploading-component {
+  position: relative;
+  width: 50%;
+
+  .preview-image {
+    width: 100%;
+    height: auto;
+  }
+
+  .delete-image-button {
+    position: absolute;
+    top: 2%;
+    left: 95%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    background-color: transparent;
+    color: black;
+    font-size: 0.2rem;
+    padding: 0.1rem 0.2rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 1px;
+  }
+
+  .delete-image-button:hover {
+    opacity: 1;
+    color: white;
+    background-color: black;
+  }
+}

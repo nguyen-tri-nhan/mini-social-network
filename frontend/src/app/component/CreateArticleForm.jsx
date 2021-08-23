@@ -6,7 +6,7 @@ import {
   DialogContent,
   Button,
 } from '@material-ui/core';
-import { Camera, Image } from '@material-ui/icons';
+import { Camera, Image, Close } from '@material-ui/icons';
 const CreateArticleForm = (props) => {
 
   const [outerInput, setOuterInput] = useState();
@@ -61,14 +61,25 @@ const CreateArticleForm = (props) => {
               rows="7"
               onChange={onArticleTextAreaChange}
             />
-            {image && <img alt="temporary" src={image} />}
-            <label htmlFor="input-image" className="input-img-label"><Image /></label>
-            <input
-              id="input-image"
-              style={{ display: 'none' }}
-              type="file"
-              accept="image/*"
-              onChange={onInputImageChange} />
+            {image &&
+              <div className="preview-image-uploading-component">
+                <img className="preview-image" alt="temporary" src={image} />
+                <button className="delete-image-button" onClick={onImageDeleting}>
+                  <Close />
+                </button>
+              </div>
+            }
+            {!image &&
+              <div>
+                <label htmlFor="input-image" className="input-img-label"><Image /></label>
+                <input
+                  id="input-image"
+                  style={{ display: 'none' }}
+                  type="file"
+                  accept="image/*"
+                  onChange={onInputImageChange} />
+              </div>
+            }
           </div>
         </DialogContent>
         <DialogActions>
