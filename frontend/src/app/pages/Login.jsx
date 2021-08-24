@@ -11,15 +11,12 @@ import {
 	Typography
 } from '@material-ui/core';
 import MAuth from '../model/MAuth'
-import { useHistory } from 'react-router-dom';
 import RouteConstants from '../routes/RouteConstants';
-import { sleep } from '../utils/TimeUtils';
 
 const Login = () => {
 
 	document.title = 'Đăng nhập';
 
-	const history = useHistory();
 
 	const [usernameOrEmail, setUsernameOrEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -31,8 +28,6 @@ const Login = () => {
 
 	const onSubmit = (e) => {
 		MAuth.login({ usernameOrEmail, password }, onLoginError);
-		sleep(1000);
-		history.push("/");
 	}
 
 	const renderLoginError = (show) => {

@@ -1,5 +1,7 @@
 import Service from '../service/Service';
 import Cookies from 'cookies-js';
+import { goTo } from '../utils/RouteUtils';
+
 const MAuth = {
 
   isLoggedIn() {
@@ -29,7 +31,10 @@ const MAuth = {
         const { accessToken } = data;
         localStorage.setItem("JWT", `Bearer ${accessToken}`);
         Cookies.set("JWT", `Bearer ${accessToken}`);
-        this.setHeader();
+        const isLoggedIn = MAuth.isLoggedIn();
+        if (isLoggedIn) {
+          goTo("/");
+        }
       });
   },
 
