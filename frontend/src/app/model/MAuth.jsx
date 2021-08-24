@@ -19,7 +19,7 @@ const MAuth = {
     this.setHeader();
   },
 
-  async login(values, errorHandler) {
+  login(values, errorHandler) {
     let user = {
       usernameOrEmail: values.usernameOrEmail,
       password: values.password

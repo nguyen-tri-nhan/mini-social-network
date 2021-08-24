@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
 	Button,
 	Checkbox,
@@ -13,6 +13,7 @@ import {
 import MAuth from '../model/MAuth'
 import { useHistory } from 'react-router-dom';
 import RouteConstants from '../routes/RouteConstants';
+import { sleep } from '../utils/TimeUtils';
 
 const Login = () => {
 
@@ -29,8 +30,9 @@ const Login = () => {
 	}
 
 	const onSubmit = (e) => {
-		MAuth.login({ usernameOrEmail, password }, onLoginError)
-			.then(() => MAuth.isLoggedIn() && history.push("/"));
+		MAuth.login({ usernameOrEmail, password }, onLoginError);
+		sleep(1000);
+		history.push("/");
 	}
 
 	const renderLoginError = (show) => {

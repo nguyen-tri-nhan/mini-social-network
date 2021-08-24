@@ -58,7 +58,7 @@ const SignUp = () => {
 			email,
 			password,
 		};
-		Service.signup(user);
+		Service.signup(user).then(a => console.log(a));
 	}
 
 	return (
