@@ -7,6 +7,7 @@ import {
   Button,
 } from '@material-ui/core';
 import { Camera, Image, Close } from '@material-ui/icons';
+import ImgurHelper from '../helper/ImgurHelper';
 const CreateArticleForm = (props) => {
 
   const [outerInput, setOuterInput] = useState();
@@ -39,6 +40,12 @@ const CreateArticleForm = (props) => {
     e.target.files = '';
     setImage('');
     setImageFile('');
+  }
+
+  const onUploadImageClick = () => {
+    console.log(outerInput);
+    console.log(imageFile);
+    ImgurHelper.uploadImage(imageFile).then((response) => console.log(response));
   }
 
   return (
@@ -83,7 +90,7 @@ const CreateArticleForm = (props) => {
           </div>
         </DialogContent>
         <DialogActions>
-          <Button color="primary">
+          <Button color="primary" onClick={onUploadImageClick}>
             Đăng bài
           </Button>
           {
