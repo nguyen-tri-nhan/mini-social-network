@@ -1,12 +1,11 @@
 import axios from 'axios';
-import dotenv from 'dotenv';
 
-const apiKey = process.env.IMGUR_APIKEY;
+const apiKey = process.env.REACT_APP_SECRET_NAME;
 
-const ImgurHelper = () => {
-  const uploadImage = (image) => {
+const ImgurHelper = {
+  uploadImage(image) {
     console.log(apiKey);
-  }
+  },
 }
 
 export default ImgurHelper;
