@@ -10,14 +10,14 @@ import { Image, Close } from '@material-ui/icons';
 import ImgurHelper from '../helper/ImgurHelper';
 import { toBase64 } from '../helper/ImageHelper';
 import { Regex } from '../utils/AppConstants';
+import Service from '../service/Service';
 
 const CreateArticleForm = (props) => {
 
   const [outerInput, setOuterInput] = useState();
   const [openDialog, setOpenDialog] = useState(false);
-  const [image, setImage] = useState('');
+  const [imageOutput, setImageOutput] = useState('');
   const [imageBase64, setImageBase64] = useState();
-  const [imageFile, setImageFile] = useState();
 
   const onCreateArticleOpenDialog = () => {
     setOpenDialog(true);
@@ -35,23 +35,30 @@ const CreateArticleForm = (props) => {
   const onInputImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       let img = e.target.files[0];
-      setImage(URL.createObjectURL(img));
-      setImageFile(img);
+      setImageOutput(URL.createObjectURL(img));
       toBase64(img).then((result) => setImageBase64(result.replace(Regex.IMAGE, '')));
     }
   }
 
   const onImageDeleting = (e) => {
     e.target.files = '';
-    setImage('');
-    setImageFile('');
+    setImageOutput('');
     setImageBase64('');
   }
 
   const onUploadImageClick = () => {
-    console.log(outerInput);
-    console.log(imageFile);
-    ImgurHelper.uploadImage(imageBase64).then((response) => console.log(response));
+    ImgurHelper.uploadImage(imageBase64)
+      .then(({ data }) => {
+        return data?.data.link;
+      })
+      .then((link) => {
+        const article = {
+          id: -1,
+          description: outerInput,
+          image: link
+        }
+        Service.createArticle(article);
+      })
   }
 
   return (
@@ -74,15 +81,15 @@ const CreateArticleForm = (props) => {
               rows="7"
               onChange={onArticleTextAreaChange}
             />
-            {image &&
+            {imageOutput &&
               <div className="preview-image-uploading-component">
-                <img className="preview-image" alt="temporary" src={image} />
+                <img className="preview-image" alt="temporary" src={imageOutput} />
                 <button className="delete-image-button" onClick={onImageDeleting}>
                   <Close />
                 </button>
               </div>
             }
-            {!image &&
+            {!imageOutput &&
               <div>
                 <label htmlFor="input-image" className="input-img-label"><Image /></label>
                 <input
@@ -100,7 +107,7 @@ const CreateArticleForm = (props) => {
             Đăng bài
           </Button>
           {
-            image &&
+            imageOutput &&
             <Button onClick={onImageDeleting}>
               Xoá ảnh
             </Button>
