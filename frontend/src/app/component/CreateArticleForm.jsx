@@ -9,11 +9,14 @@ import {
 import { Image, Close } from '@material-ui/icons';
 import ImgurHelper from '../helper/ImgurHelper';
 import { toBase64 } from '../helper/ImageHelper';
+import { Regex } from '../utils/AppConstants';
+
 const CreateArticleForm = (props) => {
 
   const [outerInput, setOuterInput] = useState();
   const [openDialog, setOpenDialog] = useState(false);
   const [image, setImage] = useState('');
+  const [imageBase64, setImageBase64] = useState();
   const [imageFile, setImageFile] = useState();
 
   const onCreateArticleOpenDialog = () => {
@@ -34,6 +37,7 @@ const CreateArticleForm = (props) => {
       let img = e.target.files[0];
       setImage(URL.createObjectURL(img));
       setImageFile(img);
+      toBase64(img).then((result) => setImageBase64(result.replace(Regex.IMAGE, '')));
     }
   }
 
@@ -41,12 +45,13 @@ const CreateArticleForm = (props) => {
     e.target.files = '';
     setImage('');
     setImageFile('');
+    setImageBase64('');
   }
 
   const onUploadImageClick = () => {
     console.log(outerInput);
     console.log(imageFile);
-    ImgurHelper.uploadImage(imageFile).then((response) => console.log(response));
+    ImgurHelper.uploadImage(imageBase64).then((response) => console.log(response));
   }
 
   return (
