@@ -6,8 +6,9 @@ import {
   DialogContent,
   Button,
 } from '@material-ui/core';
-import { Camera, Image, Close } from '@material-ui/icons';
+import { Image, Close } from '@material-ui/icons';
 import ImgurHelper from '../helper/ImgurHelper';
+import { toBase64 } from '../helper/ImageHelper';
 const CreateArticleForm = (props) => {
 
   const [outerInput, setOuterInput] = useState();
