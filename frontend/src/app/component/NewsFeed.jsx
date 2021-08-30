@@ -1,3 +1,4 @@
+import { Typography } from "@material-ui/core";
 import { useState } from "react";
 import { useEffect } from "react";
 import Service from "../service/Service";
@@ -19,27 +20,20 @@ const NewsFeed = (props) => {
   }, []);
 
   const renderArticles = (articles) => {
-    articles.map((article, index) => {
-      console.log(article);
-      return (
-        <div>
-          {article.description}
-        </div>
-      )
+    return articles.map((article) => {
+      return renderArticle(article);
     });
   }
 
   const renderArticle = (article) => {
     return (
-      <div>
-        {article.description}
-      </div>
+      <Article article={article} />
     );
   };
 
   return (
     <div className="new-feed">
-      <h1>this is new feed</h1>
+      <Typography>Bảng tin</Typography>
       {isReady && renderArticles(articles)}
     </div>
   )

@@ -1,5 +1,4 @@
 
-
 const Article = (props) => {
   const {article} = props;
   return (
