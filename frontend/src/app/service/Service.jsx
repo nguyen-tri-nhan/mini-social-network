@@ -28,6 +28,10 @@ const Service = {
     createArticle(article) {
         return http.post(POST_ARTICLE, article);
     },
+
+    getArticle() {
+        return http.get(ARTICLES);
+    }
 }
 
 export default Service;
