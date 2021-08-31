@@ -3,6 +3,7 @@ package com.nhan.minisocial.core.service;
 import com.nhan.minisocial.core.entity.Article;
 import com.nhan.minisocial.core.repository.ArticleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public class ArticleService {
 
 
     public List<Article> getAll() {
-        return articleRepository.findAll();
+        return articleRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
     public Article getOne(long id) {

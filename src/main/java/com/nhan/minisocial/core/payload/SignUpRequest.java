@@ -27,7 +27,7 @@ public class SignUpRequest {
     @Size(min = 8, max = 20)
     private String password;
 
-    private String avatar = "default.jpg";
+    private String avatar = "https://i.imgur.com/AaekGPQ.gif";
 
     public String getFirstname() {
         return firstname;

@@ -1,6 +1,7 @@
 package com.nhan.minisocial.core.resource;
 
 
+import java.time.Instant;
 import java.util.List;
 
 public class ArticleResource extends BaseResource {
@@ -10,6 +11,7 @@ public class ArticleResource extends BaseResource {
     private String image;
     private UserResource user;
     private List<CommentResource> comments;
+    private Instant createAt;
 
     public long getId() {
         return id;
@@ -57,5 +59,13 @@ public class ArticleResource extends BaseResource {
 
     public void setComments(List<CommentResource> comments) {
         this.comments = comments;
+    }
+
+    public Instant getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(Instant createAt) {
+        this.createAt = createAt;
     }
 }

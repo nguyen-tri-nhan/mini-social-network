@@ -1,3 +1,48 @@
 .new-feed {
   padding-top: 1.5rem;
 }
+
+.newfeed-article {
+  &:last-child {
+    padding-bottom: 0;
+  }
+  padding-bottom: 2rem;
+}
+
+.article-statistic {
+  display: flex;
+  justify-content: space-around;
+  .article-statistic-vote {
+    flex-basis: auto;
+  }
+}
+
+.article-owner {
+  .article-owner-avatar {
+    width: 3rem;
+    height: 3rem;
+    border: 1rem;
+    border-radius: 1.5rem;
+   
+    img {
+      width: 3rem;
+      height: 3rem;
+      border: 1rem;
+      border-radius: 1.5rem;
+      border: 0.1rem;
+      border-style: solid;
+      border-color: #007bff;
+    }
+  }
+  .article-owner-info {
+    display: flex;
+    flex-direction: column;
+  }
+  .article-owner-name {
+    height: 1.5rem;
+  }
+  .article-owner-created-at {
+    height: 1rem;
+    font-size: 80%;
+  }
+}

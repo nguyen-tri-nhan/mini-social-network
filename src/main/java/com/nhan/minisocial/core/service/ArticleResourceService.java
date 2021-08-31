@@ -45,9 +45,14 @@ public class ArticleResourceService {
     public List<ArticleResource> getAll() {
         List<Article> articles = getAllEntity();
         List<ArticleResource> articleResources = new ArrayList<>();
-        for (Article article : articles) {
-            articleResources.add(toResource(article));
-        }
+//        for (Article article : articles) {
+//            articleResources.add(toResource(article));
+//        }
+        articles
+                .stream()
+                .forEach(article -> {
+                    articleResources.add(toResource(article));
+                });
         return articleResources;
     }
 
@@ -69,6 +74,7 @@ public class ArticleResourceService {
         articleResource.setImage(article.getImage());
         articleResource.setUser(userResource);
         articleResource.setVotes(vote);
+        articleResource.setCreateAt(article.getCreateAt());
         return articleResource;
     }
 }
