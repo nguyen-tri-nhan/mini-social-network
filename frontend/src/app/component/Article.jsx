@@ -1,6 +1,4 @@
-import { Button } from 'reactstrap';
-import { isoDateToString } from '../utils/TimeUtils';
-
+import ArticleOwner from './ArticleOwner';
 
 const Article = ({ article }) => {
   console.log(article)
@@ -12,15 +10,10 @@ const Article = ({ article }) => {
 
   return (
     <div className="newfeed-article">
-      <div className="article-owner d-flex">
-        <div className="article-owner-avatar">
-          <img src={user.avatar} alt={user.fullname} />
-        </div>
-        <div className="article-owner-info">
-          <Button color='link' className="article-owner-name">{user.fullname}</Button>
-          <div className="article-owner-created-at">{isoDateToString(createAt)}</div>
-        </div>
-      </div>
+      <ArticleOwner
+        user={user}
+        time={createAt}
+      />
       <div className="article-desc d-flex">
         {description}
       </div>
