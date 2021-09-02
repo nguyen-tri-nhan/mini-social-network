@@ -1,12 +1,12 @@
 const BlueTickIcon = () => {
   return (
-    <i
+    <div
       data-visualcompletion="css-img"
       aria-label="Tài khoản đã xác minh"
       className="blue-tick"
       role="img"
     >
-    </i>
+    </div>
   );
 }
 

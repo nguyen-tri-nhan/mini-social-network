@@ -1,4 +1,5 @@
 import ArticleOwner from './ArticleOwner';
+import { Card } from '@material-ui/core'
 
 const Article = ({ article }) => {
   console.log(article)
@@ -9,7 +10,7 @@ const Article = ({ article }) => {
   };
 
   return (
-    <div className="newfeed-article">
+    <Card className="newfeed-article">
       <ArticleOwner
         user={user}
         time={createAt}
@@ -28,7 +29,7 @@ const Article = ({ article }) => {
           {countComment(comment)} comments
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
 

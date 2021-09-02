@@ -4,9 +4,10 @@
 
 .newfeed-article {
   &:last-child {
-    padding-bottom: 0;
+    margin-bottom: 0;
   }
-  padding-bottom: 2rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
 }
 
 .article-statistic {
@@ -34,12 +35,19 @@
       border-color: #007bff;
     }
   }
-  .article-owner-info {
+  .article-owner-display {
     display: flex;
     flex-direction: column;
+    height: 3rem;
+  }
+  .article-owner-info {
+    display: flex;
+    height: 2rem;
+    align-items: center;
   }
   .article-owner-name {
-    height: 1.5rem;
+    height: 2rem;
+    width: 85%;
   }
   .article-owner-created-at {
     height: 1rem;

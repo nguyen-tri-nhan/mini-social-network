@@ -8,8 +8,8 @@ const ArticleOwner = ({ user, time }) => {
       <div className="article-owner-avatar">
         <img src={user.avatar} alt={user.fullname} />
       </div>
-      <div className="article-owner-info">
-        <div>
+      <div className="article-owner-display">
+        <div className="article-owner-info">
           <Button color='link' className="article-owner-name">{user.fullname}</Button>
           {user.id === 1 && <BlueTickIcon />}
         </div>

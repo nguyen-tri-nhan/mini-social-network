@@ -5,6 +5,7 @@ import {
   DialogActions,
   DialogContent,
   Button,
+  Card,
 } from '@material-ui/core';
 import { Image, Close } from '@material-ui/icons';
 import ImgurHelper from '../helper/ImgurHelper';
@@ -62,7 +63,7 @@ const CreateArticleForm = (props) => {
   }
 
   return (
-    <>
+    <Card className="create-article-card">
       <div className="create-article-form">
         <TextField
           label="What are you doing? Bro"
@@ -117,7 +118,7 @@ const CreateArticleForm = (props) => {
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+    </Card>
   )
 }
 
