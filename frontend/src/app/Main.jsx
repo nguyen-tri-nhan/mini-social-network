@@ -16,16 +16,14 @@ const Main = () => {
 
   return (
     <div className="Main">
-      <div className="container">
-        <Router>
-          <Switch>
-            <UnauthenticatedRoute path={RouteConstants.login} exact component={Login} />
-            <UnauthenticatedRoute path={RouteConstants.signup} exact component={SignUp} />
-            <Route path={RouteConstants.logout} exact component={Logout} />
-            <AuthenticatedRoute path={RouteConstants.root} exact component={HomePage} />
-          </Switch>
-        </Router>
-      </div>
+      <Router>
+        <Switch>
+          <UnauthenticatedRoute path={RouteConstants.login} exact component={Login} />
+          <UnauthenticatedRoute path={RouteConstants.signup} exact component={SignUp} />
+          <Route path={RouteConstants.logout} exact component={Logout} />
+          <AuthenticatedRoute path={RouteConstants.root} exact component={HomePage} />
+        </Switch>
+      </Router>
     </div>
   );
 }
