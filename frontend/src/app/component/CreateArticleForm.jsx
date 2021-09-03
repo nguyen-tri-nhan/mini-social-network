@@ -71,6 +71,7 @@ const CreateArticleForm = (...props) => {
             user={props.user}
           />
           <Input
+            className="create-article-trigger"
             placeholder="Bạn đang nghĩ gì"
             onClick={onCreateArticleOpenDialog}
             value={outerInput}

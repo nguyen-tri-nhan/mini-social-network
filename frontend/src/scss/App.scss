@@ -1,17 +1,17 @@
-@import './scss/login.scss';
-@import './scss/navbar.scss';
-@import './scss/article-form.scss';
-@import './scss/bootstrap-override.scss';
-@import './scss/new-feed.scss';
-@import './scss/variables';
-@import './scss/blueTick.scss';
+@import './login.scss';
+@import './navbar.scss';
+@import './article-form.scss';
+@import './bootstrap-override.scss';
+@import './new-feed.scss';
+@import './variables';
+@import './blueTick.scss';
 
 .App {
   text-align: center;
 }
 
 body {
-  background-color: #F0F2F5;
+  background-color: $fullpage_color;
 }
 
 .App-logo {
