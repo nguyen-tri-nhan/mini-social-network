@@ -13,7 +13,7 @@ const ArticleOwner = ({ user, time }) => {
           <Button color='link' className="article-owner-name">{user.fullname}</Button>
           {user.id === 1 && <BlueTickIcon />}
         </div>
-        <div className="article-owner-created-at">{isoDateToString(time)}</div>
+        {time && <div className="article-owner-created-at">{isoDateToString(time)}</div>}
       </div>
     </div>
   )

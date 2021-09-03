@@ -17,10 +17,10 @@ const renderNavbar = (user, ...props) => {
       <HideOnScroll {...props}>
         <AppBar>
           <Toolbar className="tool-bar">
-            <Typography variant="h6" className="logo">{user.fullname}</Typography>
+            <Typography variant="h6" className="logo">Fake book</Typography>
             <Typography variant="h6" className="search-bar">Search bar</Typography>
             <Notification />
-            <RightNavbarMenu className="right-menu"/>
+            <RightNavbarMenu user={user} className="right-menu"/>
           </Toolbar>
         </AppBar>
       </HideOnScroll>

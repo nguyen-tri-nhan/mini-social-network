@@ -8,6 +8,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import { makeStyles } from '@material-ui/core/styles';
 import { ExitToApp, ArrowDropDown } from '@material-ui/icons';
+import ArticleOwner from './ArticleOwner';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -19,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const RightNavbarMenu = () => {
+const RightNavbarMenu = ({user}) => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
@@ -78,7 +79,7 @@ const RightNavbarMenu = () => {
               <Paper>
                 <ClickAwayListener onClickAway={handleClose}>
                   <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                    <MenuItem onClick={handleClose}>Profile</MenuItem>
+                    <MenuItem onClick={handleClose}><ArticleOwner user={user} /></MenuItem>
                     <MenuItem onClick={handleClose}>My account</MenuItem>
                     <MenuItem onClick={onLogoutClick}><ExitToApp /> Logout</MenuItem>
                   </MenuList>
