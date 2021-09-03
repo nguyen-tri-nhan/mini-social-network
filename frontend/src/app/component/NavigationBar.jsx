@@ -16,8 +16,8 @@ const renderNavbar = (user, ...props) => {
       <HideOnScroll {...props}>
         <AppBar>
           <Toolbar className="tool-bar">
-            <Button>
-              <Typography variant="h6" className="logo">Fakebook</Typography>
+            <Button className="logo">
+              <Typography variant="h6" className="logo-name">Fakebook</Typography>
             </Button>
             <Typography variant="h6" className="search-bar">Search bar</Typography>
             <Notification />

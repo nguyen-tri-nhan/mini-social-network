@@ -2,7 +2,6 @@ import ArticleOwner from './ArticleOwner';
 import { Card } from '@material-ui/core'
 
 const Article = ({ article }) => {
-  console.log(article)
   const { comment, user, description, image, votes, createAt } = article;
 
   const countComment = (comment) => {

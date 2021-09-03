@@ -3,6 +3,7 @@ import { Redirect, Route } from 'react-router-dom'
 import MAuth from '../model/MAuth';
 import { useState, useEffect } from 'react';
 import NavigationBar from '../component/NavigationBar';
+import MContext from '../model/MContext';
 
 const AuthenticatedRoute = ({ component: Component, ...rest }) => {
 
@@ -13,10 +14,13 @@ const AuthenticatedRoute = ({ component: Component, ...rest }) => {
    */
   useEffect(() => {
     MAuth.getMe().then(({ data }) => {
+      MContext.user = data;
+      return data;
+    })
+    .then((data) => {
       setUser(data);
     });
   }, []);
-  console.log('user', user);
 
   // Add your own authentication on the below line.
   const isLoggedIn = MAuth.isLoggedIn();

@@ -10,7 +10,7 @@ const MAuth = {
   },
 
   setHeader() {
-    if(Cookies.get("JWT")) {
+    if (Cookies.get("JWT")) {
       localStorage.setItem("JWT", Cookies.get("JWT"));
     }
   },

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  TextField,
   Dialog,
   DialogActions,
   DialogContent,
@@ -12,9 +11,11 @@ import ImgurHelper from '../helper/ImgurHelper';
 import { toBase64 } from '../helper/ImageHelper';
 import { Regex } from '../utils/AppConstants';
 import Service from '../service/Service';
+import { Input } from "reactstrap";
+import UserSmallAvatar from "./UserSmallAvatar";
 
-const CreateArticleForm = (props) => {
-
+const CreateArticleForm = (...props) => {
+  console.log('props', props)
   const [outerInput, setOuterInput] = useState();
   const [openDialog, setOpenDialog] = useState(false);
   const [imageOutput, setImageOutput] = useState('');
@@ -63,14 +64,19 @@ const CreateArticleForm = (props) => {
   }
 
   return (
-    <Card className="create-article-card">
-      <div className="create-article-form">
-        <TextField
-          label="What are you doing? Bro"
-          onClick={onCreateArticleOpenDialog}
-          value={outerInput}
-          fullWidth />
-      </div>
+    <>
+      <Card className="create-article-card">
+        <div className="create-article-form">
+          <UserSmallAvatar
+            user={props.user}
+          />
+          <Input
+            placeholder="Bạn đang nghĩ gì"
+            onClick={onCreateArticleOpenDialog}
+            value={outerInput}
+          />
+        </div>
+      </Card>
       <Dialog open={openDialog} fullWidth maxWidth="lg">
         <DialogContent>
           <div className="col-xl-12 text-secondary">
@@ -118,7 +124,7 @@ const CreateArticleForm = (props) => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Card>
+    </>
   )
 }
 

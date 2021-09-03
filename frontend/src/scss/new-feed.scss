@@ -54,3 +54,20 @@
     font-size: 80%;
   }
 }
+
+.user-avatar {
+  width: 3rem;
+  height: 3rem;
+  border: 1rem;
+  border-radius: 1.5rem;
+  margin-right: 1rem;
+  img {
+    width: 3rem;
+    height: 3rem;
+    border: 1rem;
+    border-radius: 1.5rem;
+    border: 0.1rem;
+    border-style: solid;
+    border-color: #007bff;
+  }
+}
