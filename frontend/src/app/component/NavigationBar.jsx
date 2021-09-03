@@ -8,7 +8,7 @@ import {
 import HideOnScroll from './HideOnScroll';
 import RightNavbarMenu from './RightNavbarMenu';
 import Notification from './Notification';
-
+import { goTo } from '../utils/RouteUtils';
 
 const renderNavbar = (user, ...props) => {
   return (
@@ -16,7 +16,7 @@ const renderNavbar = (user, ...props) => {
       <HideOnScroll {...props}>
         <AppBar>
           <Toolbar className="tool-bar">
-            <Button className="logo">
+            <Button onClick={() => goTo("/")} className="logo">
               <Typography variant="h6" className="logo-name">Fakebook</Typography>
             </Button>
             <Typography variant="h6" className="search-bar">Search bar</Typography>
