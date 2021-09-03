@@ -8,13 +8,22 @@
 }
 
 .logo {
+  width: 12rem;
   .logo-name{
     color: white;
   }
 }
 
+.nav-bar-seperator-1 {
+  flex-basis: 10%;
+}
+
+.nav-bar-seperator-2 {
+  flex-basis: 10%;
+}
+
 .search-bar {
-  flex-basis: 100%;
+  flex-basis: 80%;
 }
 
 .navbar-menu-btn {

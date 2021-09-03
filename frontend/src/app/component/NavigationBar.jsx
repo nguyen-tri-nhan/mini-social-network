@@ -5,6 +5,9 @@ import {
   Typography,
   Button,
 } from '@material-ui/core';
+import {
+  Input
+} from 'reactstrap';
 import HideOnScroll from './HideOnScroll';
 import RightNavbarMenu from './RightNavbarMenu';
 import Notification from './Notification';
@@ -19,7 +22,9 @@ const renderNavbar = (user, ...props) => {
             <Button onClick={() => goTo("/")} className="logo">
               <Typography variant="h6" className="logo-name">Fakebook</Typography>
             </Button>
-            <Typography variant="h6" className="search-bar">Search bar</Typography>
+            <div className="nav-bar-seperator-1"/>
+            <Input placeholder="Tìm kiếm" className="search-bar"/>
+            <div className="nav-bar-seperator-2" />
             <Notification />
             <RightNavbarMenu user={user} className="right-menu" />
           </Toolbar>
