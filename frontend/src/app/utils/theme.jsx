@@ -5,8 +5,13 @@ export const theme = createMuiTheme ({
   overrides: {
     MuiPaper: {
       rounded: {
-        borderRadius: '0.5rem'
-      }
-    }
-  }
+        borderRadius: '0.5rem',
+      },
+    },
+  },
+  typography: {
+    button: {
+      textTransform: 'none',
+    },
+  },
 });

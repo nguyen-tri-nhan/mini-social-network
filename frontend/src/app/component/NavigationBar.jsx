@@ -3,8 +3,7 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  CssBaseline,
-  IconButton
+  Button,
 } from '@material-ui/core';
 import HideOnScroll from './HideOnScroll';
 import RightNavbarMenu from './RightNavbarMenu';
@@ -17,10 +16,12 @@ const renderNavbar = (user, ...props) => {
       <HideOnScroll {...props}>
         <AppBar>
           <Toolbar className="tool-bar">
-            <Typography variant="h6" className="logo">Fake book</Typography>
+            <Button>
+              <Typography variant="h6" className="logo">Fakebook</Typography>
+            </Button>
             <Typography variant="h6" className="search-bar">Search bar</Typography>
             <Notification />
-            <RightNavbarMenu user={user} className="right-menu"/>
+            <RightNavbarMenu user={user} className="right-menu" />
           </Toolbar>
         </AppBar>
       </HideOnScroll>
