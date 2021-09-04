@@ -30,6 +30,11 @@ minisocial.database.name=miniSocialMedia
 spring.datasource.username=<Your database name>
 spring.datasource.password=<Your database password>
 ```
+### Third-party
+- Create imgur client-id
+- Create `./frontend/.env.local` file
+- Define `REACT_APP_IMGUR_CLIENTID={your-client-id}` in `.env.local`
+
 ### Docker
 [Docs](https://www.callicoder.com/spring-boot-spring-security-jwt-mysql-react-app-part-3/)
 
