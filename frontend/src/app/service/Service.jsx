@@ -1,6 +1,7 @@
 import http from './http';
 
-const API_URL = "http://localhost:8080"
+const HOST = window.location.hostname;
+const API_URL = `http://${HOST}:8080`;
 const API_V1 = `${API_URL}/api`;
 const AUTH = `${API_V1}/auth`;
 const ARTICLES = `${API_V1}/articles`
