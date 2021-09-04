@@ -1,10 +1,11 @@
 import { List, ListItem, ListItemIcon } from '@material-ui/core';
-import { Public, Group } from '@material-ui/icons';
+import { Group } from '@material-ui/icons';
 import MContext from '../model/MContext';
 import ArticleOwner from './ArticleOwner';
 const LeftSideBar = (props) => {
 
   const user = MContext.user;
+  
   return (
     <div>
       <List component="nav">

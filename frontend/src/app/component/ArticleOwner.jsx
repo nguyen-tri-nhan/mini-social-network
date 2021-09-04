@@ -2,7 +2,7 @@ import { Button } from 'reactstrap';
 import { isoDateToString } from '../utils/TimeUtils';
 import BlueTickIcon from './BlueTickIcon';
 
-const ArticleOwner = ({ user, time }) => {
+const renderUser = (user, time) => {
   return (
     <div className="article-owner d-flex">
       <div className="article-owner-avatar">
@@ -16,6 +16,21 @@ const ArticleOwner = ({ user, time }) => {
         {time && <div className="article-owner-created-at">{isoDateToString(time)}</div>}
       </div>
     </div>
+  );
+};
+
+const renderWaiting = () => {
+  return (
+    <div>
+      loading...
+    </div>
+  )
+}
+
+const ArticleOwner = ({ user, time }) => {
+  const element = user ? renderUser(user, time) : renderWaiting();
+  return (
+    element
   )
 }
 
