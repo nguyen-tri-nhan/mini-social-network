@@ -1,5 +1,6 @@
 import ArticleOwner from './ArticleOwner';
-import { Card } from '@material-ui/core'
+import { Card, Divider, IconButton } from '@material-ui/core';
+import { ThumbUp } from '@material-ui/icons';
 
 const Article = ({ article }) => {
   const { comment, user, description, image, votes, createAt } = article;
@@ -8,12 +9,18 @@ const Article = ({ article }) => {
     return comment != null ? comment.length : 0;
   };
 
+  const onButtonLikeClicked = () => {
+    console.log('clicked' , article.id);
+  }
+
   return (
     <Card className="newfeed-article">
-      <ArticleOwner
-        user={user}
-        time={createAt}
-      />
+      <div className="article-header d-flex">
+        <ArticleOwner
+          user={user}
+          time={createAt}
+        />
+      </div>
       <div className="article-desc d-flex">
         {description}
       </div>
@@ -27,6 +34,12 @@ const Article = ({ article }) => {
         <div className="article-statistic-comment">
           {countComment(comment)} comments
         </div>
+      </div>
+      <Divider />
+      <div className="article-footer">
+        <IconButton onClick={() => onButtonLikeClicked()}>
+          <ThumbUp color="primary"/> Thích
+        </IconButton>
       </div>
     </Card>
   );
