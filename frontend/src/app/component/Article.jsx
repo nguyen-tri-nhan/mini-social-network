@@ -1,6 +1,6 @@
 import ArticleOwner from './ArticleOwner';
 import { Card, Divider, IconButton } from '@material-ui/core';
-import { ThumbUp } from '@material-ui/icons';
+import { Comment, ThumbUp } from '@material-ui/icons';
 
 const Article = ({ article }) => {
   const { comment, user, description, image, votes, createAt } = article;
@@ -10,7 +10,7 @@ const Article = ({ article }) => {
   };
 
   const onButtonLikeClicked = () => {
-    console.log('clicked' , article.id);
+    console.log('clicked', article.id);
   }
 
   return (
@@ -28,17 +28,17 @@ const Article = ({ article }) => {
         <img src={image} alt="" />
       </div>
       <div className="article-statistic">
-        <div className="article-statistic-vote">
-          {votes} Votes
+        <div className="article-statistic-vote d-flex">
+          <ThumbUp color="primary" /> {votes}
         </div>
-        <div className="article-statistic-comment">
-          {countComment(comment)} comments
+        <div className="article-statistic-comment d-flex">
+          <Comment color="primary" /> {countComment(comment)}
         </div>
       </div>
       <Divider />
       <div className="article-footer">
-        <IconButton onClick={() => onButtonLikeClicked()}>
-          <ThumbUp color="primary"/> Thích
+        <IconButton className="article-like-button" onClick={() => onButtonLikeClicked()}>
+          <ThumbUp color="primary" /> Thích
         </IconButton>
       </div>
     </Card>
