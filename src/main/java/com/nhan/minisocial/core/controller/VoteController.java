@@ -16,7 +16,7 @@ public class VoteController {
     private VoteFacade voteFacade;
 
     @PostMapping(Api.VoteApi.VOTE_ARTICLE)
-    public void voteArticle(@CurrentUser User user, @PathVariable(name = "postId") long postId){
+    public void voteArticle(@CurrentUser User user, @PathVariable(name = "articleId") long articleId){
 //        voteFacade.voteArticle();
     }
 
