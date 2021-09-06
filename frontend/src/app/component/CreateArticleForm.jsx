@@ -14,8 +14,7 @@ import Service from '../service/Service';
 import { Input } from "reactstrap";
 import UserSmallAvatar from "./UserSmallAvatar";
 
-const CreateArticleForm = (...props) => {
-  console.log('props', props)
+const CreateArticleForm = (props) => {
   const [outerInput, setOuterInput] = useState();
   const [openDialog, setOpenDialog] = useState(false);
   const [imageOutput, setImageOutput] = useState('');
@@ -49,6 +48,7 @@ const CreateArticleForm = (...props) => {
   }
 
   const onUploadImageClick = () => {
+    const { handleAfterCreatePost } = props;
     ImgurHelper.uploadImage(imageBase64)
       .then(({ data }) => {
         return data?.data.link;
@@ -60,6 +60,9 @@ const CreateArticleForm = (...props) => {
           image: link
         }
         Service.createArticle(article);
+      })
+      .then(() => {
+        handleAfterCreatePost();
       })
   }
 

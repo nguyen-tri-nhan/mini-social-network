@@ -4,20 +4,7 @@ import { useEffect } from "react";
 import Service from "../service/Service";
 import Article from "./Article";
 
-const NewsFeed = (props) => {
-
-  const [articles, setArticles] = useState();
-  const [isReady, setReady] = useState(false);
-
-  useEffect(() => {
-    Service.getArticle()
-      .then((data) => {
-        setArticles(data?.data);
-      })
-      .then(() => {
-        setReady(true);
-      })
-  }, []);
+const NewsFeed = ({articles}) => {
 
   const renderArticles = (articles) => {
     return articles.map((article) => {
@@ -34,7 +21,7 @@ const NewsFeed = (props) => {
   return (
     <div className="new-feed">
       <Typography>Bảng tin</Typography>
-      {isReady && renderArticles(articles)}
+      {renderArticles(articles)}
     </div>
   )
 };
