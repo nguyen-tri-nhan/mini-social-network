@@ -1,7 +1,4 @@
 import { Typography } from "@material-ui/core";
-import { useState } from "react";
-import { useEffect } from "react";
-import Service from "../service/Service";
 import Article from "./Article";
 
 const NewsFeed = ({articles}) => {

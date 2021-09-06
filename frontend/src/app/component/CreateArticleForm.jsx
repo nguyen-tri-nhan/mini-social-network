@@ -62,7 +62,12 @@ const CreateArticleForm = (props) => {
         Service.createArticle(article);
       })
       .then(() => {
-        handleAfterCreatePost();
+        clearTimeout(setTimeout(() => {
+          handleAfterCreatePost();
+        }), 1000);
+      })
+      .then(()=> {
+        setOpenDialog(false);
       })
   }
 
