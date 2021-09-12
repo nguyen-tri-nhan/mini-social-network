@@ -1,4 +1,4 @@
-import MContext from "../model/MContext";
+import MContext from '../model/MContext';
 
 const UserSmallAvatar = () => {
   const user = MContext.user;
