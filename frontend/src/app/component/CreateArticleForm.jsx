@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   Dialog,
   DialogActions,
@@ -11,7 +11,7 @@ import ImgurHelper from '../helper/ImgurHelper';
 import { toBase64 } from '../helper/ImageHelper';
 import { Regex } from '../utils/AppConstants';
 import Service from '../service/Service';
-import { Input } from "reactstrap";
+import { Input } from 'reactstrap';
 import UserSmallAvatar from "./UserSmallAvatar";
 
 const CreateArticleForm = (props) => {
