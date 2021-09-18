@@ -14,7 +14,7 @@ const ImgurHelper = {
       data: {
         image,
         type: 'base64',
-        title: 'mini-social-project-hardcode',
+        title: 'mini-social-project-hardcode', //hardcoded => should moved to env
       },
     };
     return new Promise((resolve, reject) => {

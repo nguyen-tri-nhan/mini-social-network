@@ -3,7 +3,7 @@ import { Col, Row } from 'reactstrap';
 import CreateArticleForm from '../component/CreateArticleForm';
 import LeftSideBar from '../component/LeftSideBar';
 import NewsFeed from '../component/NewsFeed';
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import Service from '../service/Service';
 
 const HomePage = (props) => {

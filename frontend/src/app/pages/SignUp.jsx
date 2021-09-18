@@ -1,10 +1,8 @@
 import { useState } from "react"
 import {
 	Button,
-	Checkbox,
 	Container,
 	CssBaseline,
-	FormControlLabel,
 	Grid,
 	Link,
 	TextField,

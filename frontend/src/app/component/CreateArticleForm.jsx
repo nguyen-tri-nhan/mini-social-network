@@ -12,7 +12,7 @@ import { toBase64 } from '../helper/ImageHelper';
 import { Regex } from '../utils/AppConstants';
 import Service from '../service/Service';
 import { Input } from 'reactstrap';
-import UserSmallAvatar from "./UserSmallAvatar";
+import UserSmallAvatar from './UserSmallAvatar';
 
 const CreateArticleForm = (props) => {
   const [outerInput, setOuterInput] = useState();
