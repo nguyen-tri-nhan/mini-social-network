@@ -66,7 +66,7 @@ const CreateArticleForm = (props) => {
           handleAfterCreatePost();
         }, 1000);
       })
-      .then(()=> {
+      .then(() => {
         setOpenDialog(false);
       })
   }
