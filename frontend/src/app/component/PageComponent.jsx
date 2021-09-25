@@ -7,4 +7,4 @@ class PageComponent extends React.Component{
     }
 }
 
-export default PageComponent
+export default PageComponent;
