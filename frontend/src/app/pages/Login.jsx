@@ -27,6 +27,7 @@ const Login = () => {
 	}
 
 	const onSubmit = (e) => {
+		e.preventDefault();
 		MAuth.login({ usernameOrEmail, password }, onLoginError);
 	}
 
@@ -54,7 +55,7 @@ const Login = () => {
 					<Typography component="h1" variant="h5">
 						Đăng nhập
 					</Typography>
-					<form className="login-form" noValidate>
+					<form className="login-form" noValidate onSubmit={onSubmit}>
 						<TextField
 							onChange={onUserNameChange}
 							variant="outlined"
@@ -84,8 +85,7 @@ const Login = () => {
 							label="Ghi nhớ tài khoản"
 						/>
 						<Button
-							// type="submit"
-							onClick={onSubmit}
+							type="submit"
 							fullWidth
 							variant="contained"
 							color="primary"
