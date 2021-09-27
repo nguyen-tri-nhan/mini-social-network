@@ -4,6 +4,7 @@ public class UserResource {
     private long id;
     private String fullname;
     private String avatar;
+    private String email;
 
     public long getId() {
         return id;
@@ -27,5 +28,13 @@ public class UserResource {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

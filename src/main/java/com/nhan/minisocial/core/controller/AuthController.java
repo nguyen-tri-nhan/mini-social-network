@@ -12,9 +12,11 @@ import com.nhan.minisocial.core.payload.LoginRequest;
 import com.nhan.minisocial.core.payload.SignUpRequest;
 import com.nhan.minisocial.core.repository.RoleRepository;
 import com.nhan.minisocial.core.repository.UserRepository;
+import com.nhan.minisocial.core.resource.UserResource;
 import com.nhan.minisocial.core.security.CurrentUser;
 import com.nhan.minisocial.core.security.JwtTokenProvider;
 import com.nhan.minisocial.core.security.UserPrincipal;
+import com.nhan.minisocial.core.service.UserResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +52,9 @@ public class AuthController {
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private UserResourceService userResourceService;
 
     @PostMapping("/api/auth/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest){
@@ -100,8 +105,8 @@ public class AuthController {
     }
 
     @GetMapping(Api.User.GET_ME)
-    public UserPrincipal getMe(@CurrentUser UserPrincipal user) {
-        return user;
+    public UserResource getMe(@CurrentUser UserPrincipal user) {
+        return userResourceService.toResource(user);
     }
 
 }
