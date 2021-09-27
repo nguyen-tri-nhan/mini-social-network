@@ -35,7 +35,7 @@ const Login = () => {
 		return (
 			show &&
 			<Grid item xs>
-				<Typography>Tài khoản hoặc mật khẩu không đúng</Typography>
+				<Typography color="error">Tài khoản hoặc mật khẩu không đúng</Typography>
 			</Grid>
 		);
 	};
