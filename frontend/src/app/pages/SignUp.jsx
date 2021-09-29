@@ -67,7 +67,7 @@ const SignUp = () => {
 					<Typography component="h1" variant="h5">
 						Đăng ký tài khoản
 					</Typography>
-					<form className="login-form" noValidate>
+					<form id="signup-form" className="login-form" noValidate>
 						<Grid container spacing={2}>
 							<Grid item xs={12}>
 								<TextField
