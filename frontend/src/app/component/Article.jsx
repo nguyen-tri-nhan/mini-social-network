@@ -37,7 +37,7 @@ const Article = ({ article }) => {
       </div>
       <Divider />
       <div className="article-footer">
-        <IconButton className="article-like-button" onClick={() => onButtonLikeClicked()}>
+        <IconButton className="article-like-button" onClick={onButtonLikeClicked}>
           <ThumbUp /> Thích
         </IconButton>
       </div>
