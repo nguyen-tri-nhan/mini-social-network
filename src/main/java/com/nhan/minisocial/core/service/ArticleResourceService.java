@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 public class ArticleResourceService {
@@ -43,10 +44,9 @@ public class ArticleResourceService {
     }
 
     public List<ArticleResource> getAll() {
-        List<Article> articles = getAllEntity();
+        Stream<Article> articles = getAllEntity();
         List<ArticleResource> articleResources = new ArrayList<>();
         articles
-                .stream()
                 .forEach(article -> {
                     articleResources.add(toResource(article));
                 });
@@ -58,7 +58,7 @@ public class ArticleResourceService {
         return toResource(article);
     }
 
-    private List<Article> getAllEntity() {
+    private Stream<Article> getAllEntity() {
         return articleService.getAll();
     }
 

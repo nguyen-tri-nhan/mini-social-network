@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 public class ArticleService {
@@ -15,8 +16,8 @@ public class ArticleService {
     private ArticleRepository articleRepository;
 
 
-    public List<Article> getAll() {
-        return articleRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
+    public Stream<Article> getAll() {
+        return articleRepository.findAll(Sort.by(Sort.Direction.DESC, "id")).stream();
     }
 
     public Article getOne(long id) {
