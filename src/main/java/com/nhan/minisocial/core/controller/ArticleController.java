@@ -17,6 +17,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Stream;
 
 @RestController
 public class ArticleController {
@@ -34,7 +35,7 @@ public class ArticleController {
     }
 
     @GetMapping(Api.ArticleApi.COLLECTION)
-    public List<ArticleResource> loadArticle(){
+    public Stream<ArticleResource> loadArticle(){
         return articleFacade.getAll();
     }
 
