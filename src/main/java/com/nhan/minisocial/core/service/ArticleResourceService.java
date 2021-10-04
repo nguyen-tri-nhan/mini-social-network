@@ -29,8 +29,10 @@ public class ArticleResourceService {
     @Autowired
     private VoteService voteService;
 
-    public Article createOrUpdate(Article article) {
-        return articleService.save(article);
+    public ArticleResource createOrUpdate(ArticleRequest articleRequest, UserPrincipal userPrincipal) {
+        Article article = toEntity(articleRequest, userPrincipal);
+        Article savingArticle = articleService.save(article);
+        return toResource(savingArticle);
     }
 
     public Article toEntity(ArticleRequest articleRequest, UserPrincipal userPrincipal) {

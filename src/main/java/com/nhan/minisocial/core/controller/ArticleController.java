@@ -27,10 +27,10 @@ public class ArticleController {
 
     @PostMapping(Api.ArticleApi.POST)
     public ResponseEntity<?> postArticle(@CurrentUser UserPrincipal user, @Valid @RequestBody ArticleRequest articleRequest){
-        Article article = articleFacade.createOrUpdate(articleRequest, user);
+        ArticleResource articleResource = articleFacade.createOrUpdate(articleRequest, user);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path(Api.ArticleApi.GET)
-                .buildAndExpand(article.getId()).toUri();
+                .buildAndExpand(articleResource.getId()).toUri();
         return ResponseEntity.created(location).body(new ApiResponse(true, "Article saved successfully"));
     }
 

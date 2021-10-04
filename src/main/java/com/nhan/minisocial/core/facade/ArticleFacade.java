@@ -17,9 +17,8 @@ public class ArticleFacade {
     @Autowired
     private ArticleResourceService articleResourceService;
 
-    public Article createOrUpdate(ArticleRequest articleRequest, UserPrincipal userPrincipal){
-        Article article = articleResourceService.toEntity(articleRequest, userPrincipal);
-        return articleResourceService.createOrUpdate(article);
+    public ArticleResource createOrUpdate(ArticleRequest articleRequest, UserPrincipal userPrincipal){
+        return articleResourceService.createOrUpdate(articleRequest, userPrincipal);
     }
 
     public Stream<ArticleResource> getAll(){
