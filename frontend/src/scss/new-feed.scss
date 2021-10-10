@@ -66,6 +66,11 @@
   button {
     font-size: 1rem;
   }
+  display: flex;
+  justify-content: space-around;
+  .article-like-button {
+    flex-basis: auto;
+  }
 }
 
 .user-avatar {

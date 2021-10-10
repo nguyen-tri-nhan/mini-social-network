@@ -40,6 +40,9 @@ const Article = ({ article }) => {
         <IconButton className="article-like-button" onClick={onButtonLikeClicked}>
           <ThumbUp /> Thích
         </IconButton>
+        <IconButton className="article-comment-button" onClick={onButtonLikeClicked}>
+          <Comment /> Bình luận
+        </IconButton>
       </div>
     </Card>
   );
