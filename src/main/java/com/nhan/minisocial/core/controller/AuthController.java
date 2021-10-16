@@ -108,5 +108,4 @@ public class AuthController {
     public UserResource getMe(@CurrentUser UserPrincipal user) {
         return userResourceService.toResource(user);
     }
-
 }
