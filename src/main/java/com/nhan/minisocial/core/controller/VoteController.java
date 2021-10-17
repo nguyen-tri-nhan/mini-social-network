@@ -17,11 +17,11 @@ public class VoteController {
 
     @PostMapping(Api.VoteApi.VOTE_ARTICLE)
     public void voteArticle(@CurrentUser User user, @PathVariable(name = "articleId") long articleId){
-//        voteFacade.voteArticle();
+//        TODO: create Vote func
     }
 
     @PostMapping(Api.VoteApi.VOTE_COMMENT)
     public void voteComment(@CurrentUser User user, @PathVariable(name = "commentId") long commentId){
-
+//        TODO: Create vote func
     }
 }
