@@ -2,7 +2,6 @@ package com.nhan.minisocial.core.controller;
 
 
 import com.nhan.minisocial.core.api.Api;
-import com.nhan.minisocial.core.entity.Article;
 import com.nhan.minisocial.core.facade.ArticleFacade;
 import com.nhan.minisocial.core.payload.ApiResponse;
 import com.nhan.minisocial.core.payload.ArticleRequest;
