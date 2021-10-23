@@ -13,8 +13,16 @@
     img {
       max-height: 30rem;
     }
+    &:hover {
+      cursor: pointer;
+    }
   }
 
+}
+
+.dialog-article {
+  display: flex;
+  flex-direction: row;
 }
 
 .article-statistic {
