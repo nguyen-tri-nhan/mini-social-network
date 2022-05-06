@@ -15,23 +15,23 @@ const Service = {
 
 
     signup(user) {
-        return http.post(SIGNUP, user);
+        return http.post({url: SIGNUP, data: user});
     },
 
     login(user, errorHandler) {
-        return http.post(LOGIN, user, null, errorHandler);
+        return http.post({url: LOGIN, data: user, errorHandler});
     },
 
     getMe() {
-        return http.get(GET_ME);
+        return http.get({url: GET_ME});
     },
 
     createArticle(article) {
-        return http.post(POST_ARTICLE, article);
+        return http.post({url: POST_ARTICLE, data: article});
     },
 
     getArticle() {
-        return http.get(ARTICLES);
+        return http.get({url: ARTICLES});
     }
 }
 
