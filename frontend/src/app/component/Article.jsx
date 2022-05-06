@@ -25,7 +25,6 @@ const Article = ({ article }) => {
     e.preventDefault();
     setOpen(false);
   }
-  console.log(article);
   return (
     <>
       <Card className="newfeed-article">

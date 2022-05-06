@@ -1,11 +1,11 @@
+import { Done } from '@material-ui/icons';
+
 const BlueTickIcon = () => {
   return (
     <div
-      data-visualcompletion="css-img"
       aria-label="Tài khoản đã xác minh"
-      className="blue-tick"
-      role="img"
     >
+      <Done />
     </div>
   );
 }

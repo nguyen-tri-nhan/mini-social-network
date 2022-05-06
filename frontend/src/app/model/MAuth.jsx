@@ -1,24 +1,16 @@
 import Service from '../service/Service';
 import Cookies from 'cookies-js';
 import { goTo } from '../utils/RouteUtils';
+import MContext from './MContext';
 
 const MAuth = {
 
   isLoggedIn() {
-    this.setHeader();
-    return localStorage.getItem("JWT") !== 'undefined';
-  },
-
-  setHeader() {
-    if (Cookies.get("JWT")) {
-      localStorage.setItem("JWT", Cookies.get("JWT"));
-    }
+    return localStorage.getItem("JWT") ? true : false;
   },
 
   logout() {
-    localStorage.setItem("JWT", undefined);
-    Cookies.set("JWT", undefined);
-    this.setHeader();
+    localStorage.clear();
   },
 
   login(values, errorHandler) {
@@ -30,7 +22,7 @@ const MAuth = {
       .then(({ data }) => {
         const { accessToken } = data;
         localStorage.setItem("JWT", `Bearer ${accessToken}`);
-        Cookies.set("JWT", `Bearer ${accessToken}`);
+        this.getMe();
         const isLoggedIn = MAuth.isLoggedIn();
         if (isLoggedIn) {
           goTo("/");
@@ -39,7 +31,10 @@ const MAuth = {
   },
 
   getMe() {
-    return Service.getMe();
+    return Service.getMe()
+      .then(({data}) => {
+        localStorage.setItem("User", JSON.stringify(data));
+      });
   }
 
 }

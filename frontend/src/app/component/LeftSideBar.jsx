@@ -1,11 +1,10 @@
 import { List, ListItem, ListItemIcon } from '@material-ui/core';
 import { Group } from '@material-ui/icons';
-import MContext from '../model/MContext';
 import ArticleOwner from './ArticleOwner';
 import StickyBox from 'react-sticky-box';
 const LeftSideBar = (props) => {
 
-  const user = MContext.user;
+  const user = JSON.parse(localStorage.getItem("User"));
 
   return (
     <StickyBox offsetTop={42} offsetBottom={20}>

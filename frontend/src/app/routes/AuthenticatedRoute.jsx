@@ -7,20 +7,12 @@ import MContext from '../model/MContext';
 
 const AuthenticatedRoute = ({ component: Component, ...rest }) => {
 
-  const [user, setUser] = useState();
+  const user = JSON.parse(localStorage.getItem("User"));
+  console.log(user);
   /**
    * this useEffect() is call only 1 like component did mount
    * tend to use in set user and others.
    */
-  useEffect(() => {
-    MAuth.getMe().then(({ data }) => {
-      MContext.user = data;
-      return data;
-    })
-    .then((data) => {
-      setUser(data);
-    });
-  }, []);
 
   // Add your own authentication on the below line.
   const isLoggedIn = MAuth.isLoggedIn();
