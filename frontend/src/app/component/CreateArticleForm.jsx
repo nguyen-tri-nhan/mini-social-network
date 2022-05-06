@@ -47,7 +47,7 @@ const CreateArticleForm = (props) => {
     setImageBase64('');
   }
 
-  const onUploadImageClick = () => {
+  const onCreateArticleClick = () => {
     const { handleAfterCreatePost } = props;
     ImgurHelper.uploadImage(imageBase64)
       .then(({ data }) => {
@@ -119,7 +119,7 @@ const CreateArticleForm = (props) => {
           </div>
         </DialogContent>
         <DialogActions>
-          <Button color="primary" onClick={onUploadImageClick}>
+          <Button color="primary" onClick={onCreateArticleClick}>
             Đăng bài
           </Button>
           {
