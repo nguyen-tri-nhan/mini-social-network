@@ -3,28 +3,28 @@ import MAuth from '../model/MAuth';
 
 const http = {
 
-  get({ url, data, params, errorHandler, headers }) {
-    return this.send('get', url, data, params, errorHandler);
+  get({ url, data, params, errorHandler, headers, authentication }) {
+    return this.send('get', url, data, params, errorHandler, headers, authentication);
   },
 
-  post({ url, data, params, errorHandler, headers }) {
-    return this.send('post', url, data, params, errorHandler);
+  post({ url, data, params, errorHandler, headers, authentication }) {
+    return this.send('post', url, data, params, errorHandler, headers, authentication);
   },
 
-  put({ url, data, params, errorHandler, headers }) {
-    return this.send('put', url, data, params, errorHandler);
+  put({ url, data, params, errorHandler, headers, authentication }) {
+    return this.send('put', url, data, params, errorHandler, headers, authentication);
   },
 
-  delete({ url, data, params, errorHandler, headers }) {
-    return this.send('delete', url, data, params, errorHandler);
+  delete({ url, data, params, errorHandler, headers, authentication }) {
+    return this.send('delete', url, data, params, errorHandler, headers, authentication);
   },
 
   //try to catch error in this param
-  send(method, url, data, params, errorHandler, headers) {
+  send(method, url, data, params, errorHandler, headers, authentication) {
     let config = {
       headers: {
         'Accept': 'application/json',
-        'Authorization': localStorage.getItem("JWT"),
+        'Authorization': authentication || localStorage.getItem("JWT"),
         ...headers
       },
       method: method,

@@ -1,12 +1,11 @@
 import Service from '../service/Service';
 import Cookies from 'cookies-js';
 import { goTo } from '../utils/RouteUtils';
-import MContext from './MContext';
 
 const MAuth = {
 
   isLoggedIn() {
-    return localStorage.getItem("JWT") ? true : false;
+    return localStorage.getItem("User") ? true : false;
   },
 
   logout() {
@@ -21,21 +20,23 @@ const MAuth = {
     Service.login(user, errorHandler)
       .then(({ data }) => {
         const { accessToken } = data;
-        localStorage.setItem("JWT", `Bearer ${accessToken}`);
-        this.getMe();
-        const isLoggedIn = MAuth.isLoggedIn();
-        if (isLoggedIn) {
-          goTo("/");
-        }
-      });
+        const token = `Bearer ${accessToken}`;
+        localStorage.setItem("JWT", token);
+        return token;
+      })
+      .then((token) => {
+        Service.getMe(token)
+          .then(({ data }) => {
+            localStorage.setItem("User", JSON.stringify(data));
+          })
+          .then(() => {
+            const isLoggedIn = MAuth.isLoggedIn();
+            if (isLoggedIn) {
+              goTo("/");
+            }
+          });
+      })
   },
-
-  getMe() {
-    return Service.getMe()
-      .then(({data}) => {
-        localStorage.setItem("User", JSON.stringify(data));
-      });
-  }
 
 }
 

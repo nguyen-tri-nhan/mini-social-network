@@ -22,8 +22,8 @@ const Service = {
         return http.post({url: LOGIN, data: user, errorHandler});
     },
 
-    getMe() {
-        return http.get({url: GET_ME});
+    getMe(authentication) {
+        return http.get({url: GET_ME, authentication});
     },
 
     createArticle(article) {
