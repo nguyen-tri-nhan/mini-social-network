@@ -20,7 +20,7 @@ const renderNavbar = (user, ...props) => {
         <AppBar>
           <Toolbar className="tool-bar">
             <Button onClick={() => goTo("/")} className="logo">
-              <Typography variant="h6" className="logo-name">Fakebook</Typography>
+              <Typography variant="h6" className="logo-name">Fakeboob</Typography>
             </Button>
             <div className="nav-bar-seperator-1"/>
             <Input placeholder="Tìm kiếm" className="search-bar"/>
