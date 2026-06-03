@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="0002" author="nhan">
+        <createTable tableName="vote">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="value" type="smallint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="target_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="target_type" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamptz" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint
+            tableName="vote"
+            columnNames="user_id, target_id, target_type"
+            constraintName="uq_vote_user_target"/>
+
+        <sql>ALTER TABLE vote ADD CONSTRAINT chk_vote_value CHECK (value IN (-1, 0, 1))</sql>
+        <sql>ALTER TABLE vote ADD CONSTRAINT chk_vote_target_type CHECK (target_type IN ('ARTICLE', 'COMMENT'))</sql>
+
+        <createIndex tableName="vote" indexName="idx_vote_target">
+            <column name="target_id"/>
+            <column name="target_type"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
