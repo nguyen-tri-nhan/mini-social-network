@@ -24,10 +24,8 @@ class ArticleResource(
 
     @GET
     @RolesAllowed("ROLE_USER")
-    fun list(
-        @QueryParam("page") @DefaultValue("0") page: Int,
-        @QueryParam("size") @DefaultValue("10") size: Int,
-    ): Response = Response.ok(ApiResponse.ok(articleService.listArticles(page, size.coerceAtMost(50)))).build()
+    fun list(@BeanParam params: ArticleListParams): Response =
+        Response.ok(ApiResponse.ok(articleService.listArticles(params.toQuery()))).build()
 
     @GET
     @Path("/{id}")

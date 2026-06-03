@@ -35,3 +35,4 @@ build/
 
 ### Properties ###
 application-local.properties
+*/.gradle/

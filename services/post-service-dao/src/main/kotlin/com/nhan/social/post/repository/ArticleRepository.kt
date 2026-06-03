@@ -18,6 +18,14 @@ class ArticleRepository : PanacheRepositoryBase<Article, UUID> {
 
     fun countVisible(): Long = count("visible = true")
 
+    fun findFiltered(hql: String, params: Map<String, Any>, sort: Sort, page: Int, size: Int): List<Article> =
+        find(hql, sort, params)
+            .page(Page.of(page, size))
+            .list()
+
+    fun countFiltered(hql: String, params: Map<String, Any>): Long =
+        count(hql, params)
+
     fun updateCounters(id: UUID, voteCount: Long, commentCount: Long) {
         update(
             "voteCount = ?1, commentCount = ?2, updatedAt = ?3 WHERE id = ?4",
