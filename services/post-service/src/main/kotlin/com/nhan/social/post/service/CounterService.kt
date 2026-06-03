@@ -2,7 +2,6 @@ package com.nhan.social.post.service
 
 import com.nhan.social.post.repository.ArticleRepository
 import io.quarkus.redis.datasource.RedisDataSource
-import io.quarkus.scheduler.Scheduled
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
 import org.jboss.logging.Logger
@@ -10,7 +9,7 @@ import java.util.UUID
 
 @ApplicationScoped
 class CounterService(
-    private val redis: RedisDataSource,   // blocking client — safe on @Scheduled worker thread
+    private val redis: RedisDataSource,
     private val articleRepo: ArticleRepository,
 ) {
     private val log = Logger.getLogger(CounterService::class.java)
@@ -33,9 +32,15 @@ class CounterService(
         }
     }
 
-    @Scheduled(every = "30s")
+    fun readLiveCounts(articleId: String): Pair<Int, Int> {
+        val votes    = valueCommands.get("article:$articleId:vote_count")?.toIntOrNull() ?: -1
+        val comments = valueCommands.get("article:$articleId:comment_count")?.toIntOrNull() ?: -1
+        return votes to comments
+    }
+
+    /** Called by CounterFlushJob in post-consumer every 30s. */
     @Transactional
-    fun flushCounters() {
+    fun flushToDb() {
         try {
             val keys = redis.key(String::class.java).keys("article:*:comment_count")
             keys.forEach { key ->

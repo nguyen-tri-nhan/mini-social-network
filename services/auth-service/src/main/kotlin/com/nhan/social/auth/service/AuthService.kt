@@ -10,10 +10,7 @@ import com.nhan.social.auth.security.JwtService
 import com.nhan.social.common.event.SocialEvent
 import com.nhan.social.common.event.EventType
 import com.nhan.social.exception.ConflictException
-import com.nhan.social.exception.ErrorType
-import com.nhan.social.exception.ServiceCode
 import com.nhan.social.exception.UnauthorizedException
-import com.nhan.social.exception.errorCode
 import io.smallrye.reactive.messaging.MutinyEmitter
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -36,9 +33,9 @@ class AuthService(
     @Transactional
     fun signup(request: SignUpRequest): AuthResponse {
         if (repo.existsByUsername(request.username))
-            throw ConflictException("Username '${request.username}' is already taken", errorCode(ServiceCode.AUTH, ErrorType.CONFLICT))
+            throw ConflictException("Username '${request.username}' is already taken")
         if (repo.existsByEmail(request.email))
-            throw ConflictException("Email '${request.email}' is already registered", errorCode(ServiceCode.AUTH, ErrorType.CONFLICT))
+            throw ConflictException("Email '${request.email}' is already registered")
 
         val userId = UUID.randomUUID()
         val credentials = Credentials().apply {
@@ -70,10 +67,10 @@ class AuthService(
 
     fun signin(request: SignInRequest): AuthResponse {
         val credentials = repo.findByIdentifier(request.identifier)
-            ?: throw UnauthorizedException("Invalid credentials", errorCode(ServiceCode.AUTH, ErrorType.UNAUTHORIZED))
+            ?: throw UnauthorizedException("Invalid credentials")
 
         val verified = BCrypt.verifyer().verify(request.password.toCharArray(), credentials.passwordHash)
-        if (!verified.verified) throw UnauthorizedException("Invalid credentials", errorCode(ServiceCode.AUTH, ErrorType.UNAUTHORIZED))
+        if (!verified.verified) throw UnauthorizedException("Invalid credentials")
 
         val token = jwtService.generateToken(
             credentials.userId.toString(),

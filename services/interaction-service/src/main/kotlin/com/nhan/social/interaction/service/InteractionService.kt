@@ -3,11 +3,8 @@ package com.nhan.social.interaction.service
 import com.nhan.social.common.dto.PageResponse
 import com.nhan.social.common.event.commentCreatedEvent
 import com.nhan.social.common.event.voteCastEvent
-import com.nhan.social.exception.ErrorType
 import com.nhan.social.exception.ForbiddenException
 import com.nhan.social.exception.NotFoundException
-import com.nhan.social.exception.ServiceCode
-import com.nhan.social.exception.errorCode
 import com.nhan.social.interaction.dto.*
 import com.nhan.social.interaction.entity.Comment
 import com.nhan.social.interaction.entity.Vote
@@ -66,8 +63,8 @@ class InteractionService(
 
     @Transactional
     fun deleteComment(commentId: UUID, requesterId: UUID) {
-        val comment = commentRepo.findById(commentId) ?: throw NotFoundException("Comment not found", errorCode(ServiceCode.INTERACTION, ErrorType.NOT_FOUND))
-        if (comment.authorId != requesterId) throw ForbiddenException(errorCode = errorCode(ServiceCode.INTERACTION, ErrorType.FORBIDDEN))
+        val comment = commentRepo.findById(commentId) ?: throw NotFoundException("Comment not found")
+        if (comment.authorId != requesterId) throw ForbiddenException()
         comment.visible = false
         comment.updatedAt = Instant.now()
     }

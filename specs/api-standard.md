@@ -138,9 +138,10 @@ Format: `"{service}-{type}"` — mỗi phần là số.
 
 ### Service codes
 
+Định nghĩa trong `application.properties` của từng service (`app.service-code`):
+
 | Code | Service |
 |---|---|
-| `00` | System / generic (validation, internal error) |
 | `01` | auth-service |
 | `02` | user-service |
 | `03` | post-service |

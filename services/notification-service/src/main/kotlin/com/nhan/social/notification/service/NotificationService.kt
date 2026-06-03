@@ -3,11 +3,8 @@ package com.nhan.social.notification.service
 import com.nhan.social.common.dto.PageResponse
 import com.nhan.social.common.event.EventType
 import com.nhan.social.common.event.SocialEvent
-import com.nhan.social.exception.ErrorType
 import com.nhan.social.exception.ForbiddenException
 import com.nhan.social.exception.NotFoundException
-import com.nhan.social.exception.ServiceCode
-import com.nhan.social.exception.errorCode
 import com.nhan.social.notification.entity.Notification
 import com.nhan.social.notification.repository.NotificationRepository
 import io.quarkus.redis.datasource.RedisDataSource
@@ -65,8 +62,8 @@ class NotificationService(
 
     @Transactional
     fun markSeen(id: UUID, requesterId: UUID) {
-        val notification = repo.findById(id) ?: throw NotFoundException("Notification not found", errorCode(ServiceCode.NOTIFICATION, ErrorType.NOT_FOUND))
-        if (notification.ownerId != requesterId) throw ForbiddenException(errorCode = errorCode(ServiceCode.NOTIFICATION, ErrorType.FORBIDDEN))
+        val notification = repo.findById(id) ?: throw NotFoundException("Notification not found")
+        if (notification.ownerId != requesterId) throw ForbiddenException()
         notification.seen = true
         decrementUnread(requesterId)
     }
