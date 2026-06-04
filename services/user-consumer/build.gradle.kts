@@ -4,12 +4,8 @@ plugins {
     id("io.quarkus")
 }
 
-val quarkusPlatformGroupId: String by project
-val quarkusPlatformArtifactId: String by project
-val quarkusPlatformVersion: String by project
-
 dependencies {
-    implementation(enforcedPlatform("$quarkusPlatformGroupId:$quarkusPlatformArtifactId:$quarkusPlatformVersion"))
+    implementation(enforcedPlatform(project(":social-bom")))
     implementation(project(":social-exception"))
     implementation(project(":user-service"))
 
@@ -33,6 +29,3 @@ allOpen {
     annotation("jakarta.persistence.Entity")
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "21"
-}

@@ -4,12 +4,8 @@ plugins {
     // NO quarkus plugin — this is a shared lib
 }
 
-val quarkusPlatformGroupId: String by project
-val quarkusPlatformArtifactId: String by project
-val quarkusPlatformVersion: String by project
-
 dependencies {
-    implementation(enforcedPlatform("$quarkusPlatformGroupId:$quarkusPlatformArtifactId:$quarkusPlatformVersion"))
+    api(platform(project(":social-bom")))
     implementation(project(":social-common"))
     implementation(project(":social-exception"))
     implementation(project(":post-service-dao"))
@@ -17,7 +13,7 @@ dependencies {
     implementation("io.quarkus:quarkus-arc")
     implementation("io.quarkus:quarkus-hibernate-orm-panache-kotlin")
     implementation("io.quarkus:quarkus-redis-client")
-    implementation("io.quarkiverse.amazonservices:quarkus-amazon-s3:2.17.1")
+    implementation("io.quarkiverse.amazonservices:quarkus-amazon-s3")
     implementation("software.amazon.awssdk:url-connection-client")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -29,6 +25,3 @@ allOpen {
     annotation("jakarta.persistence.Entity")
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "21"
-}

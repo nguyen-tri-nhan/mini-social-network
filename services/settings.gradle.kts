@@ -1,6 +1,9 @@
 rootProject.name = "social-services"
 
 include(
+    // BOM — version management for all subprojects
+    "social-bom",
+
     // Shared libs
     "social-common",
     "social-exception",

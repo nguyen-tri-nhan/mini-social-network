@@ -3,12 +3,8 @@ plugins {
     kotlin("plugin.allopen")
 }
 
-val quarkusPlatformGroupId: String by project
-val quarkusPlatformArtifactId: String by project
-val quarkusPlatformVersion: String by project
-
 dependencies {
-    implementation(enforcedPlatform("$quarkusPlatformGroupId:$quarkusPlatformArtifactId:$quarkusPlatformVersion"))
+    api(platform(project(":social-bom")))
     implementation(project(":social-common"))
     implementation(project(":social-exception"))
     implementation(project(":user-service-dao"))
@@ -26,6 +22,3 @@ allOpen {
     annotation("jakarta.persistence.Entity")
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "21"
-}
