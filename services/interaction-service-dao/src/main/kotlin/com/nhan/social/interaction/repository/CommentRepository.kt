@@ -10,11 +10,13 @@ import java.util.UUID
 @ApplicationScoped
 class CommentRepository : PanacheRepositoryBase<Comment, UUID> {
 
-    fun findByArticle(articleId: UUID, page: Int, size: Int): List<Comment> =
-        find("articleId = ?1 and visible = true", Sort.by("createdAt").ascending(), articleId)
-            .page(Page.of(page, size))
-            .list()
+    fun findByTarget(targetId: UUID, targetType: String, page: Int, size: Int): List<Comment> =
+        find(
+            "targetId = ?1 and targetType = ?2 and visible = true",
+            Sort.by("createdAt").ascending(),
+            targetId, targetType,
+        ).page(Page.of(page, size)).list()
 
-    fun countByArticle(articleId: UUID): Long =
-        count("articleId = ?1 and visible = true", articleId)
+    fun countByTarget(targetId: UUID, targetType: String): Long =
+        count("targetId = ?1 and targetType = ?2 and visible = true", targetId, targetType)
 }

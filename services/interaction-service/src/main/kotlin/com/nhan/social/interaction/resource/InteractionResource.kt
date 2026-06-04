@@ -21,56 +21,41 @@ class InteractionResource(
 ) {
     private val currentUserId: UUID get() = UUID.fromString(jwt.subject)
 
+    // ── Comments ──────────────────────────────────────────────────────────────
+
     @GET
-    @Path("/articles/{articleId}/comments")
+    @Path("/comments")
     @RolesAllowed("ROLE_USER")
     fun listComments(
-        @PathParam("articleId") articleId: UUID,
-        @QueryParam("page") @DefaultValue("0") page: Int,
+        @QueryParam("targetId")   targetId: UUID,
+        @QueryParam("targetType") targetType: String,
+        @QueryParam("page") @DefaultValue("0")  page: Int,
         @QueryParam("size") @DefaultValue("20") size: Int,
-    ): Response {
-        val result = service.listComments(articleId, page, size.coerceAtMost(50))
-        return Response.ok(ApiResponse.ok(result)).build()
-    }
+    ): Response = Response.ok(ApiResponse.ok(
+        service.listComments(targetId, targetType.uppercase(), page, size.coerceAtMost(50))
+    )).build()
 
     @POST
-    @Path("/articles/{articleId}/comments")
+    @Path("/comments")
     @RolesAllowed("ROLE_USER")
-    fun addComment(
-        @PathParam("articleId") articleId: UUID,
-        @Valid request: CreateCommentRequest,
-    ): Response {
-        val comment = service.addComment(articleId, currentUserId, request)
-        return Response.status(Response.Status.CREATED).entity(ApiResponse.ok(comment)).build()
-    }
+    fun addComment(@Valid request: CreateCommentRequest): Response =
+        Response.status(Response.Status.CREATED)
+            .entity(ApiResponse.ok(service.addComment(currentUserId, request)))
+            .build()
 
     @DELETE
-    @Path("/comments/{commentId}")
+    @Path("/comments/{id}")
     @RolesAllowed("ROLE_USER")
-    fun deleteComment(@PathParam("commentId") commentId: UUID): Response {
-        service.deleteComment(commentId, currentUserId)
+    fun deleteComment(@PathParam("id") id: UUID): Response {
+        service.deleteComment(id, currentUserId)
         return Response.noContent().build()
     }
 
-    @POST
-    @Path("/articles/{targetId}/vote")
-    @RolesAllowed("ROLE_USER")
-    fun voteArticle(
-        @PathParam("targetId") targetId: UUID,
-        @Valid request: CastVoteRequest,
-    ): Response {
-        val vote = service.castVote(targetId, "ARTICLE", currentUserId, request)
-        return Response.ok(ApiResponse.ok(vote)).build()
-    }
+    // ── Votes ─────────────────────────────────────────────────────────────────
 
     @POST
-    @Path("/comments/{targetId}/vote")
+    @Path("/votes")
     @RolesAllowed("ROLE_USER")
-    fun voteComment(
-        @PathParam("targetId") targetId: UUID,
-        @Valid request: CastVoteRequest,
-    ): Response {
-        val vote = service.castVote(targetId, "COMMENT", currentUserId, request)
-        return Response.ok(ApiResponse.ok(vote)).build()
-    }
+    fun castVote(@Valid request: CastVoteRequest): Response =
+        Response.ok(ApiResponse.ok(service.castVote(currentUserId, request))).build()
 }

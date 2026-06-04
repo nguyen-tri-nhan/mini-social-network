@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="0003" author="nhan">
+        <!-- Rename article_id → target_id -->
+        <renameColumn tableName="comment"
+                      oldColumnName="article_id"
+                      newColumnName="target_id"
+                      columnDataType="uuid"/>
+
+        <!-- Add target_type column, default existing rows to ARTICLE -->
+        <addColumn tableName="comment">
+            <column name="target_type" type="varchar(20)" defaultValue="ARTICLE">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <!-- Drop old index, create new composite index -->
+        <dropIndex tableName="comment" indexName="idx_comment_article"/>
+        <createIndex tableName="comment" indexName="idx_comment_target">
+            <column name="target_id"/>
+            <column name="target_type"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

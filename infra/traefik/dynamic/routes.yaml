@@ -1,0 +1,63 @@
+http:
+
+  # ── Routers ────────────────────────────────────────────────────────────────
+  routers:
+
+    auth:
+      rule: "PathPrefix(`/api/auth`)"
+      service: auth
+      entryPoints: [web]
+
+    users:
+      rule: "PathPrefix(`/api/users`)"
+      service: users
+      entryPoints: [web]
+
+    post:
+      rule: "PathPrefix(`/api/articles`)"
+      service: post
+      entryPoints: [web]
+
+    comments:
+      rule: "PathPrefix(`/api/comments`)"
+      service: interaction
+      entryPoints: [web]
+
+    votes:
+      rule: "PathPrefix(`/api/votes`)"
+      service: interaction
+      entryPoints: [web]
+
+    notifications:
+      rule: "PathPrefix(`/api/notifications`)"
+      service: notifications
+      entryPoints: [web]
+
+
+  # ── Services ───────────────────────────────────────────────────────────────
+  services:
+
+    auth:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8081"
+
+    users:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8082"
+
+    post:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8083"
+
+    interaction:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8084"
+
+    notifications:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8085"

@@ -1,50 +1,28 @@
 version: "3.9"
 
 services:
-  postgres-auth:
+
+  # API Gateway — http://localhost:8080/api/*
+  traefik:
+    image: traefik:v3.0
+    ports:
+      - "8080:8080"   # API gateway (FE gọi vào đây)
+      - "9090:9090"   # Traefik dashboard
+    volumes:
+      - ./traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Linux support
+  postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: auth_db
+      POSTGRES_DB: social
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports: ["5432:5432"]
-    volumes: [auth-data:/var/lib/postgresql/data]
-
-  postgres-user:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: user_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports: ["5433:5432"]
-    volumes: [user-data:/var/lib/postgresql/data]
-
-  postgres-post:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: post_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports: ["5434:5432"]
-    volumes: [post-data:/var/lib/postgresql/data]
-
-  postgres-interaction:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: interaction_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports: ["5435:5432"]
-    volumes: [interaction-data:/var/lib/postgresql/data]
-
-  postgres-notification:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: notification_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports: ["5436:5432"]
-    volumes: [notification-data:/var/lib/postgresql/data]
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/init-schemas.sql:/docker-entrypoint-initdb.d/init-schemas.sql:ro
 
   redis:
     image: redis:7-alpine
@@ -76,8 +54,4 @@ services:
       - ./localstack/init.sh:/etc/localstack/init/ready.d/init.sh
 
 volumes:
-  auth-data:
-  user-data:
-  post-data:
-  interaction-data:
-  notification-data:
+  postgres-data:

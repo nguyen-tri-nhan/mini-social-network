@@ -6,7 +6,13 @@ import java.time.Instant
 import java.util.UUID
 
 @Entity
-@Table(name = "comment")
+@Table(
+    name = "comment",
+    indexes = [
+        Index(name = "idx_comment_target", columnList = "target_id, target_type"),
+        Index(name = "idx_comment_author", columnList = "author_id"),
+    ]
+)
 class Comment : PanacheEntityBase() {
 
     @Id
@@ -16,8 +22,11 @@ class Comment : PanacheEntityBase() {
     @Column(columnDefinition = "TEXT", nullable = false)
     lateinit var description: String
 
-    @Column(name = "article_id", nullable = false, columnDefinition = "uuid")
-    lateinit var articleId: UUID
+    @Column(name = "target_id", nullable = false, columnDefinition = "uuid")
+    lateinit var targetId: UUID
+
+    @Column(name = "target_type", nullable = false, length = 20)
+    lateinit var targetType: String   // "ARTICLE" | "COMMENT" | ...
 
     @Column(name = "author_id", nullable = false, columnDefinition = "uuid")
     lateinit var authorId: UUID

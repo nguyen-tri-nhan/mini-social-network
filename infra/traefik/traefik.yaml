@@ -1,0 +1,17 @@
+api:
+  dashboard: true
+  insecure: true   # dashboard tại http://localhost:9090
+
+entryPoints:
+  web:
+    address: ":8080"
+  traefik:
+    address: ":9090"   # dashboard entrypoint
+
+providers:
+  file:
+    directory: /etc/traefik/dynamic
+    watch: true
+
+log:
+  level: INFO

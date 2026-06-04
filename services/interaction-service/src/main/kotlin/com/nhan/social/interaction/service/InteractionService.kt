@@ -1,16 +1,20 @@
 package com.nhan.social.interaction.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.nhan.social.common.dto.PageResponse
 import com.nhan.social.common.event.commentCreatedEvent
 import com.nhan.social.common.event.voteCastEvent
 import com.nhan.social.exception.ForbiddenException
 import com.nhan.social.exception.NotFoundException
-import com.nhan.social.interaction.dto.*
+import com.nhan.social.interaction.dto.CastVoteRequest
+import com.nhan.social.interaction.dto.CommentDto
+import com.nhan.social.interaction.dto.CreateCommentRequest
+import com.nhan.social.interaction.dto.VoteDto
+import com.nhan.social.interaction.dto.toDto
 import com.nhan.social.interaction.entity.Comment
 import com.nhan.social.interaction.entity.Vote
 import com.nhan.social.interaction.repository.CommentRepository
 import com.nhan.social.interaction.repository.VoteRepository
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.smallrye.reactive.messaging.MutinyEmitter
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -29,33 +33,30 @@ class InteractionService(
     @Channel("social-events-out")
     lateinit var emitter: MutinyEmitter<String>
 
-    fun listComments(articleId: UUID, page: Int, size: Int): PageResponse<CommentDto> {
-        val items = commentRepo.findByArticle(articleId, page, size).map { it.toDto() }
-        val total = commentRepo.countByArticle(articleId)
-        return PageResponse(
-            items = items, total = total, page = page, size = size,
-            hasNext = (page + 1) * size < total,
-        )
+    fun listComments(targetId: UUID, targetType: String, page: Int, size: Int): PageResponse<CommentDto> {
+        val items = commentRepo.findByTarget(targetId, targetType, page, size).map { it.toDto() }
+        val total = commentRepo.countByTarget(targetId, targetType)
+        return PageResponse(items = items, total = total, page = page, size = size, hasNext = (page + 1) * size < total)
     }
 
     @Transactional
-    fun addComment(articleId: UUID, authorId: UUID, request: CreateCommentRequest): CommentDto {
+    fun addComment(authorId: UUID, request: CreateCommentRequest): CommentDto {
         val comment = Comment().apply {
-            this.id = UUID.randomUUID()
-            this.articleId = articleId
-            this.authorId = authorId
+            this.id          = UUID.randomUUID()
+            this.targetId    = request.targetId
+            this.targetType  = request.targetType.uppercase()
+            this.authorId    = authorId
             this.description = request.description
-            this.createdAt = Instant.now()
-            this.updatedAt = Instant.now()
+            this.createdAt   = Instant.now()
+            this.updatedAt   = Instant.now()
         }
         commentRepo.persist(comment)
 
-        // Fire-and-forget: publish event, do NOT wait for counter update
         val event = commentCreatedEvent(
-            commentId = comment.id.toString(),
-            articleId = articleId.toString(),
-            actorId = authorId.toString(),
-            articleAuthorId = "",  // enriched by notification-service via post lookup
+            commentId       = comment.id.toString(),
+            articleId       = request.targetId.toString(),
+            actorId         = authorId.toString(),
+            articleAuthorId = "",
         )
         emitter.sendAndAwait(objectMapper.writeValueAsString(event))
         return comment.toDto()
@@ -63,44 +64,47 @@ class InteractionService(
 
     @Transactional
     fun deleteComment(commentId: UUID, requesterId: UUID) {
-        val comment = commentRepo.findById(commentId) ?: throw NotFoundException("Comment not found")
+        val comment = commentRepo.findById(commentId) ?: throw NotFoundException("Comment $commentId not found")
         if (comment.authorId != requesterId) throw ForbiddenException()
-        comment.visible = false
+        comment.visible   = false
         comment.updatedAt = Instant.now()
     }
 
     @Transactional
-    fun castVote(targetId: UUID, targetType: String, userId: UUID, request: CastVoteRequest): VoteDto {
+    fun castVote(userId: UUID, request: CastVoteRequest): VoteDto {
+        val targetId   = request.targetId
+        val targetType = request.targetType.uppercase()
+        val newValue   = request.value.toShort()
+
         val existing = voteRepo.findByUserAndTarget(userId, targetId, targetType)
         val oldValue = existing?.value?.toLong() ?: 0L
-        val newValue = request.value.toShort()
 
         val vote = if (existing != null) {
             existing.value = newValue
             existing
         } else {
             Vote().apply {
-                this.id = UUID.randomUUID()
-                this.userId = userId
-                this.targetId = targetId
+                this.id         = UUID.randomUUID()
+                this.userId     = userId
+                this.targetId   = targetId
                 this.targetType = targetType
-                this.value = newValue
-                this.createdAt = Instant.now()
+                this.value      = newValue
+                this.createdAt  = Instant.now()
             }.also { voteRepo.persist(it) }
         }
 
         val delta = newValue - oldValue
         val event = voteCastEvent(
-            targetId = targetId.toString(),
-            targetType = targetType,
-            actorId = userId.toString(),
+            targetId       = targetId.toString(),
+            targetType     = targetType,
+            actorId        = userId.toString(),
             targetAuthorId = "",
         ).copy(payload = mapOf(
-            "targetId" to targetId.toString(),
-            "targetType" to targetType,
-            "actorId" to userId.toString(),
+            "targetId"       to targetId.toString(),
+            "targetType"     to targetType,
+            "actorId"        to userId.toString(),
             "targetAuthorId" to "",
-            "delta" to delta.toString(),
+            "delta"          to delta.toString(),
         ))
         emitter.sendAndAwait(objectMapper.writeValueAsString(event))
         return vote.toDto()
