@@ -9,6 +9,8 @@ plugins {
 val jvmTarget = project.properties["kotlin.jvm.target"] as? String ?: "21"
 
 subprojects {
+    if (name == "social-bom") return@subprojects
+
     repositories {
         mavenCentral()
         mavenLocal()
@@ -20,6 +22,14 @@ subprojects {
 
     tasks.withType<Test>().configureEach {
         systemProperty("java.util.logging.manager", "org.jboss.logmanager.LogManager")
+    }
+
+    // Quarkus tạo riêng các config: integrationTest*, nativeTest*, quarkusGeneratedSources*
+    // Chúng extend testImplementation nên cần BOM ở đây, không chỉ ở implementation
+    plugins.withId("io.quarkus") {
+        dependencies {
+            add("testImplementation", enforcedPlatform(project(":social-bom")))
+        }
     }
 }
 
