@@ -1,10 +1,35 @@
 version: "3.9"
 
+# Dùng profiles để chỉ start infra cần thiết:
+#   docker compose --profile auth           up -d   → postgres
+#   docker compose --profile post           up -d   → postgres + redis + kafka + localstack
+#   docker compose --profile interaction    up -d   → postgres + kafka
+#   docker compose --profile notification   up -d   → postgres + redis + kafka
+#   docker compose --profile observability  up -d   → grafana LGTM (traces + metrics + logs)
+#   docker compose --profile all            up -d   → tất cả
+#   docker compose --profile gateway        up -d   → traefik
+
 services:
 
-  # API Gateway — http://localhost:8080/api/*
+  # ── Observability — Grafana LGTM (Loki + Grafana + Tempo + Mimir) ───────────
+  # Grafana UI:   http://localhost:3000  (admin/admin)
+  # OTLP gRPC:   localhost:4317          ← services gửi traces + metrics
+  # OTLP HTTP:   localhost:4318
+  lgtm:
+    image: grafana/otel-lgtm:0.8.1
+    profiles: [observability, all]
+    ports:
+      - "3000:3000"   # Grafana UI
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+
+  # ── API Gateway ─────────────────────────────────────────────────────────────
   traefik:
     image: traefik:v3.0
+    profiles: [gateway, all]
     ports:
       - "8080:8080"   # API gateway (FE gọi vào đây)
       - "9090:9090"   # Traefik dashboard
@@ -12,9 +37,13 @@ services:
       - ./traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro
       - ./traefik/dynamic:/etc/traefik/dynamic:ro
     extra_hosts:
-      - "host.docker.internal:host-gateway"  # Linux support
+      - "host.docker.internal:host-gateway"
+
+  # ── Database ─────────────────────────────────────────────────────────────────
+  # Tất cả services đều cần postgres
   postgres:
     image: postgres:15-alpine
+    profiles: [auth, user, post, interaction, notification, all]
     environment:
       POSTGRES_DB: social
       POSTGRES_USER: postgres
@@ -24,13 +53,19 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - ./postgres/init-schemas.sql:/docker-entrypoint-initdb.d/init-schemas.sql:ro
 
+  # ── Cache ────────────────────────────────────────────────────────────────────
+  # post, user, notification cần redis
   redis:
     image: redis:7-alpine
+    profiles: [user, post, notification, all]
     ports: ["6379:6379"]
     command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
 
+  # ── Messaging ────────────────────────────────────────────────────────────────
+  # post, interaction, notification cần kafka
   kafka:
     image: confluentinc/cp-kafka:7.6.0
+    profiles: [post, interaction, notification, all]
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
@@ -44,8 +79,11 @@ services:
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     ports: ["9092:9092"]
 
+  # ── Storage ──────────────────────────────────────────────────────────────────
+  # chỉ post cần localstack (S3 image upload)
   localstack:
     image: localstack/localstack:3
+    profiles: [post, all]
     environment:
       SERVICES: s3
       DEFAULT_REGION: us-east-1

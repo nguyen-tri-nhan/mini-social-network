@@ -17,7 +17,6 @@ dependencies {
     implementation("io.quarkus:quarkus-arc")
     implementation("io.quarkus:quarkus-hibernate-orm-panache-kotlin")
     implementation("io.quarkus:quarkus-redis-client")
-    implementation("io.quarkus:quarkus-messaging-kafka")          // for MutinyEmitter in ArticleService
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-s3:2.17.1")
     implementation("software.amazon.awssdk:url-connection-client")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")

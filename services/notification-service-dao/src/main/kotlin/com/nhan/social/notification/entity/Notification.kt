@@ -28,6 +28,9 @@ class Notification : PanacheEntityBase() {
     @Column(nullable = false)
     var seen: Boolean = false
 
+    @Column(name = "event_id", columnDefinition = "uuid", unique = true)
+    var eventId: UUID? = null   // outbox event ID — nullable for backward compat
+
     @Column(name = "created_at", updatable = false)
     var createdAt: Instant = Instant.now()
 }

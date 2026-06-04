@@ -2,6 +2,61 @@
 
 ---
 
+## 0. Dev một service — không cần chạy tất cả
+
+### Infra tối thiểu per service
+
+| Service đang dev | Cần start |
+|---|---|
+| auth-service | `--profile auth` (postgres) |
+| user-service | `--profile user` (postgres + redis) |
+| post-service | `--profile post` (postgres + redis + kafka + localstack) |
+| interaction-service | `--profile interaction` (postgres + kafka) |
+| notification-service | `--profile notification` (postgres + redis + kafka) |
+
+```bash
+# Ví dụ: chỉ dev post-service
+docker compose -f infra/docker-compose.dev.yml --profile post up -d
+
+cd services && ./gradlew :post-api:quarkusDev
+```
+
+### Lấy dev token (bypass auth)
+
+`DevTokenResource` chỉ tồn tại trong `dev` build — không xuất hiện ở production.
+
+```bash
+# Bước 1: start auth-service (cần postgres)
+docker compose -f infra/docker-compose.dev.yml --profile auth up -d
+cd services && ./gradlew :auth-service:quarkusDev   # chạy riêng terminal
+
+# Bước 2: lấy token (365 ngày — chỉ cần làm 1 lần)
+curl "http://localhost:8081/dev/token?userId=11111111-1111-1111-1111-111111111111&username=alice"
+
+# Response:
+# {
+#   "token": "eyJ...",
+#   "userId": "11111111-1111-1111-1111-111111111111",
+#   "username": "alice",
+#   "usage": "Authorization: Bearer eyJ..."
+# }
+
+# Bước 3: dùng token để gọi post-service trực tiếp (không qua gateway)
+curl http://localhost:8083/api/articles \
+  -H "Authorization: Bearer eyJ..."
+```
+
+Lưu token vào biến môi trường để tiện dùng:
+
+```bash
+export DEV_TOKEN=$(curl -s "http://localhost:8081/dev/token" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['token'])")
+
+# Sau đó dùng bình thường
+curl http://localhost:8083/api/articles -H "Authorization: Bearer $DEV_TOKEN"
+```
+
+---
+
 ## 1. Chạy local với Docker Compose (nhanh nhất)
 
 Khởi động toàn bộ infrastructure:
@@ -256,22 +311,45 @@ EOF
 
 ### 2.6 Build và load image vào kind
 
+Quarkus dùng **JIB** để build image — không cần Dockerfile, không cần Docker daemon chạy khi build.
+
+```
+Build image (JIB)          Load vào kind              Deploy
+─────────────────    →     ──────────────────    →    ──────────
+gradle :svc:build          kind load docker-image     kubectl apply
+-Dquarkus...build=true     --name social
+```
+
+**Dùng Makefile (khuyến nghị):**
+
 ```bash
-cd services
+# Full workflow — build + load + deploy tất cả
+make up
 
-# Build image (JIB — không cần Docker daemon)
-gradle :auth-service:build -Dquarkus.container-image.build=true
-gradle :user-api:build     -Dquarkus.container-image.build=true
-gradle :post-api:build     -Dquarkus.container-image.build=true
-gradle :interaction-service:build -Dquarkus.container-image.build=true
-gradle :notification-api:build    -Dquarkus.container-image.build=true
+# Chỉ update 1 service (ví dụ sau khi sửa post-service)
+make up-post
 
-# Load vào kind cluster (không cần push lên registry)
-kind load docker-image nhan/auth-service:latest        --name social
-kind load docker-image nhan/user-api:latest            --name social
-kind load docker-image nhan/post-api:latest            --name social
-kind load docker-image nhan/interaction-service:latest --name social
-kind load docker-image nhan/notification-api:latest    --name social
+# Build tất cả images
+make build
+
+# Load tất cả vào kind
+make load
+
+# Deploy/update manifests
+make deploy
+```
+
+**Hoặc thủ công từng bước:**
+
+```bash
+# Build
+cd services && gradle :post-api:build -Dquarkus.container-image.build=true
+
+# Load vào kind (bắt buộc — kind không tự pull từ local Docker)
+kind load docker-image nhan/post-api:latest --name social
+
+# Restart pod để dùng image mới
+kubectl rollout restart deployment/post-api -n social
 ```
 
 ### 2.7 Deploy services

@@ -18,16 +18,19 @@ class InteractionEventConsumer(
     @Incoming("interaction-events-in")
     fun consume(message: String) {
         try {
-            val event = objectMapper.readValue(message, SocialEvent::class.java)
+            val event   = objectMapper.readValue(message, SocialEvent::class.java)
+            val eventId = event.eventId
+
             when (event.eventType) {
                 EventType.COMMENT_CREATED -> {
-                    val articleId = event.payload["articleId"] ?: return
-                    counterService.incrementComment(articleId)
+                    val articleId = event.payload["targetId"] ?: return
+                    counterService.incrementComment(articleId, eventId)
                 }
                 EventType.VOTE_CAST -> {
-                    val targetId = event.payload["targetId"] ?: return
+                    val targetId = event.payload["targetId"]   ?: return
+                    val delta    = event.payload["delta"]?.toLongOrNull() ?: 1L
                     if (event.payload["targetType"] == "ARTICLE") {
-                        counterService.incrementVote(targetId, event.payload["delta"]?.toLongOrNull() ?: 1L)
+                        counterService.incrementVote(targetId, delta, eventId)
                     }
                 }
                 else -> { /* not handled here */ }

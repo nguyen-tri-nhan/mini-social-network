@@ -8,4 +8,5 @@
     <include file="db/changelog/changes/0001-create-comment.xml"/>
     <include file="db/changelog/changes/0002-create-vote.xml"/>
     <include file="db/changelog/changes/0003-comment-target-refactor.xml"/>
+    <include file="db/changelog/changes/0004-create-outbox.xml"/>
 </databaseChangeLog>

@@ -11,11 +11,16 @@ class JwtService {
     @ConfigProperty(name = "mp.jwt.verify.issuer")
     lateinit var issuer: String
 
-    fun generateToken(userId: String, username: String, roles: Set<String>): String =
+    fun generateToken(
+        userId: String,
+        username: String,
+        roles: Set<String>,
+        expiryDays: Long = 7,
+    ): String =
         Jwt.issuer(issuer)
             .subject(userId)
             .groups(roles)
             .claim("username", username)
-            .expiresIn(Duration.ofDays(7))
+            .expiresIn(Duration.ofDays(expiryDays))
             .sign()
 }

@@ -2,7 +2,8 @@ package com.nhan.social.post.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nhan.social.common.dto.PageResponse
-import com.nhan.social.common.event.articleCreatedEvent
+import com.nhan.social.common.event.EventType
+import com.nhan.social.common.event.SocialEvent
 import com.nhan.social.common.rsql.RsqlQuerySpec
 import com.nhan.social.exception.ForbiddenException
 import com.nhan.social.exception.NotFoundException
@@ -11,28 +12,24 @@ import com.nhan.social.post.dto.ArticleQuery
 import com.nhan.social.post.dto.CreateArticleRequest
 import com.nhan.social.post.dto.toDto
 import com.nhan.social.post.entity.Article
+import com.nhan.social.post.entity.OutboxEntry
 import com.nhan.social.post.repository.ArticleRepository
+import com.nhan.social.post.repository.OutboxRepository
 import com.nhan.social.post.rsql.parseArticleFilter
 import com.nhan.social.post.rsql.parseArticleSort
 import io.quarkus.panache.common.Sort
-import io.smallrye.reactive.messaging.MutinyEmitter
 import jakarta.enterprise.context.ApplicationScoped
-import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import org.eclipse.microprofile.reactive.messaging.Channel
 import java.time.Instant
 import java.util.UUID
 
 @ApplicationScoped
 class ArticleService(
     private val repo: ArticleRepository,
+    private val outboxRepo: OutboxRepository,
     private val counterService: CounterService,
     private val objectMapper: ObjectMapper,
 ) {
-    @Inject
-    @Channel("social-events-out")
-    lateinit var emitter: MutinyEmitter<String>
-
     fun listArticles(query: ArticleQuery): PageResponse<ArticleDto> {
         val spec = if (query.filter.isNullOrBlank()) RsqlQuerySpec.of("visible = true") else parseArticleFilter(query.filter)
         return fetchArticles(query.page, query.size.coerceAtMost(50), spec, parseArticleSort(query.sort))
@@ -54,7 +51,19 @@ class ArticleService(
             this.updatedAt   = Instant.now()
         }
         repo.persist(article)
-        emitter.sendAndAwait(objectMapper.writeValueAsString(articleCreatedEvent(article.id.toString(), authorId.toString())))
+
+        outboxRepo.persist(outbox(
+            aggregateType = "article",
+            aggregateId   = article.id,
+            event = SocialEvent(
+                eventType = EventType.ARTICLE_CREATED,
+                payload = mapOf(
+                    "articleId" to article.id.toString(),
+                    "authorId"  to authorId.toString(),
+                ),
+            ),
+        ))
+
         return article.toDto()
     }
 
@@ -66,6 +75,14 @@ class ArticleService(
         article.updatedAt = Instant.now()
         return article.toDto()
     }
+
+    private fun outbox(aggregateType: String, aggregateId: UUID, event: SocialEvent): OutboxEntry =
+        OutboxEntry().apply {
+            this.aggregateType = aggregateType
+            this.aggregateId   = aggregateId
+            this.eventType     = event.eventType.name
+            this.payload       = objectMapper.writeValueAsString(event.copy(eventId = this.id.toString()))
+        }
 
     private fun fetchArticles(page: Int, size: Int, spec: RsqlQuerySpec, sort: Sort): PageResponse<ArticleDto> {
         val items = repo.findFiltered(spec.hql, spec.params, sort, page, size).map { article ->

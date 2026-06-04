@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-consumer
+  namespace: social
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: notification-consumer }
+  template:
+    metadata:
+      labels: { app: notification-consumer }
+    spec:
+      containers:
+        - name: notification-consumer
+          image: nhan/notification-consumer:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://lgtm:4317
+            - name: DB_URL
+              value: jdbc:postgresql://postgres:5432/social
+            - name: REDIS_URL
+              value: redis://redis:6379
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: kafka:9092
+          readinessProbe:
+            httpGet: { path: /q/health/ready, port: 8080 }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /q/health/live, port: 8080 }
+            initialDelaySeconds: 40
+            periodSeconds: 15

@@ -2,8 +2,8 @@ package com.nhan.social.interaction.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nhan.social.common.dto.PageResponse
-import com.nhan.social.common.event.commentCreatedEvent
-import com.nhan.social.common.event.voteCastEvent
+import com.nhan.social.common.event.EventType
+import com.nhan.social.common.event.SocialEvent
 import com.nhan.social.exception.ForbiddenException
 import com.nhan.social.exception.NotFoundException
 import com.nhan.social.interaction.dto.CastVoteRequest
@@ -12,14 +12,13 @@ import com.nhan.social.interaction.dto.CreateCommentRequest
 import com.nhan.social.interaction.dto.VoteDto
 import com.nhan.social.interaction.dto.toDto
 import com.nhan.social.interaction.entity.Comment
+import com.nhan.social.interaction.entity.OutboxEntry
 import com.nhan.social.interaction.entity.Vote
 import com.nhan.social.interaction.repository.CommentRepository
+import com.nhan.social.interaction.repository.OutboxRepository
 import com.nhan.social.interaction.repository.VoteRepository
-import io.smallrye.reactive.messaging.MutinyEmitter
 import jakarta.enterprise.context.ApplicationScoped
-import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import org.eclipse.microprofile.reactive.messaging.Channel
 import java.time.Instant
 import java.util.UUID
 
@@ -27,12 +26,9 @@ import java.util.UUID
 class InteractionService(
     private val commentRepo: CommentRepository,
     private val voteRepo: VoteRepository,
+    private val outboxRepo: OutboxRepository,
     private val objectMapper: ObjectMapper,
 ) {
-    @Inject
-    @Channel("social-events-out")
-    lateinit var emitter: MutinyEmitter<String>
-
     fun listComments(targetId: UUID, targetType: String, page: Int, size: Int): PageResponse<CommentDto> {
         val items = commentRepo.findByTarget(targetId, targetType, page, size).map { it.toDto() }
         val total = commentRepo.countByTarget(targetId, targetType)
@@ -52,13 +48,20 @@ class InteractionService(
         }
         commentRepo.persist(comment)
 
-        val event = commentCreatedEvent(
-            commentId       = comment.id.toString(),
-            articleId       = request.targetId.toString(),
-            actorId         = authorId.toString(),
-            articleAuthorId = "",
-        )
-        emitter.sendAndAwait(objectMapper.writeValueAsString(event))
+        outboxRepo.persist(outbox(
+            aggregateType = "comment",
+            aggregateId   = comment.id,
+            event = SocialEvent(
+                eventType = EventType.COMMENT_CREATED,
+                payload = mapOf(
+                    "commentId"  to comment.id.toString(),
+                    "targetId"   to comment.targetId.toString(),
+                    "targetType" to comment.targetType,
+                    "actorId"    to authorId.toString(),
+                ),
+            ),
+        ))
+
         return comment.toDto()
     }
 
@@ -78,6 +81,7 @@ class InteractionService(
 
         val existing = voteRepo.findByUserAndTarget(userId, targetId, targetType)
         val oldValue = existing?.value?.toLong() ?: 0L
+        val delta    = newValue - oldValue
 
         val vote = if (existing != null) {
             existing.value = newValue
@@ -93,20 +97,28 @@ class InteractionService(
             }.also { voteRepo.persist(it) }
         }
 
-        val delta = newValue - oldValue
-        val event = voteCastEvent(
-            targetId       = targetId.toString(),
-            targetType     = targetType,
-            actorId        = userId.toString(),
-            targetAuthorId = "",
-        ).copy(payload = mapOf(
-            "targetId"       to targetId.toString(),
-            "targetType"     to targetType,
-            "actorId"        to userId.toString(),
-            "targetAuthorId" to "",
-            "delta"          to delta.toString(),
+        outboxRepo.persist(outbox(
+            aggregateType = "vote",
+            aggregateId   = vote.id,
+            event = SocialEvent(
+                eventType = EventType.VOTE_CAST,
+                payload = mapOf(
+                    "targetId"   to targetId.toString(),
+                    "targetType" to targetType,
+                    "actorId"    to userId.toString(),
+                    "delta"      to delta.toString(),
+                ),
+            ),
         ))
-        emitter.sendAndAwait(objectMapper.writeValueAsString(event))
+
         return vote.toDto()
     }
+
+    private fun outbox(aggregateType: String, aggregateId: UUID, event: SocialEvent): OutboxEntry =
+        OutboxEntry().apply {
+            this.aggregateType = aggregateType
+            this.aggregateId   = aggregateId
+            this.eventType     = event.eventType.name
+            this.payload       = objectMapper.writeValueAsString(event.copy(eventId = this.id.toString()))
+        }
 }

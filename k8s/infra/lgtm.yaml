@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lgtm
+  namespace: social
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: lgtm }
+  template:
+    metadata:
+      labels: { app: lgtm }
+    spec:
+      containers:
+        - name: lgtm
+          image: grafana/otel-lgtm:0.8.1
+          ports:
+            - { containerPort: 3000, name: grafana }
+            - { containerPort: 4317, name: otlp-grpc }
+            - { containerPort: 4318, name: otlp-http }
+          env:
+            - { name: GF_AUTH_ANONYMOUS_ENABLED,  value: "true" }
+            - { name: GF_AUTH_ANONYMOUS_ORG_ROLE, value: Admin }
+          readinessProbe:
+            httpGet: { path: /api/health, port: 3000 }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lgtm
+  namespace: social
+spec:
+  selector: { app: lgtm }
+  ports:
+    - { name: grafana,   port: 3000 }
+    - { name: otlp-grpc, port: 4317 }
+    - { name: otlp-http, port: 4318 }

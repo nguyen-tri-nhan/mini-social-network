@@ -21,4 +21,7 @@ class NotificationRepository : PanacheRepositoryBase<Notification, UUID> {
     fun markAllSeen(ownerId: UUID) {
         update("seen = true WHERE ownerId = ?1 and seen = false", ownerId)
     }
+
+    fun existsByEventId(eventId: UUID): Boolean =
+        count("eventId = ?1", eventId) > 0
 }

@@ -76,23 +76,30 @@ class NotificationService(
 
     @Transactional
     fun createFromEvent(event: SocialEvent) {
+        val eventId = event.eventId?.let { UUID.fromString(it) }
+        if (eventId != null && repo.existsByEventId(eventId)) {
+            log.infof("Duplicate event %s skipped", eventId)
+            return
+        }
+
         val payload = event.payload
         val actorId = payload["actorId"]?.let { UUID.fromString(it) } ?: return
         val ownerId = when (event.eventType) {
             EventType.COMMENT_CREATED -> payload["articleAuthorId"]
-            EventType.VOTE_CAST -> payload["targetAuthorId"]
+            EventType.VOTE_CAST       -> payload["targetAuthorId"]
             else -> null
         }?.takeIf { it.isNotBlank() }?.let { UUID.fromString(it) } ?: return
 
         if (actorId == ownerId) return
 
         repo.persist(Notification().apply {
-            this.id = UUID.randomUUID()
-            this.type = event.eventType.name
-            this.actorId = actorId
-            this.ownerId = ownerId
+            this.id        = UUID.randomUUID()
+            this.eventId   = eventId
+            this.type      = event.eventType.name
+            this.actorId   = actorId
+            this.ownerId   = ownerId
             this.articleId = payload["articleId"]?.let { UUID.fromString(it) }
-            this.seen = false
+            this.seen      = false
             this.createdAt = Instant.now()
         })
 

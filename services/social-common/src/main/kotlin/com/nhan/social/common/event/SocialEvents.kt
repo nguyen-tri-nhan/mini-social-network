@@ -13,6 +13,7 @@ data class SocialEvent(
     val eventType: EventType,
     val occurredAt: Instant = Instant.now(),
     val payload: Map<String, String>,
+    val eventId: String? = null,   // outbox UUID — dùng cho idempotency ở consumer
 )
 
 fun articleCreatedEvent(articleId: String, authorId: String) = SocialEvent(

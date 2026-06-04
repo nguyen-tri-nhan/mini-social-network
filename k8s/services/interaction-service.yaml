@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: interaction-service
+  namespace: social
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: interaction-service }
+  template:
+    metadata:
+      labels: { app: interaction-service }
+    spec:
+      containers:
+        - name: interaction-service
+          image: nhan/interaction-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://lgtm:4317
+            - name: DB_URL
+              value: jdbc:postgresql://postgres:5432/social
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: kafka:9092
+            - name: JWT_ISSUER
+              value: https://social.nhan.dev
+            - name: JWT_PUBLIC_KEY_LOCATION
+              value: /etc/jwt/public-key.pem
+          volumeMounts:
+            - name: jwt-keys
+              mountPath: /etc/jwt
+              readOnly: true
+          readinessProbe:
+            httpGet: { path: /q/health/ready, port: 8080 }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /q/health/live, port: 8080 }
+            initialDelaySeconds: 30
+            periodSeconds: 15
+      volumes:
+        - name: jwt-keys
+          secret:
+            secretName: jwt-keys
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: interaction-service
+  namespace: social
+spec:
+  selector: { app: interaction-service }
+  ports:
+    - port: 8080
