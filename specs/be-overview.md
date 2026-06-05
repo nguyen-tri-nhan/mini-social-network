@@ -18,7 +18,7 @@ graph LR
         PostApi["post-api\n:8083"]
         Inter["interaction-service\n:8084"]
         NotiApi["notification-api\n:8085"]
-        WsSvc["websocket-service\n:8086 (planned)"]
+        WsSvc["websocket-service\n:8086"]
     end
 
     subgraph DBS["PostgreSQL :5432"]
@@ -60,7 +60,7 @@ graph LR
 
     Kafka -->|"social.auth"| UserCon
     Kafka -->|"social.interaction"| PostCon & NotiCon
-    Kafka -.->|"social.interaction\n(planned)"| WsSvc
+    Kafka -->|"social.interaction"| WsSvc
 
     UserCon --> UserDB & Redis
     PostCon --> PostDB & Redis
@@ -115,7 +115,7 @@ ServiceA → http://serviceB:8080/internal/**
 | **interaction-service** | REST | Comment, Vote | `interaction` | 8084 |
 | **notification-api** | REST | Notification list, mark seen | `notification` | 8085 |
 | **notification-consumer** | Kafka | Create notification from events | `notification` | 8185 |
-| **websocket-service** _(planned)_ | WS + Kafka | Push realtime events to clients | — | 8086 |
+| **websocket-service** | WS + Kafka | Push realtime events to clients | — | 8086 |
 
 ---
 
@@ -194,8 +194,8 @@ sequenceDiagram
     NC->>NC: INSERT notification
     NC->>R: INCR noti_unread:{ownerId}
 
-    K-->>WS: consume (ws-group) [planned]
-    WS->>WS: push NOTIFICATION to article owner [planned]\npush COMMENT_ADDED to article subscribers [planned]
+    K-->>WS: consume (ws-group)
+    WS->>WS: push NOTIFICATION to article owner\npush COMMENT_ADDED to article subscribers
 ```
 
 ---
@@ -217,7 +217,7 @@ flowchart LR
 
 ---
 
-## 8. WebSocket — Realtime Push _(planned — not yet implemented)_
+## 8. WebSocket — Realtime Push
 
 Pub/sub channel model — FE tự subscribe vào topic cần, server route theo topic name. Không cần auth ở WS level.
 
@@ -385,7 +385,6 @@ services/
 ├── notification-consumer    # Quarkus app: Kafka ← social.interaction
 
 └── websocket-service        # Quarkus app: WebSocket + Kafka ← social.interaction
-                             # (planned — per websocket-plan.md)
 ```
 
 ---

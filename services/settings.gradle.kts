@@ -33,4 +33,7 @@ include(
     "notification-service",      // shared logic lib
     "notification-api",          // Quarkus: REST
     "notification-consumer",     // Quarkus: Kafka consumer
+
+    // WebSocket (realtime push gateway)
+    "websocket-service",
 )

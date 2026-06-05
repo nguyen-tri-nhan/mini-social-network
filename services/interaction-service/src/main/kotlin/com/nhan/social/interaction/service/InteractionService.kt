@@ -6,6 +6,7 @@ import com.nhan.social.common.event.EventType
 import com.nhan.social.common.event.SocialEvent
 import com.nhan.social.exception.ForbiddenException
 import com.nhan.social.exception.NotFoundException
+import com.nhan.social.interaction.client.PostApiClient
 import com.nhan.social.interaction.dto.CastVoteRequest
 import com.nhan.social.interaction.dto.CommentDto
 import com.nhan.social.interaction.dto.CreateCommentRequest
@@ -19,6 +20,8 @@ import com.nhan.social.interaction.repository.OutboxRepository
 import com.nhan.social.interaction.repository.VoteRepository
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
+import org.eclipse.microprofile.rest.client.inject.RestClient
+import org.jboss.logging.Logger
 import java.time.Instant
 import java.util.UUID
 
@@ -28,7 +31,10 @@ class InteractionService(
     private val voteRepo: VoteRepository,
     private val outboxRepo: OutboxRepository,
     private val objectMapper: ObjectMapper,
+    @RestClient private val postApiClient: PostApiClient,
 ) {
+    private val log = Logger.getLogger(InteractionService::class.java)
+
     fun listComments(targetId: UUID, targetType: String, page: Int, size: Int): PageResponse<CommentDto> {
         val items = commentRepo.findByTarget(targetId, targetType, page, size).map { it.toDto() }
         val total = commentRepo.countByTarget(targetId, targetType)
@@ -48,17 +54,20 @@ class InteractionService(
         }
         commentRepo.persist(comment)
 
+        val (ownerIdStr, articleIdStr) = resolveOwner(request.targetId, comment.targetType)
+
         outboxRepo.persist(outbox(
             aggregateType = "interaction",
             aggregateId   = comment.id,
             event = SocialEvent(
                 eventType = EventType.COMMENT_CREATED,
-                payload = mapOf(
-                    "commentId"  to comment.id.toString(),
-                    "targetId"   to comment.targetId.toString(),
-                    "targetType" to comment.targetType,
-                    "actorId"    to authorId.toString(),
-                ),
+                payload = buildMap {
+                    put("commentId",  comment.id.toString())
+                    put("articleId",  articleIdStr ?: request.targetId.toString())
+                    put("targetType", comment.targetType)
+                    put("actorId",    authorId.toString())
+                    if (ownerIdStr != null) put("articleAuthorId", ownerIdStr)
+                },
             ),
         ))
 
@@ -97,22 +106,49 @@ class InteractionService(
             }.also { voteRepo.persist(it) }
         }
 
+        val (ownerIdStr, articleIdStr) = resolveOwner(targetId, targetType)
+
         outboxRepo.persist(outbox(
             aggregateType = "interaction",
             aggregateId   = vote.id,
             event = SocialEvent(
                 eventType = EventType.VOTE_CAST,
-                payload = mapOf(
-                    "targetId"   to targetId.toString(),
-                    "targetType" to targetType,
-                    "actorId"    to userId.toString(),
-                    "delta"      to delta.toString(),
-                ),
+                payload = buildMap {
+                    put("targetId",   targetId.toString())
+                    put("targetType", targetType)
+                    put("actorId",    userId.toString())
+                    put("delta",      delta.toString())
+                    if (articleIdStr != null) put("articleId",      articleIdStr)
+                    if (ownerIdStr   != null) put("targetAuthorId", ownerIdStr)
+                },
             ),
         ))
 
         return vote.toDto()
     }
+
+    // Returns (ownerId, articleId) by target type.
+    // ARTICLE → fetch authorId from post-api; articleId = targetId.
+    // COMMENT → look up locally; articleId = comment.targetId if that comment targets an ARTICLE.
+    private fun resolveOwner(targetId: UUID, targetType: String): Pair<String?, String?> =
+        when (targetType) {
+            "ARTICLE" -> {
+                val authorId = try {
+                    postApiClient.getArticle(targetId).authorId
+                } catch (e: Exception) {
+                    log.warnf("Could not fetch article author for %s: %s", targetId, e.message)
+                    null
+                }
+                Pair(authorId, targetId.toString())
+            }
+            "COMMENT" -> {
+                val comment = commentRepo.findById(targetId)
+                val authorId = comment?.authorId?.toString()
+                val articleId = comment?.takeIf { it.targetType == "ARTICLE" }?.targetId?.toString()
+                Pair(authorId, articleId)
+            }
+            else -> Pair(null, null)
+        }
 
     private fun outbox(aggregateType: String, aggregateId: UUID, event: SocialEvent): OutboxEntry =
         OutboxEntry().apply {
