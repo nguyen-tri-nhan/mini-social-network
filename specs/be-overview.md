@@ -83,13 +83,14 @@ http://localhost:8080
         ├── /api/votes/**         → interaction-service   │ → auth-service /api/auth/verify
         ├── /api/notifications/** → notification-api      │ → inject X-User-Id header
         │                                                  ┘
-        └── /ws/**                → websocket-service      (PUBLIC — service tự verify JWT)
+        └── /ws/**                → websocket-service      (PUBLIC — no auth, pub/sub channels)
 ```
 
 **JWT verification flow (protected routes):**
 ```
 Request → Traefik
-  → ForwardAuth: GET auth-service /api/auth/verify (Authorization: Bearer <jwt>)
+  → ForwardAuth: GET auth-service /api/auth/verify
+                 Authorization: Bearer <jwt>
   → 200: inject X-User-Id header → forward to service
   → 401: block, return 401 to client
 ```
@@ -218,29 +219,33 @@ flowchart LR
 
 ## 8. WebSocket — Realtime Push _(planned — not yet implemented)_
 
+Pub/sub channel model — FE tự subscribe vào topic cần, server route theo topic name. Không cần auth ở WS level.
+
 ```
-Browser  →  ws://host/ws?token=<jwt>   (public route, no Traefik auth)
+Browser  →  ws://host/ws   (public, no auth)
                 │
          websocket-service
-                │  verify JWT (?token=), extract userId
-                │  register: userId → WebSocketConnection
+                │  FE gửi: { "type": "SUBSCRIBE", "topic": "user_{userId}_notification" }
+                │  FE gửi: { "type": "SUBSCRIBE", "topic": "article_{articleId}_comment_added" }
+                │
+                │  Registry: topic → Set<WsConnection>
                 │
                 ├── Kafka consumer: social.interaction
-                │     COMMENT_CREATED → push NOTIFICATION to owner
-                │                    → push COMMENT_ADDED to article subscribers
-                │     VOTE_CAST      → push NOTIFICATION to target owner
+                │     COMMENT_CREATED → push to "user_{authorId}_notification"
+                │                    → push to "article_{articleId}_comment_added"
+                │     VOTE_CAST      → push to "user_{targetAuthorId}_notification"
                 │
                 └── Redis pub/sub (multi-instance fan-out)
-                      channel: ws:push:{userId}
+                      channel: ws:topic:{topicName}
 ```
 
-**FE subscription levels:**
+**Topics FE subscribe:**
 
-| Level | How | Receives |
+| Topic | Ai subscribe | Nhận gì |
 |---|---|---|
-| User (auto) | Connect to `/ws` | `NOTIFICATION` — mọi notification của user |
-| Article | Send `SUBSCRIBE_ARTICLE` message | `COMMENT_ADDED` — live comments |
-| Chat room | Send `JOIN_ROOM` message (Phase 3) | `CHAT_MESSAGE` |
+| `user_{userId}_notification` | FE tự dùng userId từ JWT client-side | `NOTIFICATION` — comment/vote vào bài của mình |
+| `article_{articleId}_comment_added` | FE khi mở bài đang xem | `COMMENT_ADDED` — live comments |
+| `room_{roomId}_chat` (Phase 3) | FE khi vào chat room | `CHAT_MESSAGE` |
 
 ---
 
