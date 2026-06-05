@@ -1,0 +1,17 @@
+{
+  "request": { "method": "POST", "urlPath": "/api/votes" },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "success": true,
+      "data": {
+        "id": "e0000001-0000-4000-8000-000000000001",
+        "value": 1,
+        "userId": "a0000001-0000-4000-8000-000000000001",
+        "targetId": "b0000001-0000-4000-8000-000000000001",
+        "targetType": "ARTICLE"
+      }
+    }
+  }
+}

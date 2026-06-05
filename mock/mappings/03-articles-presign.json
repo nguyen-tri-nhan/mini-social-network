@@ -1,0 +1,14 @@
+{
+  "request": { "method": "POST", "urlPath": "/api/articles/images/presign" },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "success": true,
+      "data": {
+        "uploadUrl": "https://httpbin.org/put",
+        "imageUrl": "https://picsum.photos/seed/upload/800/500"
+      }
+    }
+  }
+}

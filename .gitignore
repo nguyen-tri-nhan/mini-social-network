@@ -23,7 +23,7 @@ src/main/resources/static
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
-/dist/
+**/dist/
 /nbdist/
 /.nb-gradle/
 build/

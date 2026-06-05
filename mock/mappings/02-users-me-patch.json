@@ -1,0 +1,19 @@
+{
+  "request": { "method": "PATCH", "urlPath": "/api/users/me" },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "success": true,
+      "data": {
+        "id": "a0000001-0000-4000-8000-000000000001",
+        "username": "nhan",
+        "email": "nhan@example.com",
+        "firstname": "Nhan",
+        "lastname": "Nguyen",
+        "avatarUrl": "https://i.pravatar.cc/150?u=nhan",
+        "createdAt": "2026-01-01T00:00:00Z"
+      }
+    }
+  }
+}

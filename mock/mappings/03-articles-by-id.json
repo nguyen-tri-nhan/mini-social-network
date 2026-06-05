@@ -1,0 +1,20 @@
+{
+  "request": { "method": "GET", "urlPathPattern": "/api/articles/[^/]+" },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "success": true,
+      "data": {
+        "id": "b0000001-0000-4000-8000-000000000001",
+        "description": "Vừa deploy xong microservices lên kind cluster 🎉",
+        "imageUrl": null,
+        "authorId": "a0000001-0000-4000-8000-000000000001",
+        "voteCount": 24,
+        "commentCount": 5,
+        "createdAt": "2026-06-05T08:30:00Z",
+        "updatedAt": "2026-06-05T08:30:00Z"
+      }
+    }
+  }
+}

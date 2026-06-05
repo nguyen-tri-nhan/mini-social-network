@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { MessageCircle, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react'
-import { articlesApi } from '../../api/articles'
+import { articlesApi, usersApi } from '../../api/articles'
 import { votesApi } from '../../api/interactions'
 import { useAuthStore } from '../../stores/authStore'
 import { qk } from '../../hooks/queryKeys'
@@ -18,13 +18,10 @@ export function ArticleCard({ article }: Props) {
   const [showComments, setShowComments] = useState(false)
   const [voteCount, setVoteCount] = useState(article.voteCount)
 
-  // Fetch author profile
   const { data: author } = useQuery({
     queryKey: qk.users.detail(article.authorId),
-    queryFn:  () => articlesApi.list().then(() => null) as unknown as Promise<UserProfile>,
-    enabled: false,
+    queryFn:  () => usersApi.getById(article.authorId),
     staleTime: 10 * 60_000,
-    initialData: null as UserProfile | null,
   })
 
   // Use author name from cache or placeholder

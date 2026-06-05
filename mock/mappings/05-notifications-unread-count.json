@@ -1,0 +1,12 @@
+{
+  "priority": 1,
+  "request": { "method": "GET", "urlPath": "/api/notifications/unread-count" },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "success": true,
+      "data": { "count": 3 }
+    }
+  }
+}

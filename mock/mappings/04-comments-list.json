@@ -1,0 +1,42 @@
+{
+  "request": { "method": "GET", "urlPath": "/api/comments" },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "success": true,
+      "data": {
+        "items": [
+          {
+            "id": "c0000001-0000-4000-8000-000000000001",
+            "description": "Xịn quá bạn ơi! Mình cũng đang làm project tương tự, cho mình hỏi bạn dùng Strimzi hay confluent operator vậy?",
+            "targetId": "b0000001-0000-4000-8000-000000000001",
+            "targetType": "ARTICLE",
+            "authorId": "a0000002-0000-4000-8000-000000000002",
+            "createdAt": "2026-06-05T09:00:00Z"
+          },
+          {
+            "id": "c0000002-0000-4000-8000-000000000002",
+            "description": "Strimzi nha bạn, setup dễ hơn nhiều so với tự quản lý. Cái khó nhất là config Debezium connector để đọc outbox table đúng format.",
+            "targetId": "b0000001-0000-4000-8000-000000000001",
+            "targetType": "ARTICLE",
+            "authorId": "a0000001-0000-4000-8000-000000000001",
+            "createdAt": "2026-06-05T09:15:00Z"
+          },
+          {
+            "id": "c0000003-0000-4000-8000-000000000003",
+            "description": "Cảm ơn bạn! Mình sẽ thử Strimzi luôn 👍",
+            "targetId": "b0000001-0000-4000-8000-000000000001",
+            "targetType": "ARTICLE",
+            "authorId": "a0000003-0000-4000-8000-000000000003",
+            "createdAt": "2026-06-05T09:30:00Z"
+          }
+        ],
+        "total": 3,
+        "page": 0,
+        "size": 20,
+        "hasNext": false
+      }
+    }
+  }
+}

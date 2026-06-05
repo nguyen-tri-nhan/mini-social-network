@@ -1,0 +1,15 @@
+{
+  "request": { "method": "POST", "urlPath": "/api/auth/signin" },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "success": true,
+      "data": {
+        "accessToken": "mock.jwt.token",
+        "userId": "a0000001-0000-4000-8000-000000000001",
+        "username": "nhan"
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "request": { "method": "PATCH", "urlPath": "/api/notifications/seen-all" },
+  "response": { "status": 204 }
+}

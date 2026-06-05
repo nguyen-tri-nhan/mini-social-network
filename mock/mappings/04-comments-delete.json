@@ -1,0 +1,4 @@
+{
+  "request": { "method": "DELETE", "urlPathPattern": "/api/comments/[^/]+" },
+  "response": { "status": 204 }
+}

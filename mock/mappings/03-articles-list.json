@@ -1,0 +1,68 @@
+{
+  "request": { "method": "GET", "urlPath": "/api/articles" },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "success": true,
+      "data": {
+        "items": [
+          {
+            "id": "b0000001-0000-4000-8000-000000000001",
+            "description": "Vừa deploy xong microservices lên kind cluster, cuối cùng cũng chạy được sau 3 ngày debug Debezium 🎉 Outbox pattern hoạt động ngon, Kafka consumer đang nhận event đúng chuẩn.",
+            "imageUrl": null,
+            "authorId": "a0000001-0000-4000-8000-000000000001",
+            "voteCount": 24,
+            "commentCount": 5,
+            "createdAt": "2026-06-05T08:30:00Z",
+            "updatedAt": "2026-06-05T08:30:00Z"
+          },
+          {
+            "id": "b0000002-0000-4000-8000-000000000002",
+            "description": "Buổi sáng cà phê view Hồ Tây ☕",
+            "imageUrl": "https://picsum.photos/seed/morning/800/500",
+            "authorId": "a0000002-0000-4000-8000-000000000002",
+            "voteCount": 41,
+            "commentCount": 8,
+            "createdAt": "2026-06-05T07:15:00Z",
+            "updatedAt": "2026-06-05T07:15:00Z"
+          },
+          {
+            "id": "b0000003-0000-4000-8000-000000000003",
+            "description": "Quarkus 3.25 + Gradle 9 cuối cùng cũng hoà hợp được với nhau sau bao nhiêu đợt nâng cấp 😅 Tip: upgrade thẳng lên 3.25, đừng dừng ở 3.21.",
+            "imageUrl": null,
+            "authorId": "a0000003-0000-4000-8000-000000000003",
+            "voteCount": 17,
+            "commentCount": 3,
+            "createdAt": "2026-06-04T22:00:00Z",
+            "updatedAt": "2026-06-04T22:00:00Z"
+          },
+          {
+            "id": "b0000004-0000-4000-8000-000000000004",
+            "description": "Tailwind CSS + shadcn/ui = combo hoàn hảo để build UI nhanh mà vẫn clean. Không còn phải tranh luận naming class nữa 🙌",
+            "imageUrl": "https://picsum.photos/seed/ui/800/400",
+            "authorId": "a0000002-0000-4000-8000-000000000002",
+            "voteCount": 33,
+            "commentCount": 12,
+            "createdAt": "2026-06-04T18:45:00Z",
+            "updatedAt": "2026-06-04T18:45:00Z"
+          },
+          {
+            "id": "b0000005-0000-4000-8000-000000000005",
+            "description": "Hà Nội sau cơn mưa 🌧️",
+            "imageUrl": "https://picsum.photos/seed/rain/800/600",
+            "authorId": "a0000003-0000-4000-8000-000000000003",
+            "voteCount": 58,
+            "commentCount": 7,
+            "createdAt": "2026-06-04T16:20:00Z",
+            "updatedAt": "2026-06-04T16:20:00Z"
+          }
+        ],
+        "total": 5,
+        "page": 0,
+        "size": 10,
+        "hasNext": false
+      }
+    }
+  }
+}
