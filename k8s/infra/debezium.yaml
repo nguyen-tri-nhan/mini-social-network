@@ -93,7 +93,7 @@ spec:
                     "transforms.outbox.table.field.event.type": "event_type",
                     "transforms.outbox.table.field.event.payload": "payload",
                     "transforms.outbox.route.by.field": "aggregate_type",
-                    "transforms.outbox.route.topic.replacement": "social.events",
+                    "transforms.outbox.route.topic.replacement": "social.${routedByValue}",
                     "tombstones.on.delete": "false"
                   }
                 }'

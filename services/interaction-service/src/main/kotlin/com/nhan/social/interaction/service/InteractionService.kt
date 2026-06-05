@@ -49,7 +49,7 @@ class InteractionService(
         commentRepo.persist(comment)
 
         outboxRepo.persist(outbox(
-            aggregateType = "comment",
+            aggregateType = "interaction",
             aggregateId   = comment.id,
             event = SocialEvent(
                 eventType = EventType.COMMENT_CREATED,
@@ -98,7 +98,7 @@ class InteractionService(
         }
 
         outboxRepo.persist(outbox(
-            aggregateType = "vote",
+            aggregateType = "interaction",
             aggregateId   = vote.id,
             event = SocialEvent(
                 eventType = EventType.VOTE_CAST,

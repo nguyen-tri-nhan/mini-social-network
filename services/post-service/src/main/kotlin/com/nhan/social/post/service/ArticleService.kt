@@ -53,7 +53,7 @@ class ArticleService(
         repo.persist(article)
 
         outboxRepo.persist(outbox(
-            aggregateType = "article",
+            aggregateType = "post",
             aggregateId   = article.id,
             event = SocialEvent(
                 eventType = EventType.ARTICLE_CREATED,

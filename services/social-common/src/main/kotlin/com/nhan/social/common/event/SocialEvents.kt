@@ -3,10 +3,20 @@ package com.nhan.social.common.event
 import java.time.Instant
 
 enum class EventType {
+    // social.auth
+    USER_CREATED,
+    USER_UPDATED,
+
+    // social.post
     ARTICLE_CREATED,
+    ARTICLE_DELETED,
+
+    // social.interaction
     COMMENT_CREATED,
     VOTE_CAST,
-    USER_UPDATED,
+
+    // social.chat (Phase 3)
+    CHAT_MESSAGE,
 }
 
 data class SocialEvent(
@@ -51,7 +61,17 @@ fun voteCastEvent(
     ),
 )
 
+fun userCreatedEvent(userId: String, username: String) = SocialEvent(
+    eventType = EventType.USER_CREATED,
+    payload = mapOf("userId" to userId, "username" to username),
+)
+
 fun userUpdatedEvent(userId: String) = SocialEvent(
     eventType = EventType.USER_UPDATED,
     payload = mapOf("userId" to userId),
+)
+
+fun articleDeletedEvent(articleId: String, authorId: String) = SocialEvent(
+    eventType = EventType.ARTICLE_DELETED,
+    payload = mapOf("articleId" to articleId, "authorId" to authorId),
 )

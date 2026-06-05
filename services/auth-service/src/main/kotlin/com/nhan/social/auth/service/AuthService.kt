@@ -45,7 +45,7 @@ class AuthService(
         repo.persist(credentials)
 
         outboxRepo.persist(outbox(
-            aggregateType = "user",
+            aggregateType = "auth",
             aggregateId   = userId,
             event = SocialEvent(
                 eventType = EventType.USER_UPDATED,

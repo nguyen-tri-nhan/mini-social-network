@@ -1,6 +1,47 @@
 # WebSocket Service — Implementation Plan
 
-## 1. Tại sao tách thành service riêng
+## 1. Kafka Topic Strategy
+
+### Per-domain topics
+
+```
+Producer              Topic                 Consumer(s)
+──────────────────────────────────────────────────────────────────────
+auth-service      →   social.auth       →   user-consumer
+                      USER_CREATED              (tạo user_profile)
+                      USER_UPDATED              (invalidate Redis cache)
+
+post-api          →   social.post       →   (future: search index, feed ranking)
+                      ARTICLE_CREATED
+                      ARTICLE_DELETED
+
+interaction-      →   social.interaction →  notification-consumer  (lưu DB)
+service               COMMENT_CREATED    →  post-consumer          (update counter)
+                      VOTE_CAST          →  websocket-service      (push realtime)
+
+websocket-        →   social.chat        →  websocket-service      (Phase 3)
+service               CHAT_MESSAGE              (route đến room members)
+```
+
+Mỗi consumer chỉ subscribe topic mình cần — không nhận event thừa, không filter bỏ.
+
+### websocket-service Kafka subscriptions
+
+```kotlin
+// application.properties — websocket-service
+mp.messaging.incoming.interaction-events-in.topic=social.interaction
+mp.messaging.incoming.interaction-events-in.group.id=ws-group
+
+# Phase 3
+mp.messaging.incoming.chat-events-in.topic=social.chat
+mp.messaging.incoming.chat-events-in.group.id=ws-chat-group
+```
+
+Group ID `ws-group` độc lập với `notification-group` và `counter-group` — Kafka fan-out đảm bảo cả 3 group đều nhận đủ events từ `social.interaction`.
+
+---
+
+## 2. Tại sao tách thành service riêng
 
 `notification-api` chỉ làm REST (list, mark seen). WebSocket là protocol khác, stateful connection, cần scale độc lập. Các tính năng tương lai (chat, real-time comments) sẽ overload notification nếu nhét vào.
 
@@ -14,7 +55,7 @@
 
 ---
 
-## 2. Kiến trúc tổng thể
+## 3. Kiến trúc tổng thể
 
 ```
 [Browser]
@@ -56,7 +97,7 @@
 
 ---
 
-## 3. Auth Architecture
+## 4. Auth Architecture
 
 ### 3.1 External (Browser → WebSocket)
 
@@ -96,7 +137,7 @@ Secret được inject qua env var `INTERNAL_SECRET_KEY`, lưu trong k8s Secret.
 
 ---
 
-## 4. Tech Stack
+## 5. Tech Stack
 
 | Component | Choice | Lý do |
 |---|---|---|
@@ -108,7 +149,7 @@ Secret được inject qua env var `INTERNAL_SECRET_KEY`, lưu trong k8s Secret.
 
 ---
 
-## 5. Gradle Module
+## 6. Gradle Module
 
 Chỉ cần **1 module** — không có DB (Phase 1-2), không cần DAO:
 
@@ -160,7 +201,7 @@ dependencies {
 
 ---
 
-## 6. WebSocket Protocol
+## 7. WebSocket Protocol
 
 ### 6.1 Connection
 
@@ -231,7 +272,7 @@ Browser  →  ws://host/ws?token=<jwt>   (prod: qua Traefik)
 
 ---
 
-## 7. Kafka Event Flow
+## 8. Kafka Event Flow
 
 ### Phase 1 — Notification push
 
@@ -271,7 +312,7 @@ Add `chat-events` Kafka topic.
 
 ---
 
-## 8. Scaling Strategy
+## 9. Scaling Strategy
 
 ### Phase 1 (single instance)
 
@@ -303,7 +344,7 @@ fun subscribeRedis() {
 
 ---
 
-## 9. Traefik — Thêm route `/ws`
+## 10. Traefik — Thêm route `/ws`
 
 ```yaml
 # k8s/traefik/ingressroute.yaml — thêm vào protected-routes
@@ -319,7 +360,7 @@ fun subscribeRedis() {
 
 ---
 
-## 10. Frontend Integration
+## 11. Frontend Integration
 
 FE vẫn gửi `?token=` — đây là cách DUY NHẤT browser có thể truyền auth khi mở WS connection (không set được header tùy ý). Traefik nhận, verify, inject `X-User-Id` rồi forward.
 
@@ -396,7 +437,7 @@ export function RootLayout() {
 
 ---
 
-## 11. Phased Implementation
+## 12. Phased Implementation
 
 ### Phase 1 — Notification push ✅ (MVP)
 - [ ] Tạo `websocket-service` module
@@ -424,7 +465,7 @@ export function RootLayout() {
 
 ---
 
-## 12. Quyết định kiến trúc
+## 13. Quyết định kiến trúc
 
 | Quyết định | Lựa chọn | Lý do |
 |---|---|---|
