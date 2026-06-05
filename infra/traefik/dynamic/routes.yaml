@@ -1,38 +1,58 @@
 http:
 
+  # ── Middleware ──────────────────────────────────────────────────────────────
+  middlewares:
+
+    jwt-verify:
+      forwardAuth:
+        address: "http://host.docker.internal:8081/api/auth/verify"
+        authResponseHeaders:
+          - X-User-Id
+
   # ── Routers ────────────────────────────────────────────────────────────────
   routers:
 
+    # Public — no auth
     auth:
       rule: "PathPrefix(`/api/auth`)"
       service: auth
       entryPoints: [web]
 
+    # Protected — jwt-verify attached per route
     users:
       rule: "PathPrefix(`/api/users`)"
       service: users
       entryPoints: [web]
+      middlewares: [jwt-verify]
 
     post:
       rule: "PathPrefix(`/api/articles`)"
       service: post
       entryPoints: [web]
+      middlewares: [jwt-verify]
 
     comments:
       rule: "PathPrefix(`/api/comments`)"
       service: interaction
       entryPoints: [web]
+      middlewares: [jwt-verify]
 
     votes:
       rule: "PathPrefix(`/api/votes`)"
       service: interaction
       entryPoints: [web]
+      middlewares: [jwt-verify]
 
     notifications:
       rule: "PathPrefix(`/api/notifications`)"
       service: notifications
       entryPoints: [web]
+      middlewares: [jwt-verify]
 
+    websocket:
+      rule: "PathPrefix(`/ws`)"
+      service: websocket
+      entryPoints: [web]
 
   # ── Services ───────────────────────────────────────────────────────────────
   services:
@@ -61,3 +81,8 @@ http:
       loadBalancer:
         servers:
           - url: "http://host.docker.internal:8085"
+
+    websocket:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8086"

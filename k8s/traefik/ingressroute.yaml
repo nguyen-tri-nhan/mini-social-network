@@ -1,53 +1,77 @@
 ---
+# JWT verification via ForwardAuth → auth-service
+# auth-service trả 200 + X-User-Id header nếu token valid, 401 nếu không
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: jwt-verify
+  namespace: social
+spec:
+  forwardAuth:
+    address: http://auth-service:8080/api/auth/verify
+    authResponseHeaders:
+      - X-User-Id   # forwarded to downstream service
+
+---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: auth-routes
+  name: social-routes
   namespace: social
 spec:
   entryPoints: [web]
   routes:
+
+    # ── Public (no auth) ──────────────────────────────────────────────────────
     - match: PathPrefix(`/api/auth`)
       kind: Rule
       services:
         - name: auth-service
           port: 8080
 
----
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: protected-routes
-  namespace: social
-spec:
-  entryPoints: [web]
-  routes:
+    # ── Protected (jwt-verify middleware) ─────────────────────────────────────
     - match: PathPrefix(`/api/users`)
       kind: Rule
+      middlewares:
+        - name: jwt-verify
       services:
-        - name: user-service
+        - name: user-api
           port: 8080
 
     - match: PathPrefix(`/api/articles`)
       kind: Rule
+      middlewares:
+        - name: jwt-verify
       services:
-        - name: post-service
+        - name: post-api
           port: 8080
 
     - match: PathPrefix(`/api/comments`)
       kind: Rule
+      middlewares:
+        - name: jwt-verify
       services:
         - name: interaction-service
           port: 8080
 
     - match: PathPrefix(`/api/votes`)
       kind: Rule
+      middlewares:
+        - name: jwt-verify
       services:
         - name: interaction-service
           port: 8080
 
     - match: PathPrefix(`/api/notifications`)
       kind: Rule
+      middlewares:
+        - name: jwt-verify
       services:
-        - name: notification-service
+        - name: notification-api
+          port: 8080
+
+    - match: PathPrefix(`/ws`)
+      kind: Rule
+      services:
+        - name: websocket-service
           port: 8080
