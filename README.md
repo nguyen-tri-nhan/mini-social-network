@@ -5,6 +5,8 @@
 >
 > Looking for "best practices for production social networks"? Wrong place.
 > Looking for "how a bunch of technologies wire together in practice"? Right place.
+>
+> ⚠️ **If this repo hasn't been updated in a while**, the author is probably buried under work deadlines and hasn't had time to play. It'll be back.
 
 ---
 
