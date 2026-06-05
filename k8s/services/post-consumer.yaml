@@ -34,3 +34,10 @@ spec:
             httpGet: { path: /q/health/live, port: 8080 }
             initialDelaySeconds: 40
             periodSeconds: 15
+          resources:
+            requests:
+              memory: "192Mi"
+              cpu: "100m"
+            limits:
+              memory: "384Mi"
+              cpu: "300m"
