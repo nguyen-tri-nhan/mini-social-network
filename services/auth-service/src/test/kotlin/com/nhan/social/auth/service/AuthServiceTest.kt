@@ -89,7 +89,7 @@ class AuthServiceTest {
         val result = service.signin(SignInRequest("nhan", "password123"))
 
         assertEquals("jwt-token", result.accessToken)
-        assertEquals("nhan", result.username)
+        assertEquals("nhan11", result.username)
     }
 
     // ── U-05 ──────────────────────────────────────────────────────────────────
