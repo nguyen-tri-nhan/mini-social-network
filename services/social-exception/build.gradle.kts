@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     api(platform(project(":social-bom")))
+    implementation(project(":social-common"))
     implementation("io.quarkus:quarkus-arc")
     implementation("io.quarkus:quarkus-rest")
     implementation("io.quarkus:quarkus-hibernate-validator")
