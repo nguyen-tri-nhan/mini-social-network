@@ -18,7 +18,13 @@ dependencies {
     implementation("software.amazon.awssdk:url-connection-client")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("io.mockk:mockk:1.13.10")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
+
+tasks.withType<Test>().configureEach { useJUnitPlatform() }
 
 allOpen {
     annotation("jakarta.enterprise.context.ApplicationScoped")

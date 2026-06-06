@@ -29,6 +29,7 @@ dependencies {
 
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
+    testImplementation("io.mockk:mockk:1.13.10")
 }
 
 allOpen {
