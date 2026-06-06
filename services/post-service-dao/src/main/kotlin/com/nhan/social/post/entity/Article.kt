@@ -7,7 +7,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "article")
-class Article : PanacheEntityBase() {
+class Article : PanacheEntityBase {
 
     @Id
     @Column(columnDefinition = "uuid")

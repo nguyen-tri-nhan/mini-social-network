@@ -8,13 +8,8 @@ import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.Provider
 import org.eclipse.microprofile.config.inject.ConfigProperty
 
-/**
- * Guards all `/internal/*` endpoints — only trusted services with the shared secret can call them.
- * External clients (even with valid JWT) cannot reach internal routes.
- *
- * Config required in each service that exposes /internal endpoints:
- *   app.internal.secret-key=${INTERNAL_SECRET_KEY:dev-internal-secret}
- */
+// Guards /internal/** — only services with X-Service-Secret-Key header can call these endpoints.
+// Config: app.internal.secret-key (env: INTERNAL_SECRET_KEY, default: dev-internal-secret)
 @Provider
 @Priority(Priorities.AUTHENTICATION)
 class InternalAuthFilter : ContainerRequestFilter {

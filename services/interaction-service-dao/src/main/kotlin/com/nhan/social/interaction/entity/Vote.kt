@@ -13,7 +13,7 @@ import java.util.UUID
         columnNames = ["user_id", "target_id", "target_type"],
     )]
 )
-class Vote : PanacheEntityBase() {
+class Vote : PanacheEntityBase {
 
     @Id
     @Column(columnDefinition = "uuid")

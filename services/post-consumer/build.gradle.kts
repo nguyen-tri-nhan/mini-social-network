@@ -6,6 +6,7 @@ plugins {
 
 dependencies {
     implementation(enforcedPlatform(project(":social-bom")))
+    implementation(project(":social-common"))
     implementation(project(":social-exception"))
     implementation(project(":post-service"))
 

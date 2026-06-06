@@ -6,8 +6,10 @@ plugins {
 
 dependencies {
     implementation(enforcedPlatform(project(":social-bom")))
+    implementation(project(":social-common"))
     implementation(project(":social-exception"))
-    implementation(project(":post-service"))       // brings post-service-dao transitively
+    implementation(project(":post-service-dao"))
+    implementation(project(":post-service"))
 
     implementation("io.quarkus:quarkus-kotlin")
     implementation("io.quarkus:quarkus-arc")

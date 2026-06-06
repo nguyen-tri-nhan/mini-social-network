@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.0.0" apply false
-    kotlin("plugin.allopen") version "2.0.0" apply false
+    kotlin("jvm") version "2.1.21" apply false
+    kotlin("plugin.allopen") version "2.1.21" apply false
     id("io.quarkus") version "3.25.1" apply false
 }
 

@@ -7,7 +7,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "notification")
-class Notification : PanacheEntityBase() {
+class Notification : PanacheEntityBase {
 
     @Id
     @Column(columnDefinition = "uuid")

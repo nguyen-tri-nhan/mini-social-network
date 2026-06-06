@@ -13,7 +13,7 @@ import java.util.UUID
         Index(name = "idx_comment_author", columnList = "author_id"),
     ]
 )
-class Comment : PanacheEntityBase() {
+class Comment : PanacheEntityBase {
 
     @Id
     @Column(columnDefinition = "uuid")

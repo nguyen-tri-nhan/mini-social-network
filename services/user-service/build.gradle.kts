@@ -9,6 +9,7 @@ dependencies {
     implementation(project(":social-exception"))
     implementation(project(":user-service-dao"))
 
+    implementation("jakarta.validation:jakarta.validation-api")
     implementation("io.quarkus:quarkus-arc")
     implementation("io.quarkus:quarkus-hibernate-orm-panache-kotlin")
     implementation("io.quarkus:quarkus-redis-client")

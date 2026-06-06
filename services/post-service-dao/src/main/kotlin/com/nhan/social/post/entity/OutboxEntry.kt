@@ -7,7 +7,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "outbox")
-class OutboxEntry : PanacheEntityBase() {
+class OutboxEntry : PanacheEntityBase {
 
     @Id
     @Column(columnDefinition = "uuid")
