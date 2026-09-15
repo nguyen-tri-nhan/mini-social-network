@@ -1,0 +1,44 @@
+# Kafdrop — Kafka Web UI, chỉ để debug/nghịch thủ công khi cần, không phải
+# infra bắt buộc cho app chạy. Truy cập qua port-forward (make kafdrop), không
+# route qua Traefik — Kafdrop là Spring Boot app phục vụ static assets ở path
+# gốc, route qua path-prefix dễ vỡ asset loading không cần thiết cho use case
+# "thỉnh thoảng mở lên xem".
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafdrop
+  namespace: social
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: kafdrop }
+  template:
+    metadata:
+      labels: { app: kafdrop }
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: kafdrop
+          image: obsidiandynamics/kafdrop:4.3.0
+          env:
+            - { name: KAFKA_BROKERCONNECT, value: "kafka:9092" }
+          ports:
+            - containerPort: 9000
+          readinessProbe:
+            httpGet: { path: /, port: 9000 }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            requests: { memory: "256Mi", cpu: "100m" }
+            limits: { memory: "512Mi", cpu: "500m" }
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafdrop
+  namespace: social
+spec:
+  selector: { app: kafdrop }
+  ports:
+    - port: 9000

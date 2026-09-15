@@ -4,11 +4,12 @@ Hướng dẫn đưa toàn bộ stack (6 service REST/WS + 3 consumer, Kafka, De
 Postgres, Redis, LocalStack, LGTM, Traefik) chạy trên **kind** (Kubernetes
 local qua Docker), dùng `Makefile` có sẵn trong repo thay vì gõ tay `kubectl`.
 
-> **Đọc trước khi bắt đầu:** luồng này **chưa từng được verify end-to-end**
-> trên máy nào (xem `specs/decisions/0001-*.md` → `0004-*.md` và mục "Tình
-> trạng thực tế" cuối file). Tất cả 19 Gradle module (kể cả `post-api`) build
-> được, image build đúng kiến trúc host (arm64/amd64 tự detect), nhưng chưa
-> ai thật sự deploy + chạy thử trên kind.
+> **Đọc trước khi bắt đầu:** luồng này đang được verify dần trên kind thật
+> (xem `specs/decisions/0001-*.md` → `0004-*.md` và mục "Tình trạng thực tế"
+> cuối file) — build + infra layer (Postgres/Redis/Kafka) đã chạy thật, tìm
+> và fix nhiều bug thật trong lúc verify (không phải đọc code suy đoán).
+> **Chưa verify hết**: Debezium connector, outbox → Kafka → consumer
+> end-to-end, upload ảnh qua LocalStack trên k8s.
 
 Chạy `make help` bất cứ lúc nào để xem toàn bộ target có sẵn (mọi target có
 comment `##` phía trên đều hiện ra ở đây).
@@ -105,15 +106,11 @@ Postgres/Kafka `rollout status` xong (timeout 60-90s).
 make k8s-secrets
 ```
 
-⚠️ **Bắt buộc chạy bước này ở đúng vị trí — sau bước 5, trước bước 7.**
-`k8s-secrets` **không nằm trong `make deploy` hay `make up`** — đây là gap có
-thật trong `Makefile`, không phải bạn đọc thiếu bước. Bỏ qua bước này thì pod
-`auth-service`/`post-api` (mount secret `jwt-keys` vào `/etc/jwt`) sẽ đứng ở
-`CreateContainerConfigError` vì secret chưa tồn tại — `kubectl apply` của
-bước 7 vẫn "thành công" (exit code 0), chỉ pod là fail âm thầm.
-
 Target đọc `services/dev-private.pem` + `dev-public.pem` (bước 1) → tạo
-Secret `jwt-keys` (`--dry-run=client | apply`, chạy lại vô hại).
+Secret `jwt-keys` (`--dry-run=client | apply`, chạy lại vô hại). `make deploy`
+và `make up` giờ tự chạy bước này đúng thứ tự (sau `deploy-infra`, trước
+`deploy-services`) — chạy tay riêng như trên chỉ cần khi muốn rotate key
+hoặc chạy `deploy-services` độc lập.
 
 ---
 
@@ -179,29 +176,17 @@ Apply `k8s/traefik/ingressroute.yaml` — route `/api/*`, `/ws`, và (theo
 Sau khi cluster đã lên, sửa code 1 service rồi muốn update:
 
 ```bash
-make up-post      # build-post + load-post (build + load image mới)
+make up-post      # build-post + load-post + restart đúng post-api, post-consumer
 ```
 
-⚠️ **Phần "restart" của `up-%` không hoạt động đúng — bug có thật trong
-`Makefile`, đã verify tĩnh, không phải hiểu nhầm.** `up-post` set stem
-`%=post` rồi chạy `kubectl rollout restart deployment/post` — nhưng deployment
-thật tên là `post-api`/`post-consumer`, không phải `post`. Lệnh restart fail,
-bị `2>/dev/null || true` nuốt lỗi, rồi vẫn in `✅ post updated` như thành
-công. Tương tự cho `up-auth`, `up-user`, ... (không stem nào khớp tên
-deployment thật). Nên sau `make up-<x>`, tự restart đúng tên:
+`up-%` dùng bảng `DEPLOYS_<nhóm>` trong `Makefile` để restart đúng tên
+deployment thật (1 nhóm có thể ứng nhiều deployment, vd `post` →
+`post-api` + `post-consumer`). Tương tự `up-auth`, `up-user`,
+`up-interaction`, `up-notification`, `up-websocket`. Không cần lặp lại toàn
+bộ 9 bước ở trên cho 1 thay đổi nhỏ.
 
-```bash
-make restart-post-api restart-post-consumer   # đúng tên deployment, target restart-% không có bug này
-# hoặc chắc ăn nhất, restart hết:
-make restart
-```
-
-Không cần lặp lại toàn bộ 9 bước ở trên cho 1 thay đổi nhỏ, chỉ cần build +
-load + restart đúng deployment.
-
-`make up` (= `build` + `load` + `deploy` toàn bộ, không gồm `k8s-secrets`) chỉ
-dùng được cho lần đầu **nếu đã chạy `make k8s-secrets` trước đó ít nhất 1
-lần** (secret nằm trong cluster, còn nguyên qua các lần `deploy` sau).
+`make up` (= `build` + `load` + `deploy` toàn bộ, đã gồm `k8s-secrets` đúng
+thứ tự) dùng được ngay từ lần đầu, không cần chạy `k8s-secrets` riêng trước.
 
 ---
 
@@ -221,6 +206,9 @@ open http://localhost:9090
 
 # Grafana (LGTM)
 make grafana   # http://localhost:3000, admin/admin — chiếm terminal, Ctrl+C để thoát
+
+# Kafdrop — xem topic/partition/message, test produce thủ công
+make kafdrop   # http://localhost:9000 — chiếm terminal, Ctrl+C để thoát
 ```
 
 `make dev-token` là tiện ích lấy JWT nhanh, nhưng hardcode gọi
@@ -269,19 +257,20 @@ Mặc định vào thẳng view `pods` trong namespace `social` — không phả
 
 ### Áp vào đúng các lỗi đã biết trong hướng dẫn này
 
-- **Thiếu secret `jwt-keys`** (quên chạy `make k8s-secrets` ở bước 6 trước
-  bước 7 — xem cảnh báo ở bước 6) → `:pods` → tìm pod đang
-  `CreateContainerConfigError` (màu vàng/đỏ) → `Enter` → `d` (describe) →
-  phần `Events` cuối cùng sẽ ghi rõ `secret "jwt-keys" not found`.
+- **Thiếu secret `jwt-keys`** (chỉ xảy ra nếu chạy `deploy-services` tay,
+  tách rời khỏi `make deploy`/`make up` — 2 target đó giờ tự lo thứ tự đúng)
+  → `:pods` → tìm pod đang `CreateContainerConfigError` (màu vàng/đỏ) →
+  `Enter` → `d` (describe) → phần `Events` cuối cùng sẽ ghi rõ
+  `secret "jwt-keys" not found`.
 - **`CrashLoopBackOff`** → chọn đúng pod → `l` → xem log ngay trước lúc
   container chết (thường là exception lúc `quarkusBuild` app khởi động,
   vd sai `DB_URL`, JWT key lỗi).
 - **Kiểm tra pod đang chạy image/tag nào** (hữu ích sau khi đổi `ARCH` build
   arm64/amd64) → chọn pod → `Enter` → xem cột `Image` của container.
-- **`post-api`/`post-consumer` không thấy trong `:deploy`** → nhắc lại bug
-  ở mục "Từ lần 2 trở đi": `up-post` build/load đúng nhưng KHÔNG tạo
-  Deployment lần đầu — Deployment chỉ được tạo bởi `make deploy-services`
-  (bước 7), `up-post` chỉ dùng để update sau khi đã deploy ít nhất 1 lần.
+- **`post-api`/`post-consumer` không thấy trong `:deploy`** → `up-post` chỉ
+  build+load+restart, không tự tạo Deployment mới — Deployment chỉ được tạo
+  bởi `make deploy-services` (bước 7). Chạy bước 7 ít nhất 1 lần trước khi
+  dùng `up-<x>` để update.
 
 ---
 
@@ -311,14 +300,22 @@ từ bước 5 (`make deploy-infra`) — bỏ qua bước 1-2 (đã có key + cl
 
 **2) Xoá cluster hoàn toàn** — dọn sạch nhất, khuyến nghị nếu thật sự xong việc:
 ```bash
-make cluster-delete
+make shutdown
 ```
-Chạy `kind delete cluster --name social` — chỉ xoá đúng container/network
-gắn với cluster tên `social` (kind namespace hoá theo tên cluster), không
-đụng cluster kind khác hay resource Docker không liên quan. Xoá luôn Traefik,
-mọi image đã `kind load` vào node. **Image trên Docker local (`docker images`)
-không bị xoá** — xem lưu ý dangling image ở phần trước nếu build lại nhiều
-lần rồi muốn dọn `docker image prune`.
+Wrap quanh `scripts/shutdown-k8s.sh`: kiểm tra cluster `social` có tồn tại
+không (tránh lỗi khó hiểu nếu đã xoá rồi), tự dừng mọi `kubectl port-forward`
+chạy nền của project (`make grafana`/`make kafdrop`/port-forward
+kafka-connect...) trước khi xoá, **hỏi xác nhận trước khi xoá thật** (bỏ qua
+bằng `scripts/shutdown-k8s.sh -y` nếu cần chạy không tương tác), rồi mới chạy
+`kind delete cluster --name social` — chỉ xoá đúng container/network gắn với
+cluster tên `social`, không đụng cluster kind khác hay resource Docker không
+liên quan. Xoá luôn Traefik, mọi image đã `kind load` vào node. **Image trên
+Docker local (`docker images`) không bị xoá** — xem lưu ý dangling image ở
+phần trước nếu build lại nhiều lần rồi muốn dọn `docker image prune`.
+
+(`make cluster-delete` vẫn còn — chạy thẳng `kind delete cluster`, không hỏi
+xác nhận, không dọn port-forward. Dùng khi gọi từ script/CI khác cần
+non-interactive; `make shutdown` là lựa chọn khuyên dùng khi tự tay chạy.)
 
 **3) Chỉ tắt Docker Desktop** — nhẹ nhất, không xoá gì, chỉ dừng:
 Kind cluster là container Docker thường — tắt Docker Desktop = dừng toàn bộ
@@ -346,15 +343,28 @@ lý nhất** khi thật sự muốn "tắt hết" — không có lý do kỹ thu
   `ARCH`/`quarkus.jib.platforms`, verify bằng `docker inspect` cho ra đúng
   `arm64` trên máy dev hiện tại. Không có ADR riêng — đây là build-config
   fix, không phải quyết định kiến trúc/schema/API.
-- **`k8s-secrets` không nằm trong `deploy`/`up`** — xem cảnh báo ở bước 6.
-  Đây là gap thật trong `Makefile`, chưa fix (chưa được yêu cầu fix), chỉ
-  mới ghi lại ở đây để không ai bị bất ngờ.
-- **`up-%` restart sai deployment, fail âm thầm** — `up-post`/`up-auth`/...
-  chạy `kubectl rollout restart deployment/<stem>` nhưng deployment thật tên
-  dài hơn (`post-api`, `auth-service`,...), không khớp. Lỗi bị
-  `2>/dev/null || true` nuốt, vẫn in "✅ updated" dù không restart gì cả. Xem
-  cách lách ở mục "Từ lần 2 trở đi". Chưa fix Makefile, chưa có ADR (build
-  tooling bug, không phải quyết định kiến trúc).
+- **`k8s-secrets` không nằm trong `deploy`/`up` — đã fix.** Giờ `deploy:
+  deploy-infra k8s-secrets deploy-services deploy-debezium deploy-routes`,
+  thứ tự đúng tự động, không cần chạy tay riêng nữa (trừ khi muốn rotate key).
+- **`up-%` restart sai deployment — đã fix.** Thêm bảng `DEPLOYS_<nhóm>`
+  trong `Makefile`, restart đúng tên deployment thật cho từng nhóm (kể cả
+  nhóm ứng nhiều deployment như `post`, `user`, `notification`).
+- **Đã thêm `make shutdown`** (`scripts/shutdown-k8s.sh`) — xoá cluster có
+  xác nhận + tự dọn port-forward chạy nền, khuyên dùng thay `make
+  cluster-delete` khi tự tay chạy. Xem mục "Shutdown an toàn".
+- **Kafka pod từng CrashLoopBackOff, đã fix 3 bug liên tiếp trong
+  `k8s/infra/kafka.yaml`** (tìm ra bằng cách đọc log thật + source code
+  image `cp-kafka`, không đoán): (1) giá trị env chứa dấu phẩy trong YAML
+  flow-style `{ }` bị cắt cụt vì thiếu quote; (2) `enableServiceLinks` mặc
+  định của k8s tiêm biến `KAFKA_PORT` (trùng tên Service `kafka`) đụng biến
+  deprecated-fatal của chính image; (3) Service `kafka` thiếu port 9093
+  (CONTROLLER) khiến broker timeout tự đăng ký RPC với chính nó (combined
+  broker+controller mode). Đã verify qua tới bước broker khởi động JVM thật
+  (TransactionCoordinator, BrokerMetadataPublisher...), chưa xác nhận
+  `readinessProbe` pass hẳn / outbox→Kafka chạy trọn vẹn.
+- **Đã thêm Kafdrop 4.3.0** (`k8s/infra/kafdrop.yaml`, `make kafdrop`) — Kafka
+  Web UI để xem topic/message, test produce thủ công khi cần, port-forward
+  không qua Traefik.
 - **k8s có thể còn 1 bug khác chưa fix, liên quan S3/LocalStack**: property
   `quarkus.s3.endpoint-override` trong `post-api/application.properties` chỉ
   scope `%dev.` — dù `k8s/services/post-api.yaml` set env `S3_ENDPOINT=

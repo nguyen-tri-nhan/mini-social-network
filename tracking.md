@@ -85,6 +85,7 @@ Dự án đang trong giai đoạn **rewrite từ monolith Spring Boot sang micro
 | LocalStack (S3) | `k8s/infra/localstack.yaml` | ✅ Config done |
 | Debezium | `k8s/infra/debezium.yaml` | ✅ Config done |
 | LGTM Stack (Grafana/Loki/Tempo/Mimir) | `k8s/infra/lgtm.yaml` | ✅ Config done |
+| Kafdrop (Kafka Web UI, debug thủ công) | `k8s/infra/kafdrop.yaml` | ✅ Config done |
 | JWT Secret | `k8s/infra/jwt-secret.yaml` | ✅ Config done |
 | Traefik IngressRoute | `k8s/traefik/ingressroute.yaml` | ✅ Config done |
 | Namespaces | `k8s/namespaces.yaml` | ✅ Config done |
@@ -160,6 +161,10 @@ Frontend đang được viết lại (tất cả files dưới `frontend/src/` l
 
 - [x] **Fix BOM version mismatch** — tách `quarkus-amazon-services-bom` khỏi `social-bom` dùng chung, chỉ import trực tiếp ở `post-service`/`post-api`. 18/19 module build được (`./gradlew build` pass), tiện fix luôn bug `auth-service` thiếu `quarkus.index-dependency.auth-service-dao.*`. **`post-api` vẫn không build (JIB) được** — giới hạn thật của quarkiverse-amazon-services (chưa release bản tương thích quarkus-bom 3.25.x), không phải lỗi cấu hình. Xem `specs/decisions/0002-*.md`.
 - [x] **Thử BOM native `io.quarkiverse.amazonservices` cho post-api** — thất bại (2 version thử đều lộ conflict version thật ở quarkus-core/bootstrap, không phải chỉ nhãn "stream"). Đã revert về ADR 0002. Xem `specs/decisions/0003-*.md` (đã superseded).
+- [x] **Fix 2 bug `Makefile`** — `k8s-secrets` giờ nằm trong `deploy`/`up` đúng thứ tự (sau infra, trước services); `up-%` restart đúng tên deployment thật qua bảng `DEPLOYS_<nhóm>` thay vì stem sai tên. Không ADR (build-tooling fix).
+- [x] **Thêm `scripts/shutdown-k8s.sh` + `make shutdown`** — xoá cluster kind `social` có xác nhận, tự dọn `kubectl port-forward` chạy nền trước khi xoá. Verify chạy thật trên cluster `social` đang tồn tại — đúng hành vi từ chối chạy khi không có `-y` và không phải tty.
+- [x] **Kafka trên k8s chạy được, đã tìm + fix 3 bug liên tiếp** — (1) YAML comma trong flow-mapping bị cắt giá trị env (`KAFKA_PROCESS_ROLES` v.v.), (2) `enableServiceLinks` mặc định của k8s tiêm `KAFKA_PORT` trùng biến deprecated fatal của cp-kafka, (3) Service `kafka` thiếu port 9093 (CONTROLLER) khiến broker timeout tự đăng ký RPC. Cả 3 đã fix trong `k8s/infra/kafka.yaml`, chưa verify hết đường outbox→Debezium→Kafka end-to-end.
+- [x] **Thêm Kafdrop 4.3.0** (`k8s/infra/kafdrop.yaml`, `make kafdrop`) — debug/test produce message Kafka thủ công, port-forward khi cần, không route qua Traefik.
 - [x] **Fix thật: `post-api` build được, 19/19 module pass** — nguyên nhân gốc không phải version BOM mà là `post-api` tự khai platform `quarkus-amazon-services-bom` trực tiếp một cách thừa thãi (post-service đã khai + export transitive rồi). Xoá dòng thừa đó → `./gradlew build` + `test` **19/19 module pass**, không còn service nào bị chặn build. Xem `specs/decisions/0004-*.md`.
 
 ### Ưu tiên cao

@@ -11,14 +11,20 @@ spec:
     metadata:
       labels: { app: kafka }
     spec:
+      # K8s mặc định tiêm biến kiểu Docker-links cho mọi Service trong namespace
+      # (<TÊN_SERVICE>_PORT, ...). Service ở đây tên "kafka" → k8s tự tạo
+      # KAFKA_PORT=tcp://<ip>:9092, trùng tên với biến KAFKA_PORT mà chính
+      # cp-kafka coi là deprecated và exit 1 ngay khi thấy biến này tồn tại
+      # (xem configure script gốc của image). Tắt hẳn service-link injection.
+      enableServiceLinks: false
       containers:
         - name: kafka
           image: confluentinc/cp-kafka:7.6.0
           env:
             - { name: KAFKA_NODE_ID,                              value: "1" }
-            - { name: KAFKA_PROCESS_ROLES,                        value: broker,controller }
-            - { name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP,       value: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT }
-            - { name: KAFKA_LISTENERS,                            value: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093 }
+            - { name: KAFKA_PROCESS_ROLES,                        value: "broker,controller" }
+            - { name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP,       value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT" }
+            - { name: KAFKA_LISTENERS,                            value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093" }
             - { name: KAFKA_ADVERTISED_LISTENERS,                 value: PLAINTEXT://kafka:9092 }
             - { name: KAFKA_CONTROLLER_LISTENER_NAMES,            value: CONTROLLER }
             - { name: KAFKA_CONTROLLER_QUORUM_VOTERS,             value: 1@kafka:9093 }
@@ -26,7 +32,8 @@ spec:
             - { name: KAFKA_AUTO_CREATE_TOPICS_ENABLE,            value: "true" }
             - { name: CLUSTER_ID,                                 value: MkU3OEVBNTcwNTJENDM2Qk }
           ports:
-            - containerPort: 9092
+            - { name: plaintext,  containerPort: 9092 }
+            - { name: controller, containerPort: 9093 }
           readinessProbe:
             exec:
               command: [kafka-topics, --bootstrap-server, localhost:9092, --list]
@@ -42,4 +49,8 @@ metadata:
 spec:
   selector: { app: kafka }
   ports:
-    - port: 9092
+    # KRaft broker (id=1) cần đăng ký RPC với chính controller quorum (cũng
+    # là nó, combined mode) qua hostname Service kafka:9093 — thiếu port này
+    # ở Service khiến broker luôn timeout "Unable to register the broker"
+    - { name: plaintext,  port: 9092 }
+    - { name: controller, port: 9093 }

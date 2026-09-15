@@ -83,10 +83,10 @@ load-websocket:
 
 # ── Deploy ────────────────────────────────────────────────────────────────────
 
-.PHONY: deploy deploy-infra deploy-services deploy-debezium deploy-routes
+.PHONY: deploy deploy-infra deploy-services deploy-debezium deploy-routes k8s-secrets
 
-## Apply tất cả k8s manifests (thứ tự: infra → services → debezium → routes)
-deploy: deploy-infra deploy-services deploy-debezium deploy-routes
+## Apply tất cả k8s manifests (thứ tự: infra → secrets → services → debezium → routes)
+deploy: deploy-infra k8s-secrets deploy-services deploy-debezium deploy-routes
 
 deploy-infra:
 	kubectl apply -f k8s/namespaces.yaml
@@ -95,6 +95,7 @@ deploy-infra:
 	kubectl apply -f k8s/infra/kafka.yaml
 	kubectl apply -f k8s/infra/localstack.yaml
 	kubectl apply -f k8s/infra/lgtm.yaml
+	kubectl apply -f k8s/infra/kafdrop.yaml
 	@echo "Waiting for postgres and kafka to be ready..."
 	kubectl rollout status deployment/postgres -n $(NAMESPACE) --timeout=60s
 	kubectl rollout status deployment/kafka    -n $(NAMESPACE) --timeout=90s
@@ -103,6 +104,11 @@ deploy-infra:
 grafana:
 	@echo "Grafana: http://localhost:3000"
 	kubectl port-forward -n $(NAMESPACE) svc/lgtm 3000:3000
+
+## Kafdrop — xem/test produce message Kafka thủ công, port-forward khi cần
+kafdrop:
+	@echo "Kafdrop: http://localhost:9000"
+	kubectl port-forward -n $(NAMESPACE) svc/kafdrop 9000:9000
 
 deploy-services:
 	kubectl apply -f k8s/services/
@@ -133,15 +139,27 @@ restart-%:
 
 # ── Full workflow ─────────────────────────────────────────────────────────────
 
-.PHONY: up up-% cluster-create cluster-delete
+.PHONY: up up-% cluster-create cluster-delete shutdown
 
 ## Build + load + deploy tất cả (full workflow)
 up: build load deploy
 	@echo "✅ All services deployed to kind cluster '$(CLUSTER)'"
 
+# Tên deployment thật cho từng nhóm build-%/load-% — 1 nhóm có thể ứng với
+# nhiều deployment (post = post-api + post-consumer). Dùng cho up-% restart
+# đúng tên, không phải restart deployment/$* (không tồn tại, xem git log).
+DEPLOYS_auth         := auth-service
+DEPLOYS_user         := user-api user-consumer
+DEPLOYS_post         := post-api post-consumer
+DEPLOYS_interaction  := interaction-service
+DEPLOYS_notification := notification-api notification-consumer
+DEPLOYS_websocket    := websocket-service
+
 ## Build + load + restart 1 service: make up-post
 up-%: build-% load-%
-	kubectl rollout restart deployment/$* -n $(NAMESPACE) 2>/dev/null || true
+	@for d in $(DEPLOYS_$*); do \
+		kubectl rollout restart deployment/$$d -n $(NAMESPACE) 2>/dev/null || true; \
+	done
 	@echo "✅ $* updated"
 
 # ── Cluster lifecycle ─────────────────────────────────────────────────────────
@@ -158,6 +176,10 @@ cluster-create:
 
 cluster-delete:
 	kind delete cluster --name $(CLUSTER)
+
+## Xoá hoàn toàn cluster, có xác nhận + dọn port-forward chạy nền trước (khuyên dùng thay cluster-delete)
+shutdown:
+	@scripts/shutdown-k8s.sh
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
