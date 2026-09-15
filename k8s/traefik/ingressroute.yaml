@@ -75,3 +75,37 @@ spec:
       services:
         - name: websocket-service
           port: 8080
+
+    # ── API Docs (Swagger UI gộp, public) ──────────────────────────────────────
+    # auth-service serve /q/swagger-ui + /q/openapi và aggregate 4 service còn
+    # lại qua quarkus.swagger-ui.urls.* — public vì Swagger UI cần load được
+    # trước khi user paste JWT vào nút Authorize
+    - match: PathPrefix(`/q`)
+      kind: Rule
+      services:
+        - name: auth-service
+          port: 8080
+
+    - match: PathPrefix(`/openapi/users`)
+      kind: Rule
+      services:
+        - name: user-api
+          port: 8080
+
+    - match: PathPrefix(`/openapi/post`)
+      kind: Rule
+      services:
+        - name: post-api
+          port: 8080
+
+    - match: PathPrefix(`/openapi/interaction`)
+      kind: Rule
+      services:
+        - name: interaction-service
+          port: 8080
+
+    - match: PathPrefix(`/openapi/notifications`)
+      kind: Rule
+      services:
+        - name: notification-api
+          port: 8080

@@ -4,40 +4,54 @@ NAMESPACE := social
 GROUP     := nhan
 TAG       := latest
 
-SERVICES  := auth-service user-api post-api interaction-service notification-api
+# JIB mặc định build linux/amd64 bất kể host arch (không tự detect như Docker
+# buildx) — auto-detect theo uname để native trên arm64 (Apple Silicon),
+# override thủ công khi cần: make build ARCH=linux/amd64
+UNAME_ARCH := $(shell uname -m)
+ifeq ($(UNAME_ARCH),$(filter $(UNAME_ARCH),arm64 aarch64))
+ARCH := linux/arm64/v8
+else
+ARCH := linux/amd64
+endif
+
+SERVICES  := auth-service user-api post-api interaction-service notification-api websocket-service
 CONSUMERS := post-consumer user-consumer notification-consumer
 
 # ── Build ─────────────────────────────────────────────────────────────────────
 
-.PHONY: build build-auth build-user build-post build-interaction build-notification
+.PHONY: build build-auth build-user build-post build-interaction build-notification build-websocket
 
 ## Build tất cả service + consumer images (JIB — không cần Dockerfile)
 build:
 	cd services && gradle \
 		$(foreach svc,$(SERVICES) $(CONSUMERS),:$(svc):build) \
 		-Dquarkus.container-image.build=true \
-		-Dquarkus.container-image.tag=$(TAG)
+		-Dquarkus.container-image.tag=$(TAG) \
+		-Dquarkus.jib.platforms=$(ARCH)
 
 ## Build từng service riêng lẻ
 build-auth:
-	cd services && gradle :auth-service:build -Dquarkus.container-image.build=true
+	cd services && gradle :auth-service:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH)
 
 build-user:
-	cd services && gradle :user-api:build :user-consumer:build -Dquarkus.container-image.build=true
+	cd services && gradle :user-api:build :user-consumer:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH)
 
 build-post:
-	cd services && gradle :post-api:build :post-consumer:build -Dquarkus.container-image.build=true
+	cd services && gradle :post-api:build :post-consumer:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH)
 
 build-interaction:
-	cd services && gradle :interaction-service:build -Dquarkus.container-image.build=true
+	cd services && gradle :interaction-service:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH)
 
 build-notification:
 	cd services && gradle :notification-api:build :notification-consumer:build \
-		-Dquarkus.container-image.build=true
+		-Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH)
+
+build-websocket:
+	cd services && gradle :websocket-service:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH)
 
 # ── Kind — load images ────────────────────────────────────────────────────────
 
-.PHONY: load load-auth load-user load-post load-interaction load-notification
+.PHONY: load load-auth load-user load-post load-interaction load-notification load-websocket
 
 ## Load tất cả images vào kind cluster (kind không pull từ local Docker tự động)
 load:
@@ -64,12 +78,15 @@ load-notification:
 	kind load docker-image $(GROUP)/notification-api:$(TAG) --name $(CLUSTER)
 	kind load docker-image $(GROUP)/notification-consumer:$(TAG) --name $(CLUSTER)
 
+load-websocket:
+	kind load docker-image $(GROUP)/websocket-service:$(TAG) --name $(CLUSTER)
+
 # ── Deploy ────────────────────────────────────────────────────────────────────
 
-.PHONY: deploy deploy-infra deploy-services deploy-routes
+.PHONY: deploy deploy-infra deploy-services deploy-debezium deploy-routes
 
-## Apply tất cả k8s manifests (thứ tự: namespace → secrets → infra → services → routes)
-deploy: deploy-infra deploy-services deploy-routes
+## Apply tất cả k8s manifests (thứ tự: infra → services → debezium → routes)
+deploy: deploy-infra deploy-services deploy-debezium deploy-routes
 
 deploy-infra:
 	kubectl apply -f k8s/namespaces.yaml
@@ -84,11 +101,17 @@ deploy-infra:
 
 ## Grafana UI — port-forward để mở trên máy host
 grafana:
-	@echo "Grafana: http://localhost:3000  (admin/admin)"
+	@echo "Grafana: http://localhost:3000"
 	kubectl port-forward -n $(NAMESPACE) svc/lgtm 3000:3000
 
 deploy-services:
 	kubectl apply -f k8s/services/
+
+## Deploy Debezium sau khi services đã up (outbox tables phải tồn tại trước)
+deploy-debezium:
+	kubectl apply -f k8s/infra/debezium.yaml
+	@echo "Waiting for kafka-connect to be ready..."
+	kubectl rollout status deployment/kafka-connect -n $(NAMESPACE) --timeout=120s
 
 deploy-routes:
 	kubectl apply -f k8s/traefik/ingressroute.yaml

@@ -158,6 +158,10 @@ Frontend đang được viết lại (tất cả files dưới `frontend/src/` l
 
 ## Việc cần làm tiếp theo
 
+- [x] **Fix BOM version mismatch** — tách `quarkus-amazon-services-bom` khỏi `social-bom` dùng chung, chỉ import trực tiếp ở `post-service`/`post-api`. 18/19 module build được (`./gradlew build` pass), tiện fix luôn bug `auth-service` thiếu `quarkus.index-dependency.auth-service-dao.*`. **`post-api` vẫn không build (JIB) được** — giới hạn thật của quarkiverse-amazon-services (chưa release bản tương thích quarkus-bom 3.25.x), không phải lỗi cấu hình. Xem `specs/decisions/0002-*.md`.
+- [x] **Thử BOM native `io.quarkiverse.amazonservices` cho post-api** — thất bại (2 version thử đều lộ conflict version thật ở quarkus-core/bootstrap, không phải chỉ nhãn "stream"). Đã revert về ADR 0002. Xem `specs/decisions/0003-*.md` (đã superseded).
+- [x] **Fix thật: `post-api` build được, 19/19 module pass** — nguyên nhân gốc không phải version BOM mà là `post-api` tự khai platform `quarkus-amazon-services-bom` trực tiếp một cách thừa thãi (post-service đã khai + export transitive rồi). Xoá dòng thừa đó → `./gradlew build` + `test` **19/19 module pass**, không còn service nào bị chặn build. Xem `specs/decisions/0004-*.md`.
+
 ### Ưu tiên cao
 - [ ] **Verify Debezium connector** — đảm bảo outbox → Kafka hoạt động end-to-end
 - [ ] **Spin up kind cluster** — apply toàn bộ k8s manifests, test happy path

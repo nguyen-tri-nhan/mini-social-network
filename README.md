@@ -263,6 +263,7 @@ Full reference → [docs/api.md](docs/api.md)
 | [docs/architecture.md](docs/architecture.md) | System diagrams, service responsibilities, routing, module structure |
 | [docs/api.md](docs/api.md) | Full API reference — endpoints, auth, response format, WebSocket protocol |
 | [docs/patterns.md](docs/patterns.md) | Design patterns: Outbox + Debezium, Counter Flush, WebSocket Pub/Sub |
+| [docs/k8s-getting-started.md](docs/k8s-getting-started.md) | Setup kind cluster từ đầu — build, load, deploy, verify, known issues |
 
 ---
 

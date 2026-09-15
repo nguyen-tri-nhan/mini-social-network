@@ -13,6 +13,13 @@
 | post-service | `--profile post` (postgres + redis + kafka + localstack) |
 | interaction-service | `--profile interaction` (postgres + kafka) |
 | notification-service | `--profile notification` (postgres + redis + kafka) |
+| websocket-service | `--profile notification` (redis + kafka) |
+| post/user/notification-consumer | `--profile post` hoặc `--profile all` (kafka + DB) |
+
+Thêm `--profile observability` để start LGTM stack (Grafana traces/metrics/logs):
+```bash
+docker compose -f infra/docker-compose.dev.yml --profile post --profile observability up -d
+```
 
 ```bash
 # Ví dụ: chỉ dev post-service
@@ -84,9 +91,23 @@ cd services
 
 # Terminal 5
 ./gradlew :notification-api:quarkusDev
+
+# Terminal 6
+./gradlew :websocket-service:quarkusDev
+
+# Terminal 7 (consumer — lắng nghe Kafka, không expose HTTP)
+./gradlew :post-consumer:quarkusDev
+
+# Terminal 8
+./gradlew :notification-consumer:quarkusDev
+
+# Terminal 9
+./gradlew :user-consumer:quarkusDev
 ```
 
 API Gateway (Traefik) đang chạy trên `:8080`, FE gọi `http://localhost:8080/api/*`.
+
+Grafana (traces/metrics/logs): `http://localhost:3000` — chỉ có khi start `--profile observability`.
 
 ---
 
@@ -239,41 +260,21 @@ EOF
 #### Kafka
 
 ```bash
-# Cài Strimzi operator
-kubectl create namespace kafka
-kubectl apply -f https://strimzi.io/install/latest?namespace=kafka -n kafka
-
-# Tạo Kafka cluster (single-node cho dev)
-kubectl apply -n kafka -f - <<'EOF'
-apiVersion: kafka.strimzi.io/v1beta2
-kind: Kafka
-metadata:
-  name: social
-spec:
-  kafka:
-    replicas: 1
-    listeners:
-      - name: plain
-        port: 9092
-        type: internal
-        tls: false
-    config:
-      offsets.topic.replication.factor: 1
-      auto.create.topics.enable: "true"
-    storage:
-      type: ephemeral
-  zookeeper:
-    replicas: 1
-    storage:
-      type: ephemeral
-  entityOperator:
-    topicOperator: {}
-EOF
-
-# Chờ Kafka ready (2-3 phút)
-kubectl wait kafka/social -n kafka \
-  --for=condition=Ready --timeout=300s
+kubectl apply -f k8s/infra/kafka.yaml
+kubectl rollout status deployment/kafka -n social --timeout=90s
 ```
+
+Kafka chạy KRaft mode (không cần ZooKeeper, không cần Strimzi operator) trong namespace `social`. Service name là `kafka`, các service trong cluster dùng `kafka:9092`.
+
+#### LGTM (Observability)
+
+```bash
+kubectl apply -f k8s/infra/lgtm.yaml
+```
+
+Grafana UI: `kubectl port-forward -n social svc/lgtm 3000:3000` → `http://localhost:3000` (hoặc `make grafana`).
+
+App services gửi traces/metrics/logs qua OTLP tới `http://lgtm:4317`.
 
 #### LocalStack (S3)
 
@@ -354,48 +355,32 @@ kubectl rollout restart deployment/post-api -n social
 
 ### 2.7 Deploy services
 
-Mỗi service cần 1 `Deployment` + `Service`. Ví dụ auth-service:
-
 ```bash
-kubectl apply -n social -f - <<'EOF'
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: auth-service
-spec:
-  replicas: 1
-  selector:
-    matchLabels: { app: auth-service }
-  template:
-    metadata:
-      labels: { app: auth-service }
-    spec:
-      containers:
-        - name: auth-service
-          image: nhan/auth-service:latest
-          imagePullPolicy: Never          # dùng image đã load từ kind
-          ports: [{ containerPort: 8080 }]
-          env:
-            - { name: DB_URL,                  value: "jdbc:postgresql://postgres:5432/social" }
-            - { name: KAFKA_BOOTSTRAP_SERVERS, value: "social-kafka-bootstrap.kafka:9092" }
-          readinessProbe:
-            httpGet: { path: /q/health/ready, port: 8080 }
-            initialDelaySeconds: 10
-          livenessProbe:
-            httpGet: { path: /q/health/live, port: 8080 }
-            initialDelaySeconds: 30
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: auth-service
-spec:
-  selector: { app: auth-service }
-  ports: [{ port: 8080 }]
-EOF
+kubectl apply -f k8s/services/
 ```
 
-Lặp lại tương tự cho các service còn lại, thay image name và env vars theo từng service.
+Tất cả manifest đã có sẵn trong `k8s/services/`. Liquibase sẽ tự chạy migration khi service khởi động.
+
+Env var key trong các service manifest:
+
+| Env var | Giá trị trong cluster |
+|---|---|
+| `DB_URL` | `jdbc:postgresql://postgres:5432/social` |
+| `REDIS_URL` | `redis://redis:6379` |
+| `KAFKA_BOOTSTRAP_SERVERS` | `kafka:9092` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://lgtm:4317` |
+
+`imagePullPolicy: IfNotPresent` — dùng image đã load bằng `kind load`, không pull từ registry.
+
+### 2.7b Deploy Debezium (sau khi services đã up)
+
+Debezium cần outbox tables tồn tại trước (Liquibase tạo khi service khởi động), nên deploy sau services:
+
+```bash
+make deploy-debezium
+```
+
+Lệnh này apply `k8s/infra/debezium.yaml` và chờ `kafka-connect` ready, sau đó Job `register-debezium-connector` tự đăng ký connector qua REST API.
 
 ### 2.8 Apply IngressRoute
 
@@ -491,7 +476,13 @@ k6 run k6/smoke/smoke.js --out json=k6/results.json
 | post-api | `:8083` | `:8080` (internal) |
 | interaction-service | `:8084` | `:8080` (internal) |
 | notification-api | `:8085` | `:8080` (internal) |
+| websocket-service | `:8086` | `:8080` (internal) |
+| post-consumer | `:8087` | — (no HTTP expose) |
+| user-consumer | `:8088` | — (no HTTP expose) |
+| notification-consumer | `:8089` | — (no HTTP expose) |
 | PostgreSQL | `:5432` | `:5432` (internal) |
 | Redis | `:6379` | `:6379` (internal) |
 | Kafka | `:9092` | `:9092` (internal) |
 | LocalStack (S3) | `:4566` | `:4566` (internal) |
+| Grafana (LGTM) | `:3000` | `make grafana` (port-forward) |
+| Kafka Connect (Debezium) | — | `:8083` (internal) |

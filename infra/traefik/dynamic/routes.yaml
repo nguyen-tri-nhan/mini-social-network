@@ -54,6 +54,33 @@ http:
       service: websocket
       entryPoints: [web]
 
+    # API Docs — Swagger UI gộp (auth-service serve /q/swagger-ui + /q/openapi),
+    # public vì cần load được trước khi có JWT để paste vào nút Authorize
+    docs:
+      rule: "PathPrefix(`/q`)"
+      service: auth
+      entryPoints: [web]
+
+    openapi-users:
+      rule: "PathPrefix(`/openapi/users`)"
+      service: users
+      entryPoints: [web]
+
+    openapi-post:
+      rule: "PathPrefix(`/openapi/post`)"
+      service: post
+      entryPoints: [web]
+
+    openapi-interaction:
+      rule: "PathPrefix(`/openapi/interaction`)"
+      service: interaction
+      entryPoints: [web]
+
+    openapi-notifications:
+      rule: "PathPrefix(`/openapi/notifications`)"
+      service: notifications
+      entryPoints: [web]
+
   # ── Services ───────────────────────────────────────────────────────────────
   services:
 

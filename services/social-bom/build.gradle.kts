@@ -12,8 +12,11 @@ javaPlatform {
 
 dependencies {
     api(platform("$quarkusPlatformGroupId:$quarkusPlatformArtifactId:$quarkusPlatformVersion"))
-    // Manages quarkus-amazon-s3 + all software.amazon.awssdk:* versions
-    api(platform("io.quarkus.platform:quarkus-amazon-services-bom:3.20.1"))
+    // quarkus-amazon-services-bom KHÔNG import ở đây nữa — bản mới nhất (3.22.3)
+    // vẫn khác "platform stream" với quarkus-bom:3.25.1, Quarkus curateOutcome
+    // reject combo này (xem specs/decisions/0002). Import platform này chỉ ở
+    // post-service/post-api (2 module thực sự cần S3) để không chặn build của
+    // 17 module còn lại không liên quan gì tới S3.
 
     constraints {
         api("cz.jirutka.rsql:rsql-parser:2.1.0")
