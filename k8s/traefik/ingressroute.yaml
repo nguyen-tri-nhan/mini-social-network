@@ -76,10 +76,7 @@ spec:
         - name: websocket-service
           port: 8080
 
-    # ── API Docs (Swagger UI gộp, public) ──────────────────────────────────────
-    # auth-service serve /q/swagger-ui + /q/openapi và aggregate 4 service còn
-    # lại qua quarkus.swagger-ui.urls.* — public vì Swagger UI cần load được
-    # trước khi user paste JWT vào nút Authorize
+    # ── API Docs (Swagger UI gộp, public) — xem specs/decisions/0001 ────────────
     - match: PathPrefix(`/q`)
       kind: Rule
       services:

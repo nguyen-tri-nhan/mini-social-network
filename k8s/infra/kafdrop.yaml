@@ -1,8 +1,5 @@
-# Kafdrop — Kafka Web UI, chỉ để debug/nghịch thủ công khi cần, không phải
-# infra bắt buộc cho app chạy. Truy cập qua port-forward (make kafdrop), không
-# route qua Traefik — Kafdrop là Spring Boot app phục vụ static assets ở path
-# gốc, route qua path-prefix dễ vỡ asset loading không cần thiết cho use case
-# "thỉnh thoảng mở lên xem".
+# Kafdrop — debug thủ công, không route qua Traefik (xem tracking.md).
+# Truy cập qua: make kafdrop
 apiVersion: apps/v1
 kind: Deployment
 metadata:

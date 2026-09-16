@@ -54,8 +54,7 @@ http:
       service: websocket
       entryPoints: [web]
 
-    # API Docs — Swagger UI gộp (auth-service serve /q/swagger-ui + /q/openapi),
-    # public vì cần load được trước khi có JWT để paste vào nút Authorize
+    # API Docs — Swagger UI gộp, xem specs/decisions/0001
     docs:
       rule: "PathPrefix(`/q`)"
       service: auth

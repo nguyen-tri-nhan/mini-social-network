@@ -36,3 +36,6 @@ build/
 ### Properties ###
 application-local.properties
 */.gradle/
+
+### Scratch (debug logs, temp paste — không phải spec/tài liệu) ###
+.scratch/

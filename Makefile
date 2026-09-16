@@ -4,9 +4,8 @@ NAMESPACE := social
 GROUP     := nhan
 TAG       := latest
 
-# JIB mặc định build linux/amd64 bất kể host arch (không tự detect như Docker
-# buildx) — auto-detect theo uname để native trên arm64 (Apple Silicon),
-# override thủ công khi cần: make build ARCH=linux/amd64
+# JIB mặc định build linux/amd64 bất kể host arch — auto-detect theo uname,
+# override: make build ARCH=linux/amd64
 UNAME_ARCH := $(shell uname -m)
 ifeq ($(UNAME_ARCH),$(filter $(UNAME_ARCH),arm64 aarch64))
 ARCH := linux/arm64/v8
@@ -83,10 +82,13 @@ load-websocket:
 
 # ── Deploy ────────────────────────────────────────────────────────────────────
 
-.PHONY: deploy deploy-infra deploy-services deploy-debezium deploy-routes k8s-secrets
+.PHONY: deploy deploy-infra deploy-services deploy-services-sequential deploy-debezium deploy-routes k8s-secrets
 
 ## Apply tất cả k8s manifests (thứ tự: infra → secrets → services → debezium → routes)
-deploy: deploy-infra k8s-secrets deploy-services deploy-debezium deploy-routes
+## Dùng deploy-services-sequential (không phải deploy-services) — deploy 9
+## service cùng lúc gây CPU/memory storm trên máy resource hạn chế, xem
+## specs/service-dependencies.md
+deploy: deploy-infra k8s-secrets deploy-services-sequential deploy-debezium deploy-routes
 
 deploy-infra:
 	kubectl apply -f k8s/namespaces.yaml
@@ -112,6 +114,12 @@ kafdrop:
 
 deploy-services:
 	kubectl apply -f k8s/services/
+
+## Deploy service lần lượt theo thứ tự phụ thuộc, đợi Ready mới sang cái tiếp
+## theo — tránh CPU/memory storm (khuyên dùng thay deploy-services trên máy
+## resource hạn chế). Xem specs/service-dependencies.md
+deploy-services-sequential:
+	@scripts/deploy-sequential.sh
 
 ## Deploy Debezium sau khi services đã up (outbox tables phải tồn tại trước)
 deploy-debezium:
@@ -145,9 +153,7 @@ restart-%:
 up: build load deploy
 	@echo "✅ All services deployed to kind cluster '$(CLUSTER)'"
 
-# Tên deployment thật cho từng nhóm build-%/load-% — 1 nhóm có thể ứng với
-# nhiều deployment (post = post-api + post-consumer). Dùng cho up-% restart
-# đúng tên, không phải restart deployment/$* (không tồn tại, xem git log).
+# Tên deployment thật cho từng nhóm build-%/load-% — dùng cho up-% restart.
 DEPLOYS_auth         := auth-service
 DEPLOYS_user         := user-api user-consumer
 DEPLOYS_post         := post-api post-consumer

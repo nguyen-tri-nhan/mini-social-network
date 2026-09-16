@@ -117,19 +117,29 @@ hoặc chạy `deploy-services` độc lập.
 ## 7. Deploy services
 
 ```bash
-make deploy-services
+make deploy-services-sequential
 ```
 
-Apply toàn bộ `k8s/services/*.yaml`, kể cả `post-api.yaml` — image đã build +
-load đúng kiến trúc ở bước 3-4 nên pod khởi động bình thường như các service
-khác (không còn giới hạn build như trước `specs/decisions/0004-*.md`). Xem
-tiến độ:
+Deploy **lần lượt từng service theo đúng thứ tự phụ thuộc** (xem
+`specs/service-dependencies.md`), đợi mỗi service `Ready` mới sang cái tiếp
+theo — **khuyên dùng thay `make deploy-services`** (apply cả 9 cùng lúc).
+Trên máy resource hạn chế (vd Docker Desktop cấp <8GB), 9 JVM cold-start đồng
+thời gây CPU/memory storm thật sự, dẫn tới Postgres connection timeout hàng
+loạt dù code không có bug gì — đã gặp trực tiếp trong quá trình viết guide
+này. `make deploy` / `make up` đã tự dùng bản tuần tự này, không cần gọi tay
+trừ khi muốn chạy lại riêng bước 7.
+
+Muốn apply song song kiểu cũ (máy khoẻ, không ngại storm): `make deploy-
+services`.
+
+Xem tiến độ trong lúc script chạy (terminal khác):
 
 ```bash
 make status
 ```
 
-Nếu pod nào `CrashLoopBackOff`/`CreateContainerConfigError`, xem log:
+Nếu pod nào `CrashLoopBackOff`/`CreateContainerConfigError` sau khi script
+báo xong, xem log:
 
 ```bash
 make logs-auth-service      # hoặc logs-post-api, logs-user-api, ...
@@ -352,16 +362,25 @@ lý nhất** khi thật sự muốn "tắt hết" — không có lý do kỹ thu
 - **Đã thêm `make shutdown`** (`scripts/shutdown-k8s.sh`) — xoá cluster có
   xác nhận + tự dọn port-forward chạy nền, khuyên dùng thay `make
   cluster-delete` khi tự tay chạy. Xem mục "Shutdown an toàn".
-- **Kafka pod từng CrashLoopBackOff, đã fix 3 bug liên tiếp trong
-  `k8s/infra/kafka.yaml`** (tìm ra bằng cách đọc log thật + source code
-  image `cp-kafka`, không đoán): (1) giá trị env chứa dấu phẩy trong YAML
-  flow-style `{ }` bị cắt cụt vì thiếu quote; (2) `enableServiceLinks` mặc
-  định của k8s tiêm biến `KAFKA_PORT` (trùng tên Service `kafka`) đụng biến
-  deprecated-fatal của chính image; (3) Service `kafka` thiếu port 9093
-  (CONTROLLER) khiến broker timeout tự đăng ký RPC với chính nó (combined
-  broker+controller mode). Đã verify qua tới bước broker khởi động JVM thật
-  (TransactionCoordinator, BrokerMetadataPublisher...), chưa xác nhận
-  `readinessProbe` pass hẳn / outbox→Kafka chạy trọn vẹn.
+- **Kafka pod đã chạy được thật — verify bằng cluster sống, không chỉ đọc
+  log.** Fix 5 bug liên tiếp trong `k8s/infra/kafka.yaml`:
+  1. Giá trị env chứa dấu phẩy trong YAML flow-style `{ }` bị cắt cụt vì
+     thiếu quote (`KAFKA_PROCESS_ROLES` v.v.)
+  2. `enableServiceLinks` mặc định của k8s tiêm biến `KAFKA_PORT` (trùng tên
+     Service `kafka`) đụng biến deprecated-fatal của chính image
+  3. Service `kafka` thiếu port 9093 (CONTROLLER)
+  4. `KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093` (qua Service) dính
+     **hairpin NAT** trên kindnetd (pod tự gọi chính nó qua ClusterIP) —
+     đổi sang `1@localhost:9093`
+  5. `readinessProbe` dùng `kafka-topics --list` **cũng dính hairpin NAT**
+     y hệt (client luôn redirect sang `advertised.listeners` sau bootstrap,
+     kể cả khi bootstrap bằng `localhost`) — đổi sang `tcpSocket: port 9092`
+
+  **Verify thật trên cluster sống**: `kubectl rollout status` →
+  `successfully rolled out`, `kubectl get pods` → `1/1 Running` cả Kafka lẫn
+  Kafdrop, gọi thẳng Kafdrop REST API qua port-forward → thấy `broker/1` —
+  xác nhận Kafdrop connect được Kafka thật, không phải suy đoán từ log.
+  Chưa verify tiếp outbox→Debezium→Kafka→consumer end-to-end.
 - **Đã thêm Kafdrop 4.3.0** (`k8s/infra/kafdrop.yaml`, `make kafdrop`) — Kafka
   Web UI để xem topic/message, test produce thủ công khi cần, port-forward
   không qua Traefik.

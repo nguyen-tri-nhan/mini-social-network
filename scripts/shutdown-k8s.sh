@@ -1,13 +1,7 @@
 #!/usr/bin/env bash
 #
-# Xoá sạch kind cluster "social" — xem docs/k8s-getting-started.md mục
-# "Shutdown an toàn" để biết các mức độ khác (chỉ xoá namespace, hay chỉ tắt
-# Docker Desktop). Script này làm mức "xoá hoàn toàn" — mức mặc định hợp lý
-# nhất cho project này vì không manifest infra nào dùng PVC/emptyDir/hostPath
-# (đã verify), nên không có data nào để mất dù xoá kiểu gì.
-#
-# An toàn ở đây nghĩa là: chỉ đụng đúng cluster kind tên "social", không đụng
-# cluster kind khác hay resource Docker không liên quan tới project.
+# Xoá sạch kind cluster "social". Xem docs/k8s-getting-started.md mục
+# "Shutdown an toàn" cho các mức độ khác + lý do đây là mặc định hợp lý.
 #
 # Dùng: scripts/shutdown-k8s.sh [-y|--yes]
 #   -y, --yes   bỏ qua xác nhận, chạy thẳng (dùng khi gọi từ script khác)
@@ -39,10 +33,7 @@ if ! kind get clusters 2>/dev/null | grep -qx "$CLUSTER"; then
   exit 0
 fi
 
-# Dọn port-forward đang chạy nền của project (make grafana / make kafdrop /
-# kubectl port-forward svc/kafka-connect ...) trước khi xoá cluster. Không
-# bắt buộc — process đó tự lỗi khi mất kết nối cluster — nhưng dọn cho sạch,
-# tránh orphan process treo lại sau khi cluster đã biến mất.
+# Dọn port-forward chạy nền của project trước khi xoá, tránh orphan process.
 PF_PIDS=$(pgrep -f "kubectl[^|]*port-forward[^|]*-n ${NAMESPACE}" 2>/dev/null || true)
 if [ -n "$PF_PIDS" ]; then
   echo "Đang dừng các kubectl port-forward chạy nền cho namespace '$NAMESPACE':"

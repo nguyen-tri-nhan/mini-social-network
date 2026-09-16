@@ -7,12 +7,7 @@ plugins {
 dependencies {
     implementation(enforcedPlatform(project(":social-bom")))
     // KHÔNG tự khai platform quarkus-amazon-services-bom ở đây — post-service
-    // đã api(platform(...)) nó rồi (transitive qua project(":post-service")
-    // dưới), version constraint vẫn resolve đúng. Nếu module Quarkus app
-    // (id("io.quarkus")) tự khai platform này trực tiếp, Quarkus
-    // CurateOutcomeBuildStep sẽ soi và reject vì khác "platform stream" với
-    // quarkus-bom:3.25.1; khai gián tiếp qua dependency thì không bị soi.
-    // Xem specs/decisions/0004.
+    // đã khai + export transitive rồi. Xem specs/decisions/0004.
     implementation(project(":social-common"))
     implementation(project(":social-exception"))
     implementation(project(":post-service-dao"))
