@@ -1,0 +1,28 @@
+- generic [ref=e2]:
+  - generic [ref=e22]:
+    - banner [ref=e23]:
+      - link "Social" [ref=e24] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e25]:
+        - link [ref=e26] [cursor=pointer]:
+          - /url: /notifications
+        - link "FT" [ref=e30] [cursor=pointer]:
+          - /url: /profile
+        - button "Logout" [ref=e32] [cursor=pointer]
+    - generic [ref=e36]:
+      - navigation [ref=e37]:
+        - list [ref=e38]:
+          - listitem [ref=e39]:
+            - link "Feed" [ref=e40] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=e44]:
+            - link "Notifications" [active] [ref=e45] [cursor=pointer]:
+              - /url: /notifications
+          - listitem [ref=e49]:
+            - link "Profile" [ref=e50] [cursor=pointer]:
+              - /url: /profile
+      - main [ref=e54]:
+        - generic [ref=e64]:
+          - heading "Notifications" [level=1] [ref=e66]
+          - paragraph [ref=e71]: No notifications yet
+  - region "Notifications alt+T"

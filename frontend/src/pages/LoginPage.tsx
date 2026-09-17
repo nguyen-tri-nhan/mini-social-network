@@ -17,7 +17,7 @@ type Form = z.infer<typeof schema>
 
 export function LoginPage() {
   const navigate  = useNavigate()
-  const { setAuth } = useAuthStore()
+  const { setToken, setAuth } = useAuthStore()
 
   const { register, handleSubmit, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
@@ -26,6 +26,7 @@ export function LoginPage() {
   const mutation = useMutation({
     mutationFn: authApi.signin,
     onSuccess: async (auth) => {
+      setToken(auth.accessToken)
       const user = await usersApi.me()
       setAuth(auth.accessToken, user)
       navigate('/')

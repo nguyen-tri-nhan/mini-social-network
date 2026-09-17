@@ -227,8 +227,8 @@ curl -s -X POST http://localhost:8080/api/auth/signup \
 # Swagger UI — test API bằng tay (specs/decisions/0001-*.md)
 open http://localhost:8080/q/swagger-ui
 
-# Traefik dashboard
-open http://localhost:9090
+# Traefik dashboard — 9090 KHÔNG map ra host qua kind (chỉ 8080), phải port-forward
+make traefik-dashboard   # http://localhost:9090/dashboard/ — chiếm terminal, Ctrl+C để thoát
 
 # Grafana (LGTM)
 make grafana   # http://localhost:3000, admin/admin — chiếm terminal, Ctrl+C để thoát
@@ -370,6 +370,26 @@ lý nhất** khi thật sự muốn "tắt hết" — không có lý do kỹ thu
 
 ## Tình trạng thực tế (đọc kỹ trước khi báo cáo "không chạy được")
 
+- **Traefik chưa từng thật sự lên được — `make cluster-create` cài fail âm
+  thầm, đã fix, verify bằng cluster sống.** `helm status` cho thấy release ở
+  `STATUS: failed` ngay từ lần cài đầu tiên: chart có port nội bộ `traefik`
+  (dashboard/API) mặc định CŨNG `containerPort: 8080`, đụng thẳng port `web`
+  mình set 8080 → Helm reject vì trùng containerPort, không pod nào lên,
+  `curl localhost:8080` không phản hồi. Đã fix 3 việc trong `Makefile`:
+  1. Dời dashboard sang `ports.traefik.port=9090` (đúng ý định ban đầu, hết
+     đụng port với `web`)
+  2. Ghim Traefik vào đúng node `social-control-plane` (`nodeSelector` +
+     `toleration` — `extraPortMappings` của kind chỉ forward host:8080 tới
+     đúng node đó, Traefik lỡ bị xếp lịch qua worker thì host:8080 không ai
+     lắng nghe — đã gặp trực tiếp, verify bằng `docker port`)
+  3. `ingressRoute.dashboard.enabled=true` — mặc định `false`, thiếu dòng
+     này thì `/dashboard/` luôn 404 dù pod đã chạy đúng chỗ
+  4. Đổi `helm install` → `helm upgrade --install` để idempotent, chạy lại
+     được nếu release cũ kẹt ở trạng thái `failed`
+
+  Verify thật: `curl localhost:8080/api/auth/signup` → `405` (đúng, route
+  chỉ nhận POST — xác nhận route qua Traefik tới `auth-service` hoạt động),
+  `make traefik-dashboard` → `curl .../dashboard/` → `200`.
 - **`post-api` từng không build được, đã fix** — lịch sử: `quarkus-amazon-
   services-bom` gây lỗi "different platform streams" với `quarkus-bom:3.25.1`
   (`0001-*.md`, `0002-*.md`); thử đổi groupId BOM thất bại (`0003-*.md`);

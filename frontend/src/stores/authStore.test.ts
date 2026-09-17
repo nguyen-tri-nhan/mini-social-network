@@ -17,6 +17,16 @@ describe('authStore', () => {
     useAuthStore.setState({ token: null, user: null })
   })
 
+  describe('setToken', () => {
+    it('stores token in state and localStorage without touching user', () => {
+      useAuthStore.getState().setToken('my-token')
+
+      expect(useAuthStore.getState().token).toBe('my-token')
+      expect(useAuthStore.getState().user).toBeNull()
+      expect(localStorage.getItem('jwt')).toBe('my-token')
+    })
+  })
+
   describe('setAuth', () => {
     it('stores token in state and localStorage', () => {
       useAuthStore.getState().setAuth('my-token', mockUser)

@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: kafka-connect
-          image: debezium/connect:2.7
+          image: debezium/connect:2.7.3.Final
           ports:
             - containerPort: 8083
           env:
@@ -24,9 +24,17 @@ spec:
             - { name: STATUS_STORAGE_TOPIC,      value: debezium.status }
             - { name: KEY_CONVERTER,             value: org.apache.kafka.connect.json.JsonConverter }
             - { name: VALUE_CONVERTER,           value: org.apache.kafka.connect.json.JsonConverter }
-            - name: KEY_CONVERTER_SCHEMAS_ENABLE
+            # entrypoint image chỉ đặc cách 1 danh sách cố định biến không
+            # tiền tố (BOOTSTRAP_SERVERS, GROUP_ID, *_STORAGE_TOPIC,
+            # KEY_CONVERTER, VALUE_CONVERTER...) — mọi property khác BẮT
+            # BUỘC tiền tố CONNECT_ mới được map vào connect-distributed
+            # .properties (CONNECT_X_Y_Z -> x.y.z). Thiếu tiền tố này khiến
+            # 2 dòng dưới bị bỏ qua hoàn toàn trước đây, worker chạy với
+            # default schemas.enable=true -> consumer nhận thêm envelope
+            # {schema,payload} bọc ngoài SocialEvent, deserialize vỡ.
+            - name: CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE
               value: "false"
-            - name: VALUE_CONVERTER_SCHEMAS_ENABLE
+            - name: CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE
               value: "false"
           readinessProbe:
             httpGet: { path: /connectors, port: 8083 }
@@ -92,6 +100,7 @@ spec:
                     "transforms.outbox.table.field.event.key": "aggregate_id",
                     "transforms.outbox.table.field.event.type": "event_type",
                     "transforms.outbox.table.field.event.payload": "payload",
+                    "transforms.outbox.table.expand.json.payload": "true",
                     "transforms.outbox.route.by.field": "aggregate_type",
                     "transforms.outbox.route.topic.replacement": "social.${routedByValue}",
                     "tombstones.on.delete": "false"

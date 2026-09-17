@@ -1,13 +1,8 @@
 http:
 
-  # ── Middleware ──────────────────────────────────────────────────────────────
-  middlewares:
-
-    jwt-verify:
-      forwardAuth:
-        address: "http://host.docker.internal:8081/api/auth/verify"
-        authResponseHeaders:
-          - X-User-Id
+  # Không dùng ForwardAuth ở gateway — mỗi service tự verify JWT cục bộ qua
+  # public key (mp.jwt.verify.publickey.location) + @RolesAllowed. Traefik
+  # chỉ route theo path. Lý do bỏ ForwardAuth: xem specs/decisions/0005.
 
   # ── Routers ────────────────────────────────────────────────────────────────
   routers:
@@ -18,36 +13,31 @@ http:
       service: auth
       entryPoints: [web]
 
-    # Protected — jwt-verify attached per route
+    # Protected — mỗi service tự verify JWT
     users:
       rule: "PathPrefix(`/api/users`)"
       service: users
       entryPoints: [web]
-      middlewares: [jwt-verify]
 
     post:
       rule: "PathPrefix(`/api/articles`)"
       service: post
       entryPoints: [web]
-      middlewares: [jwt-verify]
 
     comments:
       rule: "PathPrefix(`/api/comments`)"
       service: interaction
       entryPoints: [web]
-      middlewares: [jwt-verify]
 
     votes:
       rule: "PathPrefix(`/api/votes`)"
       service: interaction
       entryPoints: [web]
-      middlewares: [jwt-verify]
 
     notifications:
       rule: "PathPrefix(`/api/notifications`)"
       service: notifications
       entryPoints: [web]
-      middlewares: [jwt-verify]
 
     websocket:
       rule: "PathPrefix(`/ws`)"

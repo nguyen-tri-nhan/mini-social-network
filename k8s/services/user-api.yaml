@@ -56,7 +56,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: user-service
+  name: user-api
   namespace: social
 spec:
   selector: { app: user-api }

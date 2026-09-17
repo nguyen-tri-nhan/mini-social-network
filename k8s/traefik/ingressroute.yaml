@@ -1,18 +1,8 @@
 ---
-# JWT verification via ForwardAuth → auth-service
-# auth-service trả 200 + X-User-Id header nếu token valid, 401 nếu không
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: jwt-verify
-  namespace: social
-spec:
-  forwardAuth:
-    address: http://auth-service:8080/api/auth/verify
-    authResponseHeaders:
-      - X-User-Id   # forwarded to downstream service
-
----
+# Không dùng ForwardAuth ở gateway — mỗi service tự verify JWT cục bộ qua
+# public key (mp.jwt.verify.publickey.location, xem application.properties
+# từng service) + @RolesAllowed. Traefik chỉ route theo path.
+# Lý do bỏ ForwardAuth: xem specs/decisions/0005.
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -29,43 +19,33 @@ spec:
         - name: auth-service
           port: 8080
 
-    # ── Protected (jwt-verify middleware) ─────────────────────────────────────
+    # ── Protected (mỗi service tự verify JWT) ──────────────────────────────────
     - match: PathPrefix(`/api/users`)
       kind: Rule
-      middlewares:
-        - name: jwt-verify
       services:
         - name: user-api
           port: 8080
 
     - match: PathPrefix(`/api/articles`)
       kind: Rule
-      middlewares:
-        - name: jwt-verify
       services:
         - name: post-api
           port: 8080
 
     - match: PathPrefix(`/api/comments`)
       kind: Rule
-      middlewares:
-        - name: jwt-verify
       services:
         - name: interaction-service
           port: 8080
 
     - match: PathPrefix(`/api/votes`)
       kind: Rule
-      middlewares:
-        - name: jwt-verify
       services:
         - name: interaction-service
           port: 8080
 
     - match: PathPrefix(`/api/notifications`)
       kind: Rule
-      middlewares:
-        - name: jwt-verify
       services:
         - name: notification-api
           port: 8080

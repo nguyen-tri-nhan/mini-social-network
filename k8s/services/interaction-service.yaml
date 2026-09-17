@@ -24,6 +24,8 @@ spec:
               value: jdbc:postgresql://postgres:5432/social
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: kafka:9092
+            - name: POST_API_URL
+              value: http://post-api:8080
             - name: JWT_ISSUER
               value: https://social.nhan.dev
             - name: JWT_PUBLIC_KEY_LOCATION

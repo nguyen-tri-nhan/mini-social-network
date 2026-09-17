@@ -58,7 +58,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: notification-service
+  name: notification-api
   namespace: social
 spec:
   selector: { app: notification-api }

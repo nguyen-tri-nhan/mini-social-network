@@ -102,15 +102,75 @@ deploy-infra:
 	kubectl rollout status deployment/postgres -n $(NAMESPACE) --timeout=60s
 	kubectl rollout status deployment/kafka    -n $(NAMESPACE) --timeout=90s
 
-## Grafana UI — port-forward để mở trên máy host
+## Grafana UI — port-forward để mở trên máy host (3001, không phải 3000 —
+## đụng cổng Vite dev server của frontend)
 grafana:
-	@echo "Grafana: http://localhost:3000"
-	kubectl port-forward -n $(NAMESPACE) svc/lgtm 3000:3000
+	@echo "Grafana: http://localhost:3001"
+	kubectl port-forward -n $(NAMESPACE) svc/lgtm 3001:3000
 
 ## Kafdrop — xem/test produce message Kafka thủ công, port-forward khi cần
 kafdrop:
 	@echo "Kafdrop: http://localhost:9000"
 	kubectl port-forward -n $(NAMESPACE) svc/kafdrop 9000:9000
+
+## Port-forward Postgres ra host để đọc DB bằng psql/GUI client (TablePlus,
+## DBeaver...) — connect: postgresql://postgres:postgres@localhost:5432/social
+db-forward:
+	@echo "Postgres: postgresql://postgres:postgres@localhost:5432/social"
+	kubectl port-forward -n $(NAMESPACE) svc/postgres 5432:5432
+
+## Mở psql thẳng vào DB qua port-forward đang chạy (chạy `make db-forward` ở terminal khác trước)
+db-psql:
+	PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d social
+
+## Traefik dashboard — port 9090 không có trên Service (chỉ web/websecure),
+## port-forward thẳng vào Deployment; cũng không map ra host qua kind (chỉ 8080)
+traefik-dashboard:
+	@echo "Traefik dashboard: http://localhost:9090/dashboard/"
+	kubectl port-forward -n kube-system deployment/traefik 9090:9090
+
+# ── Port-forward, chạy nền (không chiếm terminal) ───────────────────────────
+
+.PHONY: forward-up forward-down forward-status
+
+FWD_DIR := .scratch/port-forward
+
+## Bật tất cả port-forward hay dùng (Grafana, Kafdrop, Traefik dashboard,
+## Postgres) chạy nền 1 lần — thay vì mở 4 terminal riêng. PID lưu ở
+## .scratch/port-forward/*.pid, log ở *.log (cùng thư mục) để debug khi cần.
+forward-up: forward-down
+	@mkdir -p $(FWD_DIR)
+	@nohup kubectl port-forward -n $(NAMESPACE)  svc/lgtm               3001:3000 > $(FWD_DIR)/grafana.log            2>&1 & echo $$! > $(FWD_DIR)/grafana.pid
+	@nohup kubectl port-forward -n $(NAMESPACE)  svc/kafdrop            9000:9000 > $(FWD_DIR)/kafdrop.log             2>&1 & echo $$! > $(FWD_DIR)/kafdrop.pid
+	@nohup kubectl port-forward -n kube-system   deployment/traefik     9090:9090 > $(FWD_DIR)/traefik-dashboard.log   2>&1 & echo $$! > $(FWD_DIR)/traefik-dashboard.pid
+	@nohup kubectl port-forward -n $(NAMESPACE)  svc/postgres           5432:5432 > $(FWD_DIR)/postgres.log            2>&1 & echo $$! > $(FWD_DIR)/postgres.pid
+	@sleep 1
+	@echo "✅ Grafana:  http://localhost:3001"
+	@echo "✅ Kafdrop:  http://localhost:9000"
+	@echo "✅ Traefik:  http://localhost:9090/dashboard/"
+	@echo "✅ Postgres: postgresql://postgres:postgres@localhost:5432/social"
+	@echo "(make forward-status để xem lại, make forward-down để tắt hết)"
+
+## Tắt hết port-forward đang chạy nền (idempotent, không lỗi nếu đã tắt sẵn)
+forward-down:
+	@mkdir -p $(FWD_DIR)
+	@for f in $(FWD_DIR)/*.pid; do \
+		[ -f "$$f" ] || continue; \
+		pid=$$(cat "$$f"); \
+		if kill $$pid 2>/dev/null; then echo "Stopped $$(basename $$f .pid) (pid $$pid)"; fi; \
+		rm -f "$$f"; \
+	done
+
+## Xem port-forward nào đang chạy nền
+forward-status:
+	@found=0; \
+	for f in $(FWD_DIR)/*.pid; do \
+		[ -f "$$f" ] || continue; found=1; \
+		pid=$$(cat "$$f"); \
+		if kill -0 $$pid 2>/dev/null; then echo "✅ $$(basename $$f .pid) — running (pid $$pid)"; \
+		else echo "❌ $$(basename $$f .pid) — chết nhưng còn pid file (chạy make forward-up lại)"; fi; \
+	done; \
+	[ $$found -eq 1 ] || echo "Không có port-forward nào đang chạy nền (make forward-up để bật)"
 
 deploy-services:
 	kubectl apply -f k8s/services/
@@ -173,11 +233,33 @@ up-%: build-% load-%
 cluster-create:
 	kind create cluster --name $(CLUSTER) --config infra/kind-cluster.yaml
 	helm repo add traefik https://helm.traefik.io/traefik && helm repo update
-	helm install traefik traefik/traefik \
+	# Chart mặc định có port nội bộ "traefik" (dashboard/API) CŨNG default
+	# containerPort=8080 — đụng thẳng port "web" mình set 8080, Helm reject
+	# vì trùng containerPort (release status "failed", không pod nào lên,
+	# im lặng không báo rõ). Dời dashboard sang 9090 (đúng ý định ban đầu —
+	# xem docs/k8s-getting-started.md, infra/traefik/traefik.yaml bản local
+	# cũng dùng :9090 cho dashboard) để hết đụng port.
+	# upgrade --install thay vì install để idempotent, chạy lại được nếu
+	# release cũ ở trạng thái failed.
+	# extraPortMappings của kind (infra/kind-cluster.yaml) chỉ forward
+	# host:8080 → đúng node control-plane — Traefik phải bị ghim vào node
+	# đó (nodeSelector + toleration, vì control-plane có taint NoSchedule
+	# mặc định) không thì host:8080 gõ vào node không ai lắng nghe.
+	# ingressRoute.dashboard.enabled mặc định false — api.dashboard=true
+	# (default chart) chỉ bật tính năng, chưa tạo route thật, thiếu dòng
+	# này thì /dashboard/ luôn 404 dù đã port-forward đúng.
+	helm upgrade --install traefik traefik/traefik \
 		--namespace kube-system \
 		--set ports.web.port=8080 \
+		--set ports.web.containerPort=8080 \
 		--set ports.web.hostPort=8080 \
+		--set ports.traefik.port=9090 \
 		--set service.type=NodePort \
+		--set 'nodeSelector.kubernetes\.io/hostname=$(CLUSTER)-control-plane' \
+		--set 'tolerations[0].key=node-role.kubernetes.io/control-plane' \
+		--set 'tolerations[0].operator=Exists' \
+		--set 'tolerations[0].effect=NoSchedule' \
+		--set ingressRoute.dashboard.enabled=true \
 		--wait
 
 cluster-delete:
@@ -186,6 +268,31 @@ cluster-delete:
 ## Xoá hoàn toàn cluster, có xác nhận + dọn port-forward chạy nền trước (khuyên dùng thay cluster-delete)
 shutdown:
 	@scripts/shutdown-k8s.sh
+
+# ── Frontend (local dev) ─────────────────────────────────────────────────────
+
+.PHONY: frontend-install frontend-dev frontend-typecheck frontend-test frontend-build
+
+## Cài dependencies FE — chỉ cần chạy lại khi package.json đổi
+frontend-install:
+	cd frontend && npm install
+
+## Chạy FE dev server (Vite :3000) — proxy /api → Traefik gateway :8080
+## (xem frontend/vite.config.ts), cần backend đã chạy trước (make status)
+frontend-dev:
+	cd frontend && npm run dev
+
+## Type-check FE không build (tsc --noEmit)
+frontend-typecheck:
+	cd frontend && npm run typecheck
+
+## Chạy FE unit test (vitest)
+frontend-test:
+	cd frontend && npm run test
+
+## Build FE production bundle (static — phục vụ qua nginx/CDN, chưa có trong k8s/)
+frontend-build:
+	cd frontend && npm run build
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
