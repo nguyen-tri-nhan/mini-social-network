@@ -31,7 +31,7 @@
 | **Kafka + Debezium CDC** | Outbox pattern — services never publish to Kafka directly; Debezium reads the WAL |
 | **Quarkus Websockets Next** | Pub/sub realtime push — live comments, notifications |
 | **Redis** | Counter cache + periodic flush-to-DB, unread badge count, profile cache |
-| **Traefik v3** | API gateway with ForwardAuth JWT validation |
+| **Traefik v3** | API gateway, path-based routing — each service verifies its own JWT (RS256, shared public key), see [ADR 0005](specs/decisions/0005-bo-forwardauth-o-gateway.md) |
 | **LGTM stack** | Grafana · Loki · Tempo · Mimir + OpenTelemetry |
 | **Quarkus JIB** | Container images with no Dockerfile |
 | **kind + Kubernetes** | Local cluster with full k8s manifests |
@@ -49,7 +49,7 @@ graph LR
     FE(["Browser\nReact SPA"])
     WSC(["Browser\nWebSocket"])
 
-    GW["Traefik :8080\nForwardAuth JWT · Routing"]
+    GW["Traefik :8080\nPath-based routing"]
 
     subgraph APIS["REST APIs"]
         Auth["auth-service\n:8081"]
@@ -125,12 +125,12 @@ See [docs/architecture.md](docs/architecture.md) for detailed service breakdown,
 - **Container:** Quarkus JIB (no Dockerfile)
 
 ### Frontend
-- React 19 · shadcn/ui · Tailwind CSS
-- TanStack Query v5 · Zustand · React Router 7
+- React 18 · Vite · shadcn/ui · Tailwind CSS
+- TanStack Query v5 · Zustand · React Router 6
 - React Hook Form · Zod
 
 ### Infrastructure
-- **Gateway:** Traefik v3 (ForwardAuth, per-route middleware)
+- **Gateway:** Traefik v3 (path-based routing; JWT verification lives in each service, not the gateway)
 - **Local k8s:** kind
 - **Production:** AWS EKS · RDS · MSK · S3 · ECR
 
@@ -180,49 +180,47 @@ mini-social-network/
 
 ## Running Locally
 
-### Prerequisites
-- Java 21
-- Docker + Docker Compose
-- kind
+Two options. **kind is recommended** — it's the only path that runs the full outbox/CDC pattern (Debezium needs a real WAL replication slot; the plain docker-compose setup has no Kafka Connect, so outbox events never flow there).
 
-### 1. Start infrastructure
+### Option 1 — kind (full stack, verified end-to-end)
+
+**Prerequisites:** Java 21 · Docker Desktop (≥6 CPU / 12GB RAM recommended) · kind · Helm · kubectl
 
 ```bash
-docker compose -f infra/docker-compose.dev.yml up -d
+make cluster-create      # spin up kind cluster + install Traefik
+make deploy               # infra → secrets → services (sequential) → Debezium → routes
 ```
 
-Starts: PostgreSQL (5 schemas), Redis, Kafka, LocalStack S3.
-
-### 2. Generate JWT keys (first time only)
+Useful while it's running:
 
 ```bash
-cd services && ./setup.sh
+make status                # pod status
+make logs-post-api         # tail logs for one service
+make forward-up            # background port-forward: Grafana, Kafdrop, Traefik dashboard, Postgres
+make forward-down          # stop them all
 ```
 
-### 3. Run services
+Gateway lives at `http://localhost:8080`. Rebuild + redeploy a single service after a code change: `make up-post` (build + load image + restart).
+Full walkthrough, troubleshooting, and the running list of bugs hit along the way → [docs/k8s-getting-started.md](docs/k8s-getting-started.md).
+
+### Option 2 — docker-compose + quarkusDev (lighter, NO outbox/CDC)
+
+For quick iteration on a single service when you don't need real Kafka events (no Kafka Connect/Debezium in this compose file).
 
 ```bash
-cd services
+docker compose -f infra/docker-compose.dev.yml --profile all up -d
+cd services && ./setup.sh          # generate JWT keys, one-time
 
 ./gradlew :auth-service:quarkusDev
-./gradlew :user-api:quarkusDev
 ./gradlew :post-api:quarkusDev
-./gradlew :interaction-service:quarkusDev
-./gradlew :notification-api:quarkusDev
-./gradlew :websocket-service:quarkusDev
-
-# Background workers
-./gradlew :user-consumer:quarkusDev
-./gradlew :post-consumer:quarkusDev
-./gradlew :notification-consumer:quarkusDev
+# ... same for other services, see %dev port in each application.properties
 ```
 
-### 4. Register Debezium connector
+### Frontend (same step regardless of which option above)
 
 ```bash
-curl -X POST http://localhost:8083/connectors \
-  -H "Content-Type: application/json" \
-  -d @k8s/infra/debezium-connector.json
+make frontend-install
+make frontend-dev          # Vite on :3000, proxies /api → gateway :8080
 ```
 
 ---
@@ -263,7 +261,7 @@ Full reference → [docs/api.md](docs/api.md)
 | [docs/architecture.md](docs/architecture.md) | System diagrams, service responsibilities, routing, module structure |
 | [docs/api.md](docs/api.md) | Full API reference — endpoints, auth, response format, WebSocket protocol |
 | [docs/patterns.md](docs/patterns.md) | Design patterns: Outbox + Debezium, Counter Flush, WebSocket Pub/Sub |
-| [docs/k8s-getting-started.md](docs/k8s-getting-started.md) | Setup kind cluster từ đầu — build, load, deploy, verify, known issues |
+| [docs/k8s-getting-started.md](docs/k8s-getting-started.md) | Setting up the kind cluster from scratch — build, load, deploy, verify, known issues |
 
 ---
 
