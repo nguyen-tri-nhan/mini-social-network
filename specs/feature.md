@@ -61,7 +61,7 @@
 | # | Feature | Status | Notes |
 |---|---|---|---|
 | 5.1 | Vote bài đăng | ✅ | `POST /api/articles/{id}/vote` · +1 / 0 / -1 · UNIQUE per user |
-| 5.2 | Vote bình luận | ✅ | `POST /api/comments/{id}/vote` · cùng cơ chế |
+| 5.2 | Vote bình luận | ✅ | `POST /api/votes` (payload chung article/comment, không phải `/api/comments/{id}/vote` như ghi trước — đã sửa theo code thật `InteractionResource.kt`) · cùng cơ chế |
 | 5.3 | Xem tổng vote | ✅ | Real-time từ Redis · flush về DB mỗi 30s |
 | 5.4 | Rút vote | ✅ | value = 0 |
 
@@ -77,7 +77,7 @@
 | 6.4 | Đếm chưa đọc (badge) | ✅ | `GET /api/notifications/unread-count` · Redis counter |
 | 6.5 | Đánh dấu đã đọc (1 cái) | ✅ | `PATCH /api/notifications/{id}/seen` |
 | 6.6 | Đánh dấu tất cả đã đọc | ✅ | `PATCH /api/notifications/seen-all` |
-| 6.7 | Push notification (web) | ⬜ | SSE hoặc WebSocket |
+| 6.7 | Push notification (web) | ✅ | `websocket-service` (`WsEndpoint.kt` — `@WebSocket(path="/ws")`), consume Kafka `social.interaction`, push qua `WsPushService`/`TopicRegistry` |
 
 ---
 
@@ -106,32 +106,39 @@
 
 | # | Feature | Status | Notes |
 |---|---|---|---|
-| 9.1 | Inline comments trong card | ⬜ | Không cần mở modal |
-| 9.2 | Optimistic update (like/comment) | ⬜ | +1 ngay · rollback nếu lỗi |
-| 9.3 | Infinite scroll | ⬜ | Thay pagination thủ công |
-| 9.4 | Relative timestamp | ⬜ | "2 giờ trước" thay "2-6-2026" |
-| 9.5 | Loading & skeleton states | ⬜ | Skeleton cards · spinner |
-| 9.6 | Empty states | ⬜ | Feed trống · không có notification |
-| 9.7 | Responsive mobile layout | ⬜ | Bottom nav bar · collapse sidebar |
-| 9.8 | Image drag & drop + preview | ⬜ | Preview trước khi upload |
-| 9.9 | Image validation (client) | ⬜ | Size ≤ 5MB · type: jpg/png/webp |
-| 9.10 | Form validation (Zod) | ⬜ | Login · SignUp |
-| 9.11 | Dark mode | ⬜ | Nice to have |
+| 9.1 | Inline comments trong card | ✅ | `ArticleCard.tsx` nhúng thẳng `CommentSection` (toggle `showComments`), không phải modal |
+| 9.2 | Optimistic update (like/comment) | ⬜ | Không thấy pattern `onMutate`/rollback trong mutation hooks |
+| 9.3 | Infinite scroll | ✅ | `FeedPage.tsx` dùng `useInfiniteQuery` (TanStack Query) + `useInView` (react-intersection-observer) |
+| 9.4 | Relative timestamp | ⬜ | `date-fns` có trong `package.json` nhưng không thấy dùng (`formatDistanceToNow`) trong pages/components |
+| 9.5 | Loading & skeleton states | 🔧 | Có `Spinner` (`components/ui`), chưa có skeleton card |
+| 9.6 | Empty states | ✅ | `FeedPage.tsx`, `ProfilePage.tsx` đã có empty state khi feed rỗng |
+| 9.7 | Responsive mobile layout | ✅ | `Sidebar.tsx` có `BottomNav` (`fixed bottom-0 ... lg:hidden`), dùng trong `RootLayout.tsx` |
+| 9.8 | Image drag & drop + preview | 🔧 | `CreatePost.tsx` có preview ảnh sau khi chọn, nhưng chỉ qua `<input type=file>`, chưa có onDrop/dragover |
+| 9.9 | Image validation (client) | 🔧 | `CreatePost.tsx` check size ≤ 5MB có; check type chỉ qua `accept="image/*"` (lỏng hơn spec jpg/png/webp cụ thể) |
+| 9.10 | Form validation (Zod) | ✅ | `LoginPage.tsx`, `SignUpPage.tsx` dùng `useForm` + `zodResolver` + `z.object` |
+| 9.11 | Dark mode | ⬜ | Không có gì liên quan "dark" trong `frontend/src` |
 | 9.12 | PWA + offline support | ⬜ | Nice to have |
 
 ---
 
 ## Summary
 
-| | Tổng | Done | Planned |
-|---|---|---|---|
-| Authentication | 6 | 3 | 3 |
-| User Profile | 5 | 3 | 2 |
-| Post | 8 | 5 | 3 |
-| Comment | 5 | 3 | 2 |
-| Vote | 4 | 4 | 0 |
-| Notification | 7 | 6 | 1 |
-| Image Upload | 3 | 1 | 2 |
-| Feed & Discovery | 4 | 1 | 3 |
-| Frontend UX | 12 | 0 | 12 |
-| **Total** | **54** | **26** | **28** |
+| | Tổng | Done | Partial | Planned |
+|---|---|---|---|---|
+| Authentication | 6 | 3 | 0 | 3 |
+| User Profile | 5 | 3 | 0 | 2 |
+| Post | 8 | 5 | 0 | 3 |
+| Comment | 5 | 3 | 0 | 2 |
+| Vote | 4 | 4 | 0 | 0 |
+| Notification | 7 | 7 | 0 | 0 |
+| Image Upload | 3 | 1 | 0 | 2 |
+| Feed & Discovery | 4 | 1 | 0 | 3 |
+| Frontend UX | 12 | 5 | 3 | 4 |
+| **Total** | **54** | **32** | **3** | **19** |
+
+> Cập nhật 16/9/2026 — đối chiếu lại toàn bộ bảng với code thật (`grep @Path`
+> trong `*Resource.kt`, review `frontend/src/pages`+`components`), không phải
+> chỉnh tay theo cảm tính. Thay đổi so với bản gốc (đầu 6/2026): 6.7 (push
+> notification qua `websocket-service`) và 5/12 mục Frontend UX (9.1, 9.3,
+> 9.6, 9.7, 9.10) hoá ra đã làm xong nhưng bảng cũ ghi `⬜`; thêm 3 mục
+> `🔧 Partial` (9.5, 9.8, 9.9) trước đó gộp chung vào `⬜`.

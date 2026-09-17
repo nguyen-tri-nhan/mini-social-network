@@ -198,6 +198,22 @@ bộ 9 bước ở trên cho 1 thay đổi nhỏ.
 `make up` (= `build` + `load` + `deploy` toàn bộ, đã gồm `k8s-secrets` đúng
 thứ tự) dùng được ngay từ lần đầu, không cần chạy `k8s-secrets` riêng trước.
 
+⚠️ **`make up-<x>` (hoặc bất kỳ `./gradlew build`/`make build-*` nào) cũng gây
+lag y hệt tình huống ở bước 7, dù chỉ rebuild 1 service** — gặp trực tiếp
+trong lúc viết guide này. Nguyên nhân: build Gradle/JIB chạy trên **host**,
+không phải trong pod, nhưng vẫn dùng chung 1 Docker Desktop VM với toàn bộ
+kind cluster (không tách biệt tài nguyên) — build tốn CPU nặng, cạnh tranh
+trực tiếp với các pod đang chạy. Triệu chứng: `k9s` đơ, `kubectl`/`docker
+stats` timeout ("TLS handshake timeout"). Cách xử lý:
+- **Đừng chạy build khi cluster đang tự hồi phục** (vừa restart nhiều pod,
+  đang crash-loop) — đợi `kubectl get pods` ổn định rồi mới rebuild tiếp.
+- Nếu đang đơ thật và cần giải phóng ngay: dừng build đang chạy (`Ctrl+C`
+  nếu chạy foreground, hoặc kill process gradle/java nếu chạy nền), đợi vài
+  chục giây rồi thử lại `kubectl get pods`.
+- Về lâu dài: tăng resource Docker Desktop (Settings → Resources) nếu máy
+  còn dư — không bắt buộc (steady-state vẫn chạy được với cấu hình nhỏ, đã
+  verify), nhưng giảm hẳn tần suất gặp tình huống này khi vừa build vừa dev.
+
 ---
 
 ## 10. Verify happy path
@@ -292,6 +308,19 @@ có `PersistentVolumeClaim`/`emptyDir`/`hostPath` — đã `grep` xác nhận. N
 là **không có data nào tồn tại qua pod restart cả**, dù bạn tắt kiểu gì.
 "An toàn" ở đây là "không đụng gì ngoài phạm vi cluster `social`", không
 phải "bảo toàn dữ liệu" — vì vốn dĩ chẳng có gì để giữ.
+
+Cụ thể với Postgres — hay bị hỏi nhất: data thật (`/var/lib/postgresql/data`)
+nằm ở **writable layer của container**, không phải volume riêng. `postgres.
+yaml` chỉ mount 1 `ConfigMap` (`init-schemas.sql`, tạo schema rỗng lúc khởi
+động lần đầu) — không mount gì cho thư mục data. Container Postgres biến mất
+vì bất kỳ lý do gì (`make shutdown`, xoá pod, restart do OOM/crash) → **data
+mất sạch**, lần sau lên lại chỉ có schema rỗng, không phải data cũ.
+
+Đây là lựa chọn cố ý cho giai đoạn hiện tại (dev cluster chạy tạm để test,
+không phải nơi giữ data thật). Nếu sau này cần data sống qua restart (test
+data quan trọng, hoặc chuẩn bị lên production), cần thêm `PersistentVolume-
+Claim` + `StorageClass` cho Postgres — đó là quyết định kiến trúc mới, cần
+ghi ADR khi làm (`specs/decisions/`), hiện chưa có gì.
 
 Trước khi tắt: `Ctrl+C` mọi `kubectl port-forward` hoặc `make grafana` đang
 chạy nền ở terminal khác — không bắt buộc (process đó chỉ tự lỗi khi cluster
