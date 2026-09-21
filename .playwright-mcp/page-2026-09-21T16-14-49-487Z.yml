@@ -1,0 +1,103 @@
+- generic [ref=f7e2]:
+  - generic [ref=f7e3]:
+    - banner [ref=f7e7]:
+      - generic [ref=f7e8]:
+        - link "Social" [ref=f7e9] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f7e10]:
+          - link "Notifications" [ref=f7e11] [cursor=pointer]:
+            - /url: /notifications
+            - generic [ref=f7e12]: "3"
+          - link "Profile" [ref=f7e17] [cursor=pointer]:
+            - /url: /profile
+            - generic [ref=f7e18]: TR
+          - button "Logout" [ref=f7e19] [cursor=pointer]
+    - generic [ref=f7e23]:
+      - navigation [ref=f7e24]:
+        - list [ref=f7e25]:
+          - link "Feed" [ref=f7e26] [cursor=pointer]:
+            - /url: /
+          - link "Notifications" [ref=f7e33] [cursor=pointer]:
+            - /url: /notifications
+          - link "Profile" [ref=f7e40] [cursor=pointer]:
+            - /url: /profile
+      - main [ref=f7e47]:
+        - generic [ref=f7e92]:
+          - link "Back to feed" [ref=f7e93] [cursor=pointer]:
+            - /url: /
+          - generic [ref=f7e96]:
+            - generic [ref=f7e97]:
+              - generic [ref=f7e98]:
+                - generic [ref=f7e99]: TR
+                - generic [ref=f7e100]:
+                  - paragraph [ref=f7e101]: Toast Receiver
+                  - text: 13 minutes ago
+              - button "Delete post" [ref=f7e102] [cursor=pointer]
+            - paragraph [ref=f7e106]: Testing realtime toast notification
+            - generic [ref=f7e107]:
+              - generic [ref=f7e108]: 0 votes
+              - generic [ref=f7e109]: 0 comments
+            - generic [ref=f7e110]:
+              - button "Like" [ref=f7e111] [cursor=pointer]
+              - button "Dislike" [ref=f7e114] [cursor=pointer]
+              - button "Comment" [ref=f7e117] [cursor=pointer]
+            - separator [ref=f7e120]
+            - generic [ref=f7e121]:
+              - generic [ref=f7e122]:
+                - generic [ref=f7e123]:
+                  - generic [ref=f7e124]: U
+                  - generic [ref=f7e125]:
+                    - generic [ref=f7e126]:
+                      - paragraph [ref=f7e127]: User
+                      - paragraph [ref=f7e128]: Nice post, testing WS toast!
+                    - generic [ref=f7e129]: 13 minutes ago
+                - generic [ref=f7e131]:
+                  - generic [ref=f7e132]: U
+                  - generic [ref=f7e133]:
+                    - generic [ref=f7e134]:
+                      - paragraph [ref=f7e135]: User
+                      - paragraph [ref=f7e136]: really?
+                    - generic [ref=f7e137]: 9 minutes ago
+                - generic [ref=f7e139]:
+                  - generic [ref=f7e140]: U
+                  - generic [ref=f7e141]:
+                    - generic [ref=f7e142]:
+                      - paragraph [ref=f7e143]: User
+                      - paragraph [ref=f7e144]: why I cannot see my name?
+                    - generic [ref=f7e145]: 7 minutes ago
+                - generic [ref=f7e147]:
+                  - generic [ref=f7e148]: U
+                  - generic [ref=f7e149]:
+                    - generic [ref=f7e150]:
+                      - paragraph [ref=f7e151]: User
+                      - paragraph [ref=f7e152]: Click-through test comment
+                    - generic [ref=f7e153]: 2 minutes ago
+                - generic [ref=f7e155]:
+                  - generic [ref=f7e156]: U
+                  - generic [ref=f7e157]:
+                    - generic [ref=f7e158]:
+                      - paragraph [ref=f7e159]: User
+                      - paragraph [ref=f7e160]: Click-through test comment 2
+                    - generic [ref=f7e161]: 2 minutes ago
+                - generic [ref=f7e163]:
+                  - generic [ref=f7e164]: U
+                  - generic [ref=f7e165]:
+                    - generic [ref=f7e166]:
+                      - paragraph [ref=f7e167]: User
+                      - paragraph [ref=f7e168]: Click-through test comment 3
+                    - generic [ref=f7e169]: 2 minutes ago
+                - generic [ref=f7e171]:
+                  - generic [ref=f7e172]: U
+                  - generic [ref=f7e173]:
+                    - generic [ref=f7e174]:
+                      - paragraph [ref=f7e175]: User
+                      - paragraph [ref=f7e176]: ouch
+                    - generic [ref=f7e177]:
+                      - generic [ref=f7e178]: 1 minute ago
+                      - button "Delete" [ref=f7e179] [cursor=pointer]
+              - generic [ref=f7e183]:
+                - generic [ref=f7e184]: TR
+                - generic [ref=f7e185]:
+                  - textbox "Write a comment..." [ref=f7e187]
+                  - button "Send comment" [disabled]
+  - region "Notifications alt+T"

@@ -1,0 +1,140 @@
+[      28ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:21608
+[      46ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4426
+[     147ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3000/signup:0
+[   13064ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/users/9ea4a1b0-2894-4b7e-bfa1-14724705184d:0
+[   14085ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/users/9ea4a1b0-2894-4b7e-bfa1-14724705184d:0
+[  384292ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:21608
+[  384306ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4426
+[  533607ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:21608
+[  533626ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4426
+[  562763ms] [ERROR] Warning: React has detected a change in the order of Hooks called by %s. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://reactjs.org/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+%s   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+%s RootLayout 1. useCallback                useCallback
+2. useCallback                useCallback
+3. useSyncExternalStore       useSyncExternalStore
+4. useDebugValue              useDebugValue
+5. useContext                 useContext
+6. useContext                 useContext
+7. useContext                 useContext
+8. useEffect                  useEffect
+9. useState                   useState
+10. useCallback               useCallback
+11. useSyncExternalStore      useSyncExternalStore
+12. useEffect                 useEffect
+13. useEffect                 useEffect
+14. useEffect                 useEffect
+15. useContext                useContext
+16. useEffect                 useContext
+ 
+    at RootLayout (http://localhost:3000/src/components/layout/RootLayout.tsx?t=1790007030448:31:31)
+    at RenderedRoute (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4122:5)
+    at RenderErrorBoundary (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4082:5)
+    at DataRoutes (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:5265:5)
+    at Router (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4535:15)
+    at RouterProvider (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:5079:5)
+    at QueryClientProvider (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=5dcde1b1:3235:3)
+    at DefaultPropsProvider (http://localhost:3000/node_modules/.vite/deps/chunk-6NIZOJCR.js?v=5dcde1b1:6182:3)
+    at RtlProvider (http://localhost:3000/node_modules/.vite/deps/chunk-6NIZOJCR.js?v=5dcde1b1:6158:3)
+    at ThemeProvider2 (http://localhost:3000/node_modules/.vite/deps/chunk-6NIZOJCR.js?v=5dcde1b1:6114:5)
+    at ThemeProvider3 (http://localhost:3000/node_modules/.vite/deps/chunk-6NIZOJCR.js?v=5dcde1b1:6334:5)
+    at ThemeProviderNoVars (http://localhost:3000/node_modules/.vite/deps/chunk-IWYLFUSQ.js?v=5dcde1b1:277:10)
+    at ThemeProvider (http://localhost:3000/node_modules/.vite/deps/chunk-IWYLFUSQ.js?v=5dcde1b1:425:3) @ http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:520
+[  562765ms] Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:11726:21)
+    at updateEffectImpl (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12122:22)
+    at updateLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12166:18)
+    at Object.useLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12766:22)
+    at Object.useLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-QCHXOAYK.js?v=5dcde1b1:1086:29)
+    at useIsomorphicLayoutEffect (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:3882:11)
+    at useNavigateStable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4397:3)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:3889:24)
+    at useNotificationSocket (http://localhost:3000/src/hooks/useNotificationSocket.ts?t=1790007030448:10:20)
+    at RootLayout (http://localhost:3000/src/components/layout/RootLayout.tsx?t=1790007030448:44:3)
+[  562765ms] [ERROR] Error handled by React Router default ErrorBoundary: Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:11726:21)
+    at updateEffectImpl (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12122:22)
+    at updateLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12166:18)
+    at Object.useLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12766:22)
+    at Object.useLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-QCHXOAYK.js?v=5dcde1b1:1086:29)
+    at useIsomorphicLayoutEffect (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:3882:11)
+    at useNavigateStable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4397:3)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:3889:24)
+    at useNotificationSocket (http://localhost:3000/src/hooks/useNotificationSocket.ts?t=1790007030448:10:20)
+    at RootLayout (http://localhost:3000/src/components/layout/RootLayout.tsx?t=1790007030448:44:3) @ http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4063
+[  562765ms] [ERROR] Error handled by React Router default ErrorBoundary: Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:11726:21)
+    at updateEffectImpl (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12122:22)
+    at updateLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12166:18)
+    at Object.useLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12766:22)
+    at Object.useLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-QCHXOAYK.js?v=5dcde1b1:1086:29)
+    at useIsomorphicLayoutEffect (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:3882:11)
+    at useNavigateStable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4397:3)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:3889:24)
+    at useNotificationSocket (http://localhost:3000/src/hooks/useNotificationSocket.ts?t=1790007030448:10:20)
+    at RootLayout (http://localhost:3000/src/components/layout/RootLayout.tsx?t=1790007030448:44:3) @ http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4063
+[  562765ms] Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:11726:21)
+    at updateEffectImpl (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12122:22)
+    at updateLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12166:18)
+    at Object.useLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12766:22)
+    at Object.useLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-QCHXOAYK.js?v=5dcde1b1:1086:29)
+    at useIsomorphicLayoutEffect (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:3882:11)
+    at useNavigateStable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4397:3)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:3889:24)
+    at useNotificationSocket (http://localhost:3000/src/hooks/useNotificationSocket.ts?t=1790007030448:10:20)
+    at RootLayout (http://localhost:3000/src/components/layout/RootLayout.tsx?t=1790007030448:44:3)
+[  562765ms] [ERROR] Error handled by React Router default ErrorBoundary: Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:11726:21)
+    at updateEffectImpl (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12122:22)
+    at updateLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12166:18)
+    at Object.useLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12766:22)
+    at Object.useLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-QCHXOAYK.js?v=5dcde1b1:1086:29)
+    at useIsomorphicLayoutEffect (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:3882:11)
+    at useNavigateStable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4397:3)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:3889:24)
+    at useNotificationSocket (http://localhost:3000/src/hooks/useNotificationSocket.ts?t=1790007030448:10:20)
+    at RootLayout (http://localhost:3000/src/components/layout/RootLayout.tsx?t=1790007030448:44:3) @ http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4063
+[  562766ms] [ERROR] Error handled by React Router default ErrorBoundary: Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:11726:21)
+    at updateEffectImpl (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12122:22)
+    at updateLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12166:18)
+    at Object.useLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12766:22)
+    at Object.useLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-QCHXOAYK.js?v=5dcde1b1:1086:29)
+    at useIsomorphicLayoutEffect (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:3882:11)
+    at useNavigateStable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4397:3)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:3889:24)
+    at useNotificationSocket (http://localhost:3000/src/hooks/useNotificationSocket.ts?t=1790007030448:10:20)
+    at RootLayout (http://localhost:3000/src/components/layout/RootLayout.tsx?t=1790007030448:44:3) @ http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4063
+[  562766ms] [ERROR] The above error occurred in the <RootLayout> component:
+
+    at RootLayout (http://localhost:3000/src/components/layout/RootLayout.tsx?t=1790007030448:31:31)
+    at RenderedRoute (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4122:5)
+    at RenderErrorBoundary (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4082:5)
+    at DataRoutes (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:5265:5)
+    at Router (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4535:15)
+    at RouterProvider (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:5079:5)
+    at QueryClientProvider (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=5dcde1b1:3235:3)
+    at DefaultPropsProvider (http://localhost:3000/node_modules/.vite/deps/chunk-6NIZOJCR.js?v=5dcde1b1:6182:3)
+    at RtlProvider (http://localhost:3000/node_modules/.vite/deps/chunk-6NIZOJCR.js?v=5dcde1b1:6158:3)
+    at ThemeProvider2 (http://localhost:3000/node_modules/.vite/deps/chunk-6NIZOJCR.js?v=5dcde1b1:6114:5)
+    at ThemeProvider3 (http://localhost:3000/node_modules/.vite/deps/chunk-6NIZOJCR.js?v=5dcde1b1:6334:5)
+    at ThemeProviderNoVars (http://localhost:3000/node_modules/.vite/deps/chunk-IWYLFUSQ.js?v=5dcde1b1:277:10)
+    at ThemeProvider (http://localhost:3000/node_modules/.vite/deps/chunk-IWYLFUSQ.js?v=5dcde1b1:425:3)
+
+React will try to recreate this component tree from scratch using the error boundary you provided, RenderErrorBoundary. @ http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:14079
+[  562766ms] [ERROR] React Router caught the following error during render Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:11726:21)
+    at updateEffectImpl (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12122:22)
+    at updateLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12166:18)
+    at Object.useLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=5dcde1b1:12766:22)
+    at Object.useLayoutEffect (http://localhost:3000/node_modules/.vite/deps/chunk-QCHXOAYK.js?v=5dcde1b1:1086:29)
+    at useIsomorphicLayoutEffect (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:3882:11)
+    at useNavigateStable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4397:3)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:3889:24)
+    at useNotificationSocket (http://localhost:3000/src/hooks/useNotificationSocket.ts?t=1790007030448:10:20)
+    at RootLayout (http://localhost:3000/src/components/layout/RootLayout.tsx?t=1790007030448:44:3) {componentStack: 
+    at RootLayout (http://localhost:3000/src/comp…es/.vite/deps/chunk-IWYLFUSQ.js?v=5dcde1b1:425:3)} @ http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5dcde1b1:4108
+[  568166ms] [WARNING] WebSocket connection to 'ws://localhost:3000/ws' failed: WebSocket is closed before the connection is established. @ http://localhost:3000/src/hooks/useNotificationSocket.ts?t=1790007035849:49

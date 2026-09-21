@@ -1,0 +1,43 @@
+- generic [ref=f2e2]:
+  - generic [ref=f2e32]:
+    - banner [ref=f2e33]:
+      - generic [ref=f2e34]:
+        - link "Social" [ref=f2e35] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f2e36]:
+          - link "Notifications" [ref=f2e37] [cursor=pointer]:
+            - /url: /notifications
+            - generic [ref=f2e38]: "0"
+          - link "Profile" [ref=f2e42] [cursor=pointer]:
+            - /url: /profile
+            - generic [ref=f2e43]: TR
+          - button "Logout" [ref=f2e44] [cursor=pointer]
+    - generic [ref=f2e48]:
+      - navigation [ref=f2e49]:
+        - list [ref=f2e50]:
+          - link "Feed" [ref=f2e51] [cursor=pointer]:
+            - /url: /
+          - link "Notifications" [ref=f2e58] [cursor=pointer]:
+            - /url: /notifications
+          - link "Profile" [ref=f2e65] [cursor=pointer]:
+            - /url: /profile
+      - main [ref=f2e72]:
+        - generic [ref=f2e73]:
+          - generic [ref=f2e75]:
+            - generic [ref=f2e76]: TR
+            - button "What's on your mind, Toast?" [ref=f2e77] [cursor=pointer]
+          - generic [ref=f2e78]:
+            - generic [ref=f2e80]:
+              - generic [ref=f2e81]: U
+              - generic [ref=f2e82]:
+                - paragraph [ref=f2e83]: User
+                - text: about 1 hour ago
+            - paragraph [ref=f2e84]: Who am I
+            - generic [ref=f2e85]:
+              - generic [ref=f2e86]: 0 votes
+              - generic [ref=f2e87]: 0 comments
+            - generic [ref=f2e88]:
+              - button "Like" [ref=f2e89] [cursor=pointer]
+              - button "Dislike" [ref=f2e92] [cursor=pointer]
+              - button "Comment" [ref=f2e95] [cursor=pointer]
+  - region "Notifications alt+T"

@@ -15,6 +15,7 @@ import { SignUpPage } from './pages/SignUpPage'
 import { FeedPage } from './pages/FeedPage'
 import { NotificationsPage } from './pages/NotificationsPage'
 import { ProfilePage } from './pages/ProfilePage'
+import { ArticleDetailPage } from './pages/ArticleDetailPage'
 
 const router = createBrowserRouter([
   { path: '/login',  element: <LoginPage /> },
@@ -23,6 +24,7 @@ const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { path: '/',              element: <FeedPage /> },
+      { path: '/articles/:id',  element: <ArticleDetailPage /> },
       { path: '/notifications', element: <NotificationsPage /> },
       { path: '/profile',       element: <ProfilePage /> },
     ],

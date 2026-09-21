@@ -17,12 +17,12 @@ import { relativeTime } from '../../lib/utils'
 import { CommentSection } from '../comment/CommentSection'
 import type { Article } from '../../types'
 
-interface Props { article: Article }
+interface Props { article: Article; defaultShowComments?: boolean; highlightCommentId?: string }
 
-export function ArticleCard({ article }: Props) {
+export function ArticleCard({ article, defaultShowComments = false, highlightCommentId }: Props) {
   const { user } = useAuthStore()
   const qc = useQueryClient()
-  const [showComments, setShowComments] = useState(false)
+  const [showComments, setShowComments] = useState(defaultShowComments)
   const [voteCount, setVoteCount] = useState(article.voteCount)
 
   const { data: author } = useQuery({
@@ -114,7 +114,7 @@ export function ArticleCard({ article }: Props) {
       {showComments && (
         <>
           <Divider />
-          <CommentSection targetId={article.id} targetType="ARTICLE" />
+          <CommentSection targetId={article.id} targetType="ARTICLE" highlightCommentId={highlightCommentId} />
         </>
       )}
     </Card>

@@ -8,6 +8,7 @@ import { Sidebar, BottomNav } from './Sidebar'
 import { useAuthStore, isAuthenticated } from '../../stores/authStore'
 import { usersApi } from '../../api/articles'
 import { qk } from '../../hooks/queryKeys'
+import { useNotificationSocket } from '../../hooks/useNotificationSocket'
 
 export function RootLayout() {
   const { setUser, logout } = useAuthStore()
@@ -25,6 +26,8 @@ export function RootLayout() {
   // người khác) — nhưng /me 404 nghĩa là token còn hợp lệ chữ ký mà user đã
   // mất, nên tự logout ở đây thay vì để lại session "ma".
   useEffect(() => { if (isError) logout() }, [isError, logout])
+
+  useNotificationSocket(me?.id)
 
   if (!isAuthenticated()) return <Navigate to="/login" replace />
 

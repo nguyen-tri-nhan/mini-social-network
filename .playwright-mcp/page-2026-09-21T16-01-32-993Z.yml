@@ -1,0 +1,59 @@
+- generic [ref=f2e1]:
+  - generic [ref=f2e32]:
+    - banner [ref=f2e33]:
+      - generic [ref=f2e34]:
+        - link [ref=f2e99] [cursor=pointer]:
+          - /url: /
+          - text: Social
+        - generic [ref=f2e36]:
+          - link [ref=f2e100] [cursor=pointer]:
+            - /url: /notifications
+          - link [ref=f2e101] [cursor=pointer]:
+            - /url: /profile
+            - generic [ref=f2e43]: TR
+          - button [ref=f2e102] [cursor=pointer]
+    - generic [ref=f2e48]:
+      - navigation [ref=f2e49]:
+        - list [ref=f2e50]:
+          - link [ref=f2e103] [cursor=pointer]:
+            - /url: /
+            - generic [ref=f2e56]: Feed
+          - link [ref=f2e104] [cursor=pointer]:
+            - /url: /notifications
+            - generic [ref=f2e63]: Notifications
+          - link [ref=f2e105] [cursor=pointer]:
+            - /url: /profile
+            - generic [ref=f2e70]: Profile
+      - main [ref=f2e72]:
+        - generic [ref=f2e73]:
+          - generic [ref=f2e75]:
+            - generic [ref=f2e76]: TR
+            - button [ref=f2e106] [cursor=pointer]: What's on your mind, Toast?
+          - generic [ref=f2e78]:
+            - generic [ref=f2e80]:
+              - generic [ref=f2e81]: U
+              - generic [ref=f2e82]:
+                - paragraph [ref=f2e83]: User
+                - text: about 1 hour ago
+            - paragraph [ref=f2e84]: Who am I
+            - generic [ref=f2e85]:
+              - generic [ref=f2e86]: 0 votes
+              - generic [ref=f2e87]: 0 comments
+            - generic [ref=f2e88]:
+              - button [ref=f2e107] [cursor=pointer]: Like
+              - button [ref=f2e108] [cursor=pointer]: Dislike
+              - button [ref=f2e109] [cursor=pointer]: Comment
+  - dialog [active] [ref=f2e112]:
+    - heading [level=2] [ref=f2e113]:
+      - text: Create post
+      - button "Close" [ref=f2e114] [cursor=pointer]
+    - generic [ref=f2e118]:
+      - generic [ref=f2e119]:
+        - generic [ref=f2e120]: TR
+        - paragraph [ref=f2e121]: Toast Receiver
+      - generic [ref=f2e123]:
+        - textbox "What's on your mind?" [ref=f2e124]
+        - group [aria-hidden]
+      - button [ref=f2e125] [cursor=pointer]
+    - generic [ref=f2e131]:
+      - button "Post" [disabled]

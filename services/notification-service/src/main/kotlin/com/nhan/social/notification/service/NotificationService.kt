@@ -92,13 +92,23 @@ class NotificationService(
 
         if (actorId == ownerId) return
 
+        // Điều hướng khi bấm vào noti cần biết bài viết đích — comment thì
+        // payload có sẵn articleId, vote thì targetId CHÍNH LÀ articleId khi
+        // targetType=ARTICLE (vote trên comment: FE chưa hỗ trợ, targetId
+        // lúc đó không map được sang article nên bỏ qua, articleId = null).
+        val articleId = when (event.eventType) {
+            EventType.COMMENT_CREATED -> payload["articleId"]
+            EventType.VOTE_CAST       -> payload["targetId"]?.takeIf { payload["targetType"] == "ARTICLE" }
+            else -> null
+        }?.let { UUID.fromString(it) }
+
         repo.persist(Notification().apply {
             this.id        = UUID.randomUUID()
             this.eventId   = eventId
             this.type      = event.eventType.name
             this.actorId   = actorId
             this.ownerId   = ownerId
-            this.articleId = payload["articleId"]?.let { UUID.fromString(it) }
+            this.articleId = articleId
             this.seen      = false
             this.createdAt = Instant.now()
         })

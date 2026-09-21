@@ -72,7 +72,10 @@ class WsEventConsumer(
                 message = ServerMessage(
                     topic   = "user_${authorId}_notification",
                     type    = "NOTIFICATION",
-                    payload = payload,
+                    // eventType riêng — "type" ở trên luôn là "NOTIFICATION"
+                    // (discriminator cho router topic), FE cần eventType gốc
+                    // (COMMENT_CREATED/VOTE_CAST) để chọn đúng label hiển thị.
+                    payload = payload + ("eventType" to event.eventType.name),
                 ),
             )
         }
@@ -82,12 +85,20 @@ class WsEventConsumer(
         val payload      = event.payload
         val targetAuthor = payload["targetAuthorId"] ?: return
 
+        // targetId CHÍNH LÀ articleId khi vote trên ARTICLE (FE chưa cho vote
+        // comment) — thêm vào để FE điều hướng được giống notification list,
+        // xem NotificationService.createFromEvent() bên notification-service.
+        val extra = buildMap {
+            put("eventType", event.eventType.name)
+            if (payload["targetType"] == "ARTICLE") payload["targetId"]?.let { put("articleId", it) }
+        }
+
         wsPushService.push(
             topic   = "user_${targetAuthor}_notification",
             message = ServerMessage(
                 topic   = "user_${targetAuthor}_notification",
                 type    = "NOTIFICATION",
-                payload = payload,
+                payload = payload + extra,
             ),
         )
     }

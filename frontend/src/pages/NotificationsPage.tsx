@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 import { Bell, CheckCheck } from 'lucide-react'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -9,15 +10,13 @@ import ButtonBase from '@mui/material/ButtonBase'
 import { notificationsApi } from '../api/notifications'
 import { qk } from '../hooks/queryKeys'
 import { relativeTime } from '../lib/utils'
-
-const TYPE_LABEL: Record<string, string> = {
-  COMMENT_CREATED: 'commented on your post',
-  VOTE_CAST:       'voted on your post',
-  ARTICLE_CREATED: 'published a new post',
-}
+import { NOTIFICATION_TYPE_LABEL } from '../lib/notificationLabels'
+import { resolveNotificationTarget } from '../lib/notificationTarget'
+import type { Notification } from '../types'
 
 export function NotificationsPage() {
   const qc = useQueryClient()
+  const navigate = useNavigate()
 
   const { data, isLoading } = useQuery({
     queryKey: qk.notifications.list,
@@ -41,6 +40,12 @@ export function NotificationsPage() {
   })
 
   const items = data?.items ?? []
+
+  function handleClick(n: Notification) {
+    if (!n.seen) markOne.mutate(n.id)
+    const target = resolveNotificationTarget(n)
+    if (target) navigate(target.path)
+  }
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -75,11 +80,11 @@ export function NotificationsPage() {
         {items.map((n) => (
           <ButtonBase
             key={n.id}
-            onClick={() => { if (!n.seen) markOne.mutate(n.id) }}
+            onClick={() => handleClick(n)}
             sx={{
               display: 'flex', alignItems: 'flex-start', gap: 1.5, borderRadius: 3, p: 2,
               justifyContent: 'flex-start', textAlign: 'left', boxShadow: 1,
-              bgcolor: n.seen ? 'white' : 'primary.50',
+              bgcolor: n.seen ? 'white' : 'action.selected',
             }}
           >
             {!n.seen && <Box sx={{ mt: 0.75, height: 10, width: 10, flexShrink: 0, borderRadius: '50%', bgcolor: 'primary.main' }} />}
@@ -87,7 +92,7 @@ export function NotificationsPage() {
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography variant="body2">
                 <Typography component="span" fontWeight={500}>Someone </Typography>
-                {TYPE_LABEL[n.type] ?? n.type.toLowerCase()}
+                {NOTIFICATION_TYPE_LABEL[n.type] ?? n.type.toLowerCase()}
               </Typography>
               <Typography variant="caption" color="text.disabled" sx={{ mt: 0.25, display: 'block' }}>
                 {relativeTime(n.createdAt)}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Send, Trash2 } from 'lucide-react'
 import Box from '@mui/material/Box'
@@ -12,13 +12,14 @@ import { useAuthStore } from '../../stores/authStore'
 import { qk } from '../../hooks/queryKeys'
 import { relativeTime } from '../../lib/utils'
 
-interface Props { targetId: string; targetType: string }
+interface Props { targetId: string; targetType: string; highlightCommentId?: string }
 
-export function CommentSection({ targetId, targetType }: Props) {
+export function CommentSection({ targetId, targetType, highlightCommentId }: Props) {
   const { user } = useAuthStore()
   const qc = useQueryClient()
   const [text, setText] = useState('')
   const fallback = user ? `${user.firstname[0]}${user.lastname[0]}`.toUpperCase() : '?'
+  const highlightRef = useRef<HTMLDivElement>(null)
 
   const { data, isLoading } = useQuery({
     queryKey: qk.comments.byTarget(targetId, targetType),
@@ -40,6 +41,12 @@ export function CommentSection({ targetId, targetType }: Props) {
 
   const comments = data?.items ?? []
 
+  useEffect(() => {
+    if (highlightCommentId && comments.length > 0) {
+      highlightRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [highlightCommentId, comments.length])
+
   return (
     <Box sx={{ px: 2, pb: 2 }}>
       {isLoading && (
@@ -50,10 +57,14 @@ export function CommentSection({ targetId, targetType }: Props) {
 
       <Box sx={{ mt: 1.5, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         {comments.map((c) => (
-          <Box key={c.id} sx={{ display: 'flex', gap: 1 }}>
+          <Box
+            key={c.id}
+            ref={c.id === highlightCommentId ? highlightRef : undefined}
+            sx={{ display: 'flex', gap: 1 }}
+          >
             <MuiAvatar sx={{ width: 32, height: 32, fontSize: 12 }}>U</MuiAvatar>
             <Box sx={{ flex: 1 }}>
-              <Box sx={{ bgcolor: 'grey.50', borderRadius: 3, px: 1.5, py: 1 }}>
+              <Box sx={{ bgcolor: c.id === highlightCommentId ? 'action.selected' : 'grey.50', borderRadius: 3, px: 1.5, py: 1 }}>
                 <Typography variant="caption" fontWeight={600} color="text.secondary" component="p">User</Typography>
                 <Typography variant="body2">{c.description}</Typography>
               </Box>
