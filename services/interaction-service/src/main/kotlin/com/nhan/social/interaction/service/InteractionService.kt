@@ -14,9 +14,11 @@ import com.nhan.social.interaction.dto.VoteDto
 import com.nhan.social.interaction.dto.toDto
 import com.nhan.social.interaction.entity.Comment
 import com.nhan.social.interaction.entity.OutboxEntry
+import com.nhan.social.interaction.entity.UserRef
 import com.nhan.social.interaction.entity.Vote
 import com.nhan.social.interaction.repository.CommentRepository
 import com.nhan.social.interaction.repository.OutboxRepository
+import com.nhan.social.interaction.repository.UserRefRepository
 import com.nhan.social.interaction.repository.VoteRepository
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
@@ -30,13 +32,16 @@ class InteractionService(
     private val commentRepo: CommentRepository,
     private val voteRepo: VoteRepository,
     private val outboxRepo: OutboxRepository,
+    private val userRefRepo: UserRefRepository,
     private val objectMapper: ObjectMapper,
     @RestClient private val postApiClient: PostApiClient,
 ) {
     private val log = Logger.getLogger(InteractionService::class.java)
 
     fun listComments(targetId: UUID, targetType: String, page: Int, size: Int): PageResponse<CommentDto> {
-        val items = commentRepo.findByTarget(targetId, targetType, page, size).map { it.toDto() }
+        val comments = commentRepo.findByTarget(targetId, targetType, page, size)
+        val authors = userRefRepo.findByIds(comments.map { it.authorId }.distinct()).associateBy { it.id }
+        val items = comments.map { it.toDto(authors[it.authorId]) }
         val total = commentRepo.countByTarget(targetId, targetType)
         return PageResponse(items = items, total = total, page = page, size = size, hasNext = (page + 1) * size < total)
     }
@@ -55,6 +60,7 @@ class InteractionService(
         commentRepo.persist(comment)
 
         val (ownerIdStr, articleIdStr) = resolveOwner(request.targetId, comment.targetType)
+        val actor = userRefRepo.findById(authorId)
 
         outboxRepo.persist(outbox(
             aggregateType = "interaction",
@@ -67,11 +73,12 @@ class InteractionService(
                     put("targetType", comment.targetType)
                     put("actorId",    authorId.toString())
                     if (ownerIdStr != null) put("articleAuthorId", ownerIdStr)
+                    putActor(actor)
                 },
             ),
         ))
 
-        return comment.toDto()
+        return comment.toDto(actor)
     }
 
     @Transactional
@@ -107,6 +114,7 @@ class InteractionService(
         }
 
         val (ownerIdStr, articleIdStr) = resolveOwner(targetId, targetType)
+        val actor = userRefRepo.findById(userId)
 
         outboxRepo.persist(outbox(
             aggregateType = "interaction",
@@ -120,6 +128,7 @@ class InteractionService(
                     put("delta",      delta.toString())
                     if (articleIdStr != null) put("articleId",      articleIdStr)
                     if (ownerIdStr   != null) put("targetAuthorId", ownerIdStr)
+                    putActor(actor)
                 },
             ),
         ))
@@ -157,4 +166,14 @@ class InteractionService(
             this.eventType     = event.eventType.name
             this.payload       = objectMapper.writeValueAsString(event.copy(eventId = this.id.toString()))
         }
+
+    // Nhúng tên actor (từ user_ref cục bộ) vào event — để notification-service
+    // và websocket-service đọc trực tiếp, không cần tự giữ cache riêng.
+    private fun MutableMap<String, String>.putActor(actor: UserRef?) {
+        if (actor == null) return
+        put("actorUsername", actor.username)
+        put("actorFirstname", actor.firstname)
+        put("actorLastname", actor.lastname)
+        actor.avatarUrl?.let { put("actorAvatarUrl", it) }
+    }
 }

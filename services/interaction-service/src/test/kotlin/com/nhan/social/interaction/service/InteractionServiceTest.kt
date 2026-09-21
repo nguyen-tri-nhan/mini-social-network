@@ -15,6 +15,7 @@ import com.nhan.social.interaction.entity.OutboxEntry
 import com.nhan.social.interaction.entity.Vote
 import com.nhan.social.interaction.repository.CommentRepository
 import com.nhan.social.interaction.repository.OutboxRepository
+import com.nhan.social.interaction.repository.UserRefRepository
 import com.nhan.social.interaction.repository.VoteRepository
 import io.mockk.*
 import org.junit.jupiter.api.Assertions.*
@@ -29,8 +30,9 @@ class InteractionServiceTest {
     private val commentRepo   = mockk<CommentRepository>()
     private val voteRepo      = mockk<VoteRepository>()
     private val outboxRepo    = mockk<OutboxRepository>()
+    private val userRefRepo   = mockk<UserRefRepository> { every { findById(any()) } returns null }
     private val postApiClient = mockk<PostApiClient>()
-    private val service       = InteractionService(commentRepo, voteRepo, outboxRepo, objectMapper, postApiClient)
+    private val service       = InteractionService(commentRepo, voteRepo, outboxRepo, userRefRepo, objectMapper, postApiClient)
 
     private fun comment(authorId: UUID = UUID.randomUUID()) = Comment().apply {
         this.id          = UUID.randomUUID()

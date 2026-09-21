@@ -24,6 +24,7 @@ dependencies {
     implementation("io.quarkus:quarkus-hibernate-validator")
     implementation("io.quarkus:quarkus-container-image-jib")
     implementation("io.quarkus:quarkus-opentelemetry")
+    implementation("io.quarkus:quarkus-messaging-kafka")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

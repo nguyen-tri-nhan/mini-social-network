@@ -18,6 +18,10 @@ data class NotificationDto(
     val id: String,
     val type: String,
     val actorId: String,
+    val actorUsername: String?,
+    val actorFirstname: String?,
+    val actorLastname: String?,
+    val actorAvatarUrl: String?,
     val ownerId: String,
     val articleId: String?,
     val seen: Boolean,
@@ -30,6 +34,10 @@ fun Notification.toDto() = NotificationDto(
     id = id.toString(),
     type = type,
     actorId = actorId.toString(),
+    actorUsername = actorUsername,
+    actorFirstname = actorFirstname,
+    actorLastname = actorLastname,
+    actorAvatarUrl = actorAvatarUrl,
     ownerId = ownerId.toString(),
     articleId = articleId?.toString(),
     seen = seen,
@@ -103,14 +111,20 @@ class NotificationService(
         }?.let { UUID.fromString(it) }
 
         repo.persist(Notification().apply {
-            this.id        = UUID.randomUUID()
-            this.eventId   = eventId
-            this.type      = event.eventType.name
-            this.actorId   = actorId
-            this.ownerId   = ownerId
-            this.articleId = articleId
-            this.seen      = false
-            this.createdAt = Instant.now()
+            this.id             = UUID.randomUUID()
+            this.eventId        = eventId
+            this.type           = event.eventType.name
+            this.actorId        = actorId
+            this.ownerId        = ownerId
+            this.articleId      = articleId
+            // Đã có sẵn trong payload — interaction-service nhúng từ user_ref
+            // cục bộ của nó lúc publish, notification-service chỉ copy lại.
+            this.actorUsername  = payload["actorUsername"]
+            this.actorFirstname = payload["actorFirstname"]
+            this.actorLastname  = payload["actorLastname"]
+            this.actorAvatarUrl = payload["actorAvatarUrl"]
+            this.seen           = false
+            this.createdAt      = Instant.now()
         })
 
         try {

@@ -31,6 +31,10 @@ export interface Comment {
   targetId: string
   targetType: string
   authorId: string
+  authorUsername?: string
+  authorFirstname?: string
+  authorLastname?: string
+  authorAvatarUrl?: string
   createdAt: string
 }
 
@@ -46,6 +50,10 @@ export interface Notification {
   id: string
   type: string
   actorId: string
+  actorUsername?: string
+  actorFirstname?: string
+  actorLastname?: string
+  actorAvatarUrl?: string
   ownerId: string
   articleId?: string
   seen: boolean

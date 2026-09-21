@@ -9,6 +9,7 @@ enum class EventType {
 
     // social.user
     USER_READY,
+    USER_PROFILE_UPDATED,
 
     // social.post
     ARTICLE_CREATED,
@@ -74,9 +75,28 @@ fun userUpdatedEvent(userId: String) = SocialEvent(
     payload = mapOf("userId" to userId),
 )
 
-fun userReadyEvent(userId: String) = SocialEvent(
+// Payload đủ để consumer khác build materialized view (userId→tên) mà không
+// cần gọi lại user-service — xem specs/decisions/0006.
+fun userReadyEvent(userId: String, username: String, firstname: String, lastname: String, avatarUrl: String?) = SocialEvent(
     eventType = EventType.USER_READY,
-    payload = mapOf("userId" to userId),
+    payload = mapOf(
+        "userId"    to userId,
+        "username"  to username,
+        "firstname" to firstname,
+        "lastname"  to lastname,
+        "avatarUrl" to (avatarUrl ?: ""),
+    ),
+)
+
+fun userProfileUpdatedEvent(userId: String, username: String, firstname: String, lastname: String, avatarUrl: String?) = SocialEvent(
+    eventType = EventType.USER_PROFILE_UPDATED,
+    payload = mapOf(
+        "userId"    to userId,
+        "username"  to username,
+        "firstname" to firstname,
+        "lastname"  to lastname,
+        "avatarUrl" to (avatarUrl ?: ""),
+    ),
 )
 
 fun articleDeletedEvent(articleId: String, authorId: String) = SocialEvent(

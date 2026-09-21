@@ -25,6 +25,21 @@ class Notification : PanacheEntityBase {
     @Column(name = "article_id", columnDefinition = "uuid")
     var articleId: UUID? = null
 
+    // Đóng băng tên actor tại thời điểm tạo notification — không join lại
+    // user_ref như Comment (không sai, notification vốn là bản ghi tại 1
+    // thời điểm). Xem specs/decisions/0006.
+    @Column(name = "actor_username", length = 50)
+    var actorUsername: String? = null
+
+    @Column(name = "actor_firstname", length = 100)
+    var actorFirstname: String? = null
+
+    @Column(name = "actor_lastname", length = 100)
+    var actorLastname: String? = null
+
+    @Column(name = "actor_avatar_url")
+    var actorAvatarUrl: String? = null
+
     @Column(nullable = false)
     var seen: Boolean = false
 

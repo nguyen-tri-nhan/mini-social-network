@@ -3,6 +3,7 @@ package com.nhan.social.user.service
 import com.nhan.social.common.event.EventType
 import com.nhan.social.common.event.SocialEvent
 import com.nhan.social.common.event.userReadyEvent
+import com.nhan.social.common.event.userProfileUpdatedEvent
 import com.nhan.social.exception.NotFoundException
 import com.nhan.social.user.dto.UpdateProfileRequest
 import com.nhan.social.user.dto.UserProfileDto
@@ -66,7 +67,13 @@ class UserService(
             eventType = EventType.USER_READY.name
             // this.payload — "payload" trơn trùng tên val ở scope ngoài hàm.
             this.payload = objectMapper.writeValueAsString(
-                userReadyEvent(userId.toString()).copy(eventId = this.id.toString()),
+                userReadyEvent(
+                    userId.toString(),
+                    payload["username"] ?: "",
+                    payload["firstname"] ?: "",
+                    payload["lastname"] ?: "",
+                    null,
+                ).copy(eventId = this.id.toString()),
             )
         })
     }
@@ -79,6 +86,25 @@ class UserService(
         request.avatarUrl?.let { profile.avatarUrl = it }
         profile.updatedAt = Instant.now()
         valueCommands.getdel("user:$id:profile")  // invalidate cache
+
+        // Trước đây update() không bắn event nào — materialized user-cache ở
+        // các service khác (interaction-service) sẽ không bao giờ thấy tên
+        // mới nếu thiếu bước này. Xem specs/decisions/0006.
+        outboxRepo.persist(OutboxEntry().apply {
+            aggregateType = "user"
+            aggregateId = id
+            eventType = EventType.USER_PROFILE_UPDATED.name
+            this.payload = objectMapper.writeValueAsString(
+                userProfileUpdatedEvent(
+                    id.toString(),
+                    profile.username,
+                    profile.firstname,
+                    profile.lastname,
+                    profile.avatarUrl,
+                ).copy(eventId = this.id.toString()),
+            )
+        })
+
         return profile.toDto()
     }
 }

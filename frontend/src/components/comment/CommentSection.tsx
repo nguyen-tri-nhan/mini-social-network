@@ -11,6 +11,7 @@ import { commentsApi } from '../../api/interactions'
 import { useAuthStore } from '../../stores/authStore'
 import { qk } from '../../hooks/queryKeys'
 import { relativeTime } from '../../lib/utils'
+import type { Comment } from '../../types'
 
 interface Props { targetId: string; targetType: string; highlightCommentId?: string }
 
@@ -57,35 +58,14 @@ export function CommentSection({ targetId, targetType, highlightCommentId }: Pro
 
       <Box sx={{ mt: 1.5, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         {comments.map((c) => (
-          <Box
+          <CommentItem
             key={c.id}
-            ref={c.id === highlightCommentId ? highlightRef : undefined}
-            sx={{ display: 'flex', gap: 1 }}
-          >
-            <MuiAvatar sx={{ width: 32, height: 32, fontSize: 12 }}>U</MuiAvatar>
-            <Box sx={{ flex: 1 }}>
-              <Box sx={{ bgcolor: c.id === highlightCommentId ? 'action.selected' : 'grey.50', borderRadius: 3, px: 1.5, py: 1 }}>
-                <Typography variant="caption" fontWeight={600} color="text.secondary" component="p">User</Typography>
-                <Typography variant="body2">{c.description}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 0.5, mt: 0.25 }}>
-                <Typography variant="caption" color="text.disabled">{relativeTime(c.createdAt)}</Typography>
-                {user?.id === c.authorId && (
-                  <Box
-                    component="button"
-                    onClick={() => del.mutate(c.id)}
-                    sx={{
-                      display: 'flex', alignItems: 'center', gap: 0.5, border: 0, bgcolor: 'transparent',
-                      cursor: 'pointer', color: 'text.disabled', fontSize: 12, p: 0,
-                      '&:hover': { color: 'error.main' },
-                    }}
-                  >
-                    <Trash2 size={12} /> Delete
-                  </Box>
-                )}
-              </Box>
-            </Box>
-          </Box>
+            comment={c}
+            highlighted={c.id === highlightCommentId}
+            highlightRef={c.id === highlightCommentId ? highlightRef : undefined}
+            canDelete={user?.id === c.authorId}
+            onDelete={() => del.mutate(c.id)}
+          />
         ))}
       </Box>
 
@@ -110,6 +90,51 @@ export function CommentSection({ targetId, targetType, highlightCommentId }: Pro
           >
             {add.isPending ? <CircularProgress size={16} /> : <Send size={16} />}
           </IconButton>
+        </Box>
+      </Box>
+    </Box>
+  )
+}
+
+interface CommentItemProps {
+  comment: Comment
+  highlighted: boolean
+  highlightRef?: React.RefObject<HTMLDivElement>
+  canDelete: boolean
+  onDelete: () => void
+}
+
+function CommentItem({ comment, highlighted, highlightRef, canDelete, onDelete }: CommentItemProps) {
+  // Backend đã enrich sẵn (materialized user_ref cache ở interaction-service)
+  // — không cần fetch riêng nữa, xem specs/decisions/0006.
+  const authorName = comment.authorFirstname ? `${comment.authorFirstname} ${comment.authorLastname}` : 'User'
+  const authorFallback = comment.authorFirstname ? `${comment.authorFirstname[0]}${comment.authorLastname![0]}`.toUpperCase() : 'U'
+
+  return (
+    <Box ref={highlightRef} sx={{ display: 'flex', gap: 1 }}>
+      <MuiAvatar src={comment.authorAvatarUrl} sx={{ width: 32, height: 32, fontSize: 12 }}>
+        {!comment.authorAvatarUrl && authorFallback}
+      </MuiAvatar>
+      <Box sx={{ flex: 1 }}>
+        <Box sx={{ bgcolor: highlighted ? 'action.selected' : 'grey.50', borderRadius: 3, px: 1.5, py: 1 }}>
+          <Typography variant="caption" fontWeight={600} color="text.secondary" component="p">{authorName}</Typography>
+          <Typography variant="body2">{comment.description}</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 0.5, mt: 0.25 }}>
+          <Typography variant="caption" color="text.disabled">{relativeTime(comment.createdAt)}</Typography>
+          {canDelete && (
+            <Box
+              component="button"
+              onClick={onDelete}
+              sx={{
+                display: 'flex', alignItems: 'center', gap: 0.5, border: 0, bgcolor: 'transparent',
+                cursor: 'pointer', color: 'text.disabled', fontSize: 12, p: 0,
+                '&:hover': { color: 'error.main' },
+              }}
+            >
+              <Trash2 size={12} /> Delete
+            </Box>
+          )}
         </Box>
       </Box>
     </Box>

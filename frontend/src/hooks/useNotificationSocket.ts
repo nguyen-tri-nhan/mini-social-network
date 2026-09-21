@@ -38,11 +38,17 @@ export function useNotificationSocket(userId: string | undefined) {
             ? NOTIFICATION_TYPE_LABEL[eventType] ?? eventType.toLowerCase()
             : 'sent you a notification'
 
+          // interaction-service đã nhúng sẵn tên actor vào payload (từ
+          // user_ref cục bộ của nó) — xem specs/decisions/0006.
+          const actorName = msg.payload?.actorFirstname
+            ? `${msg.payload.actorFirstname} ${msg.payload.actorLastname}`
+            : 'Someone'
+
           const target = eventType
             ? resolveNotificationTarget({ type: eventType, articleId: msg.payload?.articleId, commentId: msg.payload?.commentId })
             : null
 
-          toast(`Someone ${label}`, target ? {
+          toast(`${actorName} ${label}`, target ? {
             action: {
               label: 'View',
               onClick: () => navigate(target.highlightCommentId ? `${target.path}?comment=${target.highlightCommentId}` : target.path),

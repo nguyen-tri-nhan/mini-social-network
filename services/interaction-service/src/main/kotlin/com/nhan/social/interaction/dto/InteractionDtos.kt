@@ -1,6 +1,7 @@
 package com.nhan.social.interaction.dto
 
 import com.nhan.social.interaction.entity.Comment
+import com.nhan.social.interaction.entity.UserRef
 import com.nhan.social.interaction.entity.Vote
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
@@ -28,6 +29,10 @@ data class CommentDto(
     val targetId: String,
     val targetType: String,
     val authorId: String,
+    val authorUsername: String?,
+    val authorFirstname: String?,
+    val authorLastname: String?,
+    val authorAvatarUrl: String?,
     val createdAt: Instant,
 )
 
@@ -39,13 +44,17 @@ data class VoteDto(
     val targetType: String,
 )
 
-fun Comment.toDto() = CommentDto(
-    id          = id.toString(),
-    description = description,
-    targetId    = targetId.toString(),
-    targetType  = targetType,
-    authorId    = authorId.toString(),
-    createdAt   = createdAt,
+fun Comment.toDto(author: UserRef?) = CommentDto(
+    id              = id.toString(),
+    description     = description,
+    targetId        = targetId.toString(),
+    targetType      = targetType,
+    authorId        = authorId.toString(),
+    authorUsername  = author?.username,
+    authorFirstname = author?.firstname,
+    authorLastname  = author?.lastname,
+    authorAvatarUrl = author?.avatarUrl,
+    createdAt       = createdAt,
 )
 
 fun Vote.toDto() = VoteDto(

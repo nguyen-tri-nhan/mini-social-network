@@ -1,0 +1,34 @@
+- generic [ref=f15e2]:
+  - generic [ref=f15e3]:
+    - banner [ref=f15e4]:
+      - generic [ref=f15e5]:
+        - link "Social" [ref=f15e6] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f15e7]:
+          - link "Notifications" [ref=f15e8] [cursor=pointer]:
+            - /url: /notifications
+            - generic [ref=f15e9]: "0"
+          - link "Profile" [ref=f15e13] [cursor=pointer]:
+            - /url: /profile
+            - generic [ref=f15e14]: TR
+          - button "Logout" [ref=f15e15] [cursor=pointer]
+    - generic [ref=f15e19]:
+      - navigation [ref=f15e20]:
+        - list [ref=f15e21]:
+          - link "Feed" [ref=f15e22] [cursor=pointer]:
+            - /url: /
+          - link "Notifications" [ref=f15e29] [cursor=pointer]:
+            - /url: /notifications
+          - link "Profile" [ref=f15e36] [cursor=pointer]:
+            - /url: /profile
+      - main [ref=f15e43]:
+        - generic [ref=f15e44]:
+          - generic [ref=f15e46]:
+            - generic [ref=f15e47]: TR
+            - generic [ref=f15e48]:
+              - heading "Toast Receiver" [level=6] [ref=f15e49]
+              - paragraph [ref=f15e50]: "@toastrecv921"
+            - button "Edit" [ref=f15e51] [cursor=pointer]
+          - paragraph [ref=f15e52]: My posts
+          - progressbar [ref=f15e54]
+  - region "Notifications alt+T"

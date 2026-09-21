@@ -78,29 +78,39 @@ export function NotificationsPage() {
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {items.map((n) => (
-          <ButtonBase
-            key={n.id}
-            onClick={() => handleClick(n)}
-            sx={{
-              display: 'flex', alignItems: 'flex-start', gap: 1.5, borderRadius: 3, p: 2,
-              justifyContent: 'flex-start', textAlign: 'left', boxShadow: 1,
-              bgcolor: n.seen ? 'white' : 'action.selected',
-            }}
-          >
-            {!n.seen && <Box sx={{ mt: 0.75, height: 10, width: 10, flexShrink: 0, borderRadius: '50%', bgcolor: 'primary.main' }} />}
-            {n.seen && <Box sx={{ mt: 0.75, height: 10, width: 10, flexShrink: 0 }} />}
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="body2">
-                <Typography component="span" fontWeight={500}>Someone </Typography>
-                {NOTIFICATION_TYPE_LABEL[n.type] ?? n.type.toLowerCase()}
-              </Typography>
-              <Typography variant="caption" color="text.disabled" sx={{ mt: 0.25, display: 'block' }}>
-                {relativeTime(n.createdAt)}
-              </Typography>
-            </Box>
-          </ButtonBase>
+          <NotificationItem key={n.id} notification={n} onClick={() => handleClick(n)} />
         ))}
       </Box>
     </Box>
+  )
+}
+
+function NotificationItem({ notification: n, onClick }: { notification: Notification; onClick: () => void }) {
+  // Backend đã enrich sẵn (denormalized lúc tạo notification) — không fetch
+  // riêng nữa. Noti cũ tạo trước migration này không có field, fallback
+  // "Someone". Xem specs/decisions/0006.
+  const actorName = n.actorFirstname ? `${n.actorFirstname} ${n.actorLastname}` : 'Someone'
+
+  return (
+    <ButtonBase
+      onClick={onClick}
+      sx={{
+        display: 'flex', alignItems: 'flex-start', gap: 1.5, borderRadius: 3, p: 2,
+        justifyContent: 'flex-start', textAlign: 'left', boxShadow: 1,
+        bgcolor: n.seen ? 'white' : 'action.selected',
+      }}
+    >
+      {!n.seen && <Box sx={{ mt: 0.75, height: 10, width: 10, flexShrink: 0, borderRadius: '50%', bgcolor: 'primary.main' }} />}
+      {n.seen && <Box sx={{ mt: 0.75, height: 10, width: 10, flexShrink: 0 }} />}
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Typography variant="body2">
+          <Typography component="span" fontWeight={500}>{actorName} </Typography>
+          {NOTIFICATION_TYPE_LABEL[n.type] ?? n.type.toLowerCase()}
+        </Typography>
+        <Typography variant="caption" color="text.disabled" sx={{ mt: 0.25, display: 'block' }}>
+          {relativeTime(n.createdAt)}
+        </Typography>
+      </Box>
+    </ButtonBase>
   )
 }
