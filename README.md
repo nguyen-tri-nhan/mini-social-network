@@ -125,7 +125,7 @@ See [docs/architecture.md](docs/architecture.md) for detailed service breakdown,
 - **Container:** Quarkus JIB (no Dockerfile)
 
 ### Frontend
-- React 18 · Vite · shadcn/ui · Tailwind CSS
+- React 18 · Vite · Material UI (MUI) v7
 - TanStack Query v5 · Zustand · React Router 6
 - React Hook Form · Zod
 

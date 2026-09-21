@@ -1,10 +1,16 @@
-import { Bell, LogOut, User } from 'lucide-react'
+import { Bell, LogOut } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import AppBar from '@mui/material/AppBar'
+import Toolbar from '@mui/material/Toolbar'
+import Box from '@mui/material/Box'
+import IconButton from '@mui/material/IconButton'
+import Badge from '@mui/material/Badge'
+import MuiAvatar from '@mui/material/Avatar'
+import Typography from '@mui/material/Typography'
 import { notificationsApi } from '../../api/notifications'
 import { useAuthStore } from '../../stores/authStore'
 import { qk } from '../../hooks/queryKeys'
-import { Avatar } from '../ui'
 
 export function Navbar() {
   const { user, logout } = useAuthStore()
@@ -25,34 +31,42 @@ export function Navbar() {
   const fallback = user ? `${user.firstname[0]}${user.lastname[0]}`.toUpperCase() : '?'
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center border-b border-gray-200 bg-white px-4 shadow-sm">
-      {/* Logo */}
-      <Link to="/" className="mr-6 text-xl font-bold text-brand">Social</Link>
+    <AppBar
+      position="sticky"
+      color="inherit"
+      elevation={0}
+      sx={{ borderBottom: 1, borderColor: 'divider', zIndex: (t) => t.zIndex.appBar }}
+    >
+      <Toolbar sx={{ height: 56, minHeight: 56 }}>
+        <Typography
+          component={Link}
+          to="/"
+          variant="h6"
+          sx={{ mr: 3, fontWeight: 700, color: 'primary.main', textDecoration: 'none' }}
+        >
+          Social
+        </Typography>
 
-      <div className="flex-1" />
+        <Box sx={{ flex: 1 }} />
 
-      {/* Actions */}
-      <div className="flex items-center gap-2">
-        {/* Notifications */}
-        <Link to="/notifications" className="relative rounded-full p-2 hover:bg-gray-100">
-          <Bell className="h-5 w-5 text-gray-600" />
-          {count > 0 && (
-            <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-              {count > 9 ? '9+' : count}
-            </span>
-          )}
-        </Link>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <IconButton aria-label="Notifications" component={Link} to="/notifications" size="small">
+            <Badge badgeContent={count > 9 ? '9+' : count} color="error" invisible={count === 0}>
+              <Bell size={20} />
+            </Badge>
+          </IconButton>
 
-        {/* Profile */}
-        <Link to="/profile" className="rounded-full p-1 hover:bg-gray-100">
-          <Avatar fallback={fallback} src={user?.avatarUrl} size="sm" />
-        </Link>
+          <IconButton aria-label="Profile" component={Link} to="/profile" size="small">
+            <MuiAvatar src={user?.avatarUrl} sx={{ width: 32, height: 32, fontSize: 13 }}>
+              {!user?.avatarUrl && fallback}
+            </MuiAvatar>
+          </IconButton>
 
-        {/* Logout */}
-        <button onClick={handleLogout} className="rounded-full p-2 hover:bg-gray-100" title="Logout">
-          <LogOut className="h-5 w-5 text-gray-600" />
-        </button>
-      </div>
-    </header>
+          <IconButton aria-label="Logout" onClick={handleLogout} size="small" title="Logout">
+            <LogOut size={20} />
+          </IconButton>
+        </Box>
+      </Toolbar>
+    </AppBar>
   )
 }

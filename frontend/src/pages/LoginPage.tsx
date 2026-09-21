@@ -4,10 +4,13 @@ import { z } from 'zod'
 import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import TextField from '@mui/material/TextField'
+import Button from '@mui/material/Button'
 import { authApi } from '../api/auth'
 import { usersApi } from '../api/articles'
 import { useAuthStore } from '../stores/authStore'
-import { Button, Input } from '../components/ui'
 
 const schema = z.object({
   identifier: z.string().min(1, 'Required'),
@@ -35,48 +38,57 @@ export function LoginPage() {
   })
 
   return (
-    <div className="flex min-h-screen">
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       {/* Left — branding */}
-      <div className="hidden flex-1 items-center justify-center bg-brand lg:flex">
-        <div className="text-center text-white">
-          <div className="mb-4 text-6xl font-bold">S</div>
-          <h1 className="text-3xl font-bold">Social</h1>
-          <p className="mt-2 text-blue-100">Connect and share moments</p>
-        </div>
-      </div>
+      <Box
+        sx={{
+          flex: 1, display: { xs: 'none', lg: 'flex' }, alignItems: 'center', justifyContent: 'center',
+          bgcolor: 'primary.main',
+        }}
+      >
+        <Box sx={{ textAlign: 'center', color: 'white' }}>
+          <Typography sx={{ mb: 2, fontSize: 64, fontWeight: 700 }}>S</Typography>
+          <Typography variant="h4" fontWeight={700}>Social</Typography>
+          <Typography sx={{ mt: 1, color: 'rgba(255,255,255,0.85)' }}>Connect and share moments</Typography>
+        </Box>
+      </Box>
 
       {/* Right — form */}
-      <div className="flex flex-1 items-center justify-center p-8">
-        <div className="w-full max-w-sm">
-          <h2 className="mb-6 text-2xl font-bold text-gray-900">Sign in</h2>
+      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', p: 4 }}>
+        <Box sx={{ width: '100%', maxWidth: 384 }}>
+          <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Sign in</Typography>
 
-          <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="flex flex-col gap-4">
-            <Input
+          <Box component="form" onSubmit={handleSubmit((d) => mutation.mutate(d))} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
               label="Username or email"
               placeholder="username or email"
-              error={errors.identifier?.message}
+              error={!!errors.identifier}
+              helperText={errors.identifier?.message}
+              fullWidth
               {...register('identifier')}
             />
-            <Input
+            <TextField
               label="Password"
               type="password"
               placeholder="••••••"
-              error={errors.password?.message}
+              error={!!errors.password}
+              helperText={errors.password?.message}
+              fullWidth
               {...register('password')}
             />
-            <Button type="submit" size="lg" loading={mutation.isPending} className="w-full mt-2">
-              Sign in
+            <Button type="submit" size="large" variant="contained" fullWidth disabled={mutation.isPending} sx={{ mt: 1 }}>
+              {mutation.isPending ? 'Signing in…' : 'Sign in'}
             </Button>
-          </form>
+          </Box>
 
-          <p className="mt-6 text-center text-sm text-gray-500">
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 3, textAlign: 'center' }}>
             No account?{' '}
-            <Link to="/signup" className="font-medium text-brand hover:underline">
+            <Typography component={Link} to="/signup" variant="body2" fontWeight={500} sx={{ color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
               Sign up
-            </Link>
-          </p>
-        </div>
-      </div>
-    </div>
+            </Typography>
+          </Typography>
+        </Box>
+      </Box>
+    </Box>
   )
 }

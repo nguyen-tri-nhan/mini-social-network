@@ -21,6 +21,17 @@ spec:
           env:
             - { name: GF_AUTH_ANONYMOUS_ENABLED,  value: "true" }
             - { name: GF_AUTH_ANONYMOUS_ORG_ROLE, value: Admin }
+          # Doc chính thức grafana/docker-otel-lgtm khuyến nghị tối thiểu 2
+          # CPU / 4GB RAM riêng cho image này (bundle Grafana+Loki+Tempo+
+          # Mimir+OTel collector) — vượt xa ngân sách cả cụm (6GB) ở đây.
+          # Cố tình đặt THẤP HƠN khuyến nghị chính thức — đánh đổi có chủ
+          # đích: đây là observability, không phải đường đi chính của app;
+          # nếu LGTM tự nó bị OOM/restart, chỉ mất tạm dữ liệu quan sát,
+          # không ảnh hưởng outbox/Kafka/API như 2 lần OOM trước. Nếu Grafana
+          # chậm/hay restart, đây là chỗ đầu tiên nên tăng lại.
+          resources:
+            requests: { memory: "768Mi", cpu: "500m" }
+            limits: { memory: "1536Mi", cpu: "1500m" }
           readinessProbe:
             httpGet: { path: /api/health, port: 3000 }
             initialDelaySeconds: 15

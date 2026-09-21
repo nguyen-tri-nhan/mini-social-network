@@ -1,6 +1,13 @@
 import { Bell, Home, User } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
-import { cn } from '../../lib/utils'
+import Box from '@mui/material/Box'
+import List from '@mui/material/List'
+import ListItemButton from '@mui/material/ListItemButton'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import Paper from '@mui/material/Paper'
+import BottomNavigation from '@mui/material/BottomNavigation'
+import BottomNavigationAction from '@mui/material/BottomNavigationAction'
 
 const links = [
   { to: '/',              icon: Home,  label: 'Feed' },
@@ -10,52 +17,49 @@ const links = [
 
 export function Sidebar() {
   return (
-    <nav className="hidden w-56 shrink-0 pt-4 lg:block">
-      <ul className="flex flex-col gap-1">
+    <Box component="nav" sx={{ width: 224, flexShrink: 0, pt: 2, display: { xs: 'none', lg: 'block' } }}>
+      <List sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
         {links.map(({ to, icon: Icon, label }) => (
-          <li key={to}>
-            <NavLink
-              to={to}
-              end={to === '/'}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-blue-50 text-brand'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
-                )
-              }
-            >
-              <Icon className="h-5 w-5" />
-              {label}
-            </NavLink>
-          </li>
+          <ListItemButton
+            key={to}
+            component={NavLink}
+            to={to}
+            end={to === '/'}
+            sx={{
+              borderRadius: 2,
+              '&.active': { bgcolor: 'primary.50', color: 'primary.main' },
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 36 }}><Icon size={20} /></ListItemIcon>
+            <ListItemText primary={label} primaryTypographyProps={{ fontSize: 14, fontWeight: 500 }} />
+          </ListItemButton>
         ))}
-      </ul>
-    </nav>
+      </List>
+    </Box>
   )
 }
 
 // Bottom nav for mobile
 export function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 flex border-t border-gray-200 bg-white lg:hidden">
-      {links.map(({ to, icon: Icon, label }) => (
-        <NavLink
-          key={to}
-          to={to}
-          end={to === '/'}
-          className={({ isActive }) =>
-            cn(
-              'flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium',
-              isActive ? 'text-brand' : 'text-gray-500',
-            )
-          }
-        >
-          <Icon className="h-5 w-5" />
-          {label}
-        </NavLink>
-      ))}
-    </nav>
+    <Paper
+      elevation={0}
+      sx={{
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: (t) => t.zIndex.appBar,
+        borderTop: 1, borderColor: 'divider', display: { xs: 'block', lg: 'none' },
+      }}
+    >
+      <BottomNavigation showLabels>
+        {links.map(({ to, icon: Icon, label }) => (
+          <BottomNavigationAction
+            key={to}
+            component={NavLink}
+            to={to}
+            label={label}
+            icon={<Icon size={20} />}
+          />
+        ))}
+      </BottomNavigation>
+    </Paper>
   )
 }

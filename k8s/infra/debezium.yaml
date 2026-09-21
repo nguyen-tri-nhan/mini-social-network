@@ -36,6 +36,15 @@ spec:
               value: "false"
             - name: CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE
               value: "false"
+            # LƯU Ý: image này KHÔNG dùng KAFKA_HEAP_OPTS trực tiếp — entrypoint
+            # đọc biến "HEAP_OPTS" (không tiền tố) rồi tự export thành
+            # KAFKA_HEAP_OPTS cho JVM, verify qua source docker-entrypoint.sh.
+            # Đặt nhầm tên (như kafka.yaml dùng KAFKA_HEAP_OPTS) sẽ bị bỏ qua
+            # hoàn toàn, JVM tự đoán heap theo RAM host thấy được.
+            - { name: HEAP_OPTS,                                  value: "-Xmx512m -Xms384m" }
+          resources:
+            requests: { memory: "384Mi", cpu: "200m" }
+            limits: { memory: "768Mi", cpu: "1000m" }
           readinessProbe:
             httpGet: { path: /connectors, port: 8083 }
             initialDelaySeconds: 30

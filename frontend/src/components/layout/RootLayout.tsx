@@ -1,12 +1,13 @@
 import { Outlet, Navigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import Box from '@mui/material/Box'
+import CircularProgress from '@mui/material/CircularProgress'
 import { Navbar } from './Navbar'
 import { Sidebar, BottomNav } from './Sidebar'
 import { useAuthStore, isAuthenticated } from '../../stores/authStore'
 import { usersApi } from '../../api/articles'
 import { qk } from '../../hooks/queryKeys'
-import { Spinner } from '../ui'
 
 export function RootLayout() {
   const { setUser } = useAuthStore()
@@ -24,22 +25,22 @@ export function RootLayout() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Spinner className="h-8 w-8" />
-      </div>
+      <Box sx={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress size={32} />
+      </Box>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Navbar />
-      <div className="mx-auto flex max-w-5xl gap-6 px-4 pt-6 pb-20 lg:pb-6">
+      <Box sx={{ mx: 'auto', maxWidth: 960, display: 'flex', gap: 3, px: 2, pt: 3, pb: { xs: 10, lg: 3 } }}>
         <Sidebar />
-        <main className="min-w-0 flex-1">
+        <Box component="main" sx={{ minWidth: 0, flex: 1 }}>
           <Outlet />
-        </main>
-      </div>
+        </Box>
+      </Box>
       <BottomNav />
-    </div>
+    </Box>
   )
 }

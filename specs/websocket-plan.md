@@ -269,8 +269,10 @@ websocket-service consumes VOTE_CAST { targetId, targetType, actorId=B, delta }
 
 ### Phase 3 — Chat
 
-Add `EventType.CHAT_MESSAGE` to `social-common`.
-`websocket-service` consumes `social.chat` → push to `room_{roomId}_chat`.
+Kế hoạch chi tiết (schema, service, REST API, WS protocol) đã chuyển sang
+[messaging-plan.md](messaging-plan.md) — bản đó có tên topic đã đổi thành
+`conversation_{id}_chat` (không phải `room_{roomId}_chat` như phác thảo dưới đây, giữ "room"
+dự phòng cho group chat sau này). `EventType.CHAT_MESSAGE` đã có sẵn trong `social-common`.
 
 ---
 

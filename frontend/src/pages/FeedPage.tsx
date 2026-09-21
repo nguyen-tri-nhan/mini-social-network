@@ -1,15 +1,14 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useInView } from 'react-intersection-observer'
 import { useEffect } from 'react'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import Typography from '@mui/material/Typography'
+import CircularProgress from '@mui/material/CircularProgress'
 import { articlesApi } from '../api/articles'
 import { qk } from '../hooks/queryKeys'
 import { ArticleCard } from '../components/article/ArticleCard'
 import { CreatePost } from '../components/article/CreatePost'
-import { Spinner } from '../components/ui'
-
-// react-intersection-observer needs to be installed:
-// npm i react-intersection-observer
-// For now we use a simple scroll-based approach via IntersectionObserver API directly
 
 export function FeedPage() {
   const { ref, inView } = useInView()
@@ -34,28 +33,28 @@ export function FeedPage() {
   const articles = data?.pages.flatMap((p) => p.items) ?? []
 
   return (
-    <div className="flex flex-col gap-4">
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <CreatePost />
 
       {isLoading && (
-        <div className="flex justify-center py-8">
-          <Spinner className="h-8 w-8" />
-        </div>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <CircularProgress size={32} />
+        </Box>
       )}
 
       {!isLoading && articles.length === 0 && (
-        <div className="rounded-xl bg-white py-16 text-center text-gray-400 shadow-sm">
-          <p className="text-lg font-medium">No posts yet</p>
-          <p className="mt-1 text-sm">Be the first to share something!</p>
-        </div>
+        <Card sx={{ py: 8, textAlign: 'center', color: 'text.disabled' }}>
+          <Typography fontSize={18} fontWeight={500}>No posts yet</Typography>
+          <Typography variant="body2" sx={{ mt: 0.5 }}>Be the first to share something!</Typography>
+        </Card>
       )}
 
       {articles.map((a) => <ArticleCard key={a.id} article={a} />)}
 
       {/* Infinite scroll trigger */}
-      <div ref={ref} className="flex justify-center py-4">
-        {isFetchingNextPage && <Spinner />}
-      </div>
-    </div>
+      <Box ref={ref} sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+        {isFetchingNextPage && <CircularProgress size={24} />}
+      </Box>
+    </Box>
   )
 }

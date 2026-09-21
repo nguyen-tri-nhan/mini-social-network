@@ -17,6 +17,11 @@ spec:
           args: [--maxmemory, 256mb, --maxmemory-policy, allkeys-lru]
           ports:
             - containerPort: 6379
+          # limit > maxmemory (256mb ở trên) — chừa đệm cho process overhead
+          # + kết nối, không riêng phần data Redis tự giới hạn.
+          resources:
+            requests: { memory: "96Mi", cpu: "50m" }
+            limits: { memory: "320Mi", cpu: "250m" }
           readinessProbe:
             exec:
               command: [redis-cli, ping]

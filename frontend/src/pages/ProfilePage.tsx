@@ -4,11 +4,16 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import MuiAvatar from '@mui/material/Avatar'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import CircularProgress from '@mui/material/CircularProgress'
 import { usersApi, articlesApi } from '../api/articles'
 import { useAuthStore } from '../stores/authStore'
 import { qk } from '../hooks/queryKeys'
-import { relativeTime } from '../lib/utils'
-import { Avatar, Button, Card, Input, Spinner } from '../components/ui'
 import { ArticleCard } from '../components/article/ArticleCard'
 
 const schema = z.object({
@@ -44,48 +49,62 @@ export function ProfilePage() {
     },
   })
 
-  if (!user) return <div className="flex justify-center py-12"><Spinner className="h-8 w-8" /></div>
+  if (!user) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+        <CircularProgress size={32} />
+      </Box>
+    )
+  }
 
   const fallback = `${user.firstname[0]}${user.lastname[0]}`.toUpperCase()
 
   return (
-    <div className="flex flex-col gap-4">
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {/* Profile card */}
-      <Card className="p-6">
-        <div className="flex items-center gap-4">
-          <Avatar fallback={fallback} src={user.avatarUrl} size="lg" />
-          <div className="flex-1">
-            <h2 className="text-xl font-bold text-gray-900">{user.firstname} {user.lastname}</h2>
-            <p className="text-sm text-gray-400">@{user.username}</p>
-          </div>
-          <Button variant="secondary" size="sm" onClick={() => { setEditing((v) => !v); reset() }}>
+      <Card sx={{ p: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <MuiAvatar src={user.avatarUrl} sx={{ width: 56, height: 56, fontSize: 16 }}>
+            {!user.avatarUrl && fallback}
+          </MuiAvatar>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h6" fontWeight={700}>{user.firstname} {user.lastname}</Typography>
+            <Typography variant="body2" color="text.disabled">@{user.username}</Typography>
+          </Box>
+          <Button variant="outlined" size="small" onClick={() => { setEditing((v) => !v); reset() }}>
             {editing ? 'Cancel' : 'Edit'}
           </Button>
-        </div>
+        </Box>
 
         {editing && (
-          <form onSubmit={handleSubmit((d) => update.mutate(d))} className="mt-4 flex flex-col gap-3">
-            <div className="grid grid-cols-2 gap-3">
-              <Input label="First name" error={errors.firstname?.message} {...register('firstname')} />
-              <Input label="Last name"  error={errors.lastname?.message}  {...register('lastname')} />
-            </div>
-            <Button type="submit" loading={update.isPending} className="self-end">Save</Button>
-          </form>
+          <Box component="form" onSubmit={handleSubmit((d) => update.mutate(d))} sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
+              <TextField label="First name" error={!!errors.firstname} helperText={errors.firstname?.message} {...register('firstname')} />
+              <TextField label="Last name" error={!!errors.lastname} helperText={errors.lastname?.message} {...register('lastname')} />
+            </Box>
+            <Button type="submit" variant="contained" disabled={update.isPending} sx={{ alignSelf: 'flex-end' }}>
+              {update.isPending ? 'Saving…' : 'Save'}
+            </Button>
+          </Box>
         )}
       </Card>
 
       {/* My posts */}
-      <h3 className="font-semibold text-gray-700">My posts</h3>
+      <Typography fontWeight={600} color="text.secondary">My posts</Typography>
 
-      {isLoading && <div className="flex justify-center py-8"><Spinner className="h-8 w-8" /></div>}
+      {isLoading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <CircularProgress size={32} />
+        </Box>
+      )}
 
-      {!isLoading && (articlesData?.items.length === 0) && (
-        <Card className="py-12 text-center text-gray-400">
-          <p>No posts yet</p>
+      {!isLoading && articlesData?.items.length === 0 && (
+        <Card sx={{ py: 6, textAlign: 'center', color: 'text.disabled' }}>
+          <Typography>No posts yet</Typography>
         </Card>
       )}
 
       {articlesData?.items.map((a) => <ArticleCard key={a.id} article={a} />)}
-    </div>
+    </Box>
   )
 }

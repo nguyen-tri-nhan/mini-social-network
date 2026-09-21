@@ -30,9 +30,17 @@ spec:
             - { name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR,    value: "1" }
             - { name: KAFKA_AUTO_CREATE_TOPICS_ENABLE,            value: "true" }
             - { name: CLUSTER_ID,                                 value: MkU3OEVBNTcwNTJENDM2Qk }
+            # Không set thì JVM tự tính heap theo RAM host thấy được, có thể
+            # vượt xa mức pod thực sự được cấp (memory limit dưới) — ép rõ
+            # ràng thay vì để JVM đoán. Kafka OOM-killed đã xảy ra 2 lần vì
+            # thiếu cả heap cap lẫn pod-level limit — xem tracking.md.
+            - { name: KAFKA_HEAP_OPTS,                            value: "-Xmx768m -Xms512m" }
           ports:
             - { name: plaintext,  containerPort: 9092 }
             - { name: controller, containerPort: 9093 }
+          resources:
+            requests: { memory: "512Mi", cpu: "250m" }
+            limits: { memory: "1Gi", cpu: "1000m" }
           readinessProbe:
             # KHÔNG dùng "kafka-topics --list" — client luôn redirect sang
             # advertised.listeners (kafka:9092, Service) sau bootstrap, dính

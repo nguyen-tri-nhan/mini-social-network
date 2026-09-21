@@ -16,6 +16,17 @@ endif
 SERVICES  := auth-service user-api post-api interaction-service notification-api websocket-service
 CONSUMERS := post-consumer user-consumer notification-consumer
 
+# make build RERUN=1 — ép Gradle chạy lại toàn bộ task graph, bỏ qua up-to-date
+# check. Cần khi image trong Docker daemon bị mất (vd docker system prune, xoá
+# cache JIB thủ công) nhưng Gradle vẫn thấy input/output nó tự theo dõi
+# (jib-image.id, jib-image.digest trong build/) không đổi nên skip luôn bước
+# containerize thật — báo "BUILD SUCCESSFUL, up-to-date" dù image không tồn
+# tại. Gradle không biết verify side-effect ngoài nó (Docker daemon).
+RERUN :=
+ifeq ($(RERUN),1)
+RERUN_FLAG := --rerun-tasks
+endif
+
 # ── Build ─────────────────────────────────────────────────────────────────────
 
 .PHONY: build build-auth build-user build-post build-interaction build-notification build-websocket
@@ -26,27 +37,28 @@ build:
 		$(foreach svc,$(SERVICES) $(CONSUMERS),:$(svc):build) \
 		-Dquarkus.container-image.build=true \
 		-Dquarkus.container-image.tag=$(TAG) \
-		-Dquarkus.jib.platforms=$(ARCH)
+		-Dquarkus.jib.platforms=$(ARCH) \
+		$(RERUN_FLAG)
 
 ## Build từng service riêng lẻ
 build-auth:
-	cd services && gradle :auth-service:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH)
+	cd services && gradle :auth-service:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH) $(RERUN_FLAG)
 
 build-user:
-	cd services && gradle :user-api:build :user-consumer:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH)
+	cd services && gradle :user-api:build :user-consumer:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH) $(RERUN_FLAG)
 
 build-post:
-	cd services && gradle :post-api:build :post-consumer:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH)
+	cd services && gradle :post-api:build :post-consumer:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH) $(RERUN_FLAG)
 
 build-interaction:
-	cd services && gradle :interaction-service:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH)
+	cd services && gradle :interaction-service:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH) $(RERUN_FLAG)
 
 build-notification:
 	cd services && gradle :notification-api:build :notification-consumer:build \
-		-Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH)
+		-Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH) $(RERUN_FLAG)
 
 build-websocket:
-	cd services && gradle :websocket-service:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH)
+	cd services && gradle :websocket-service:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH) $(RERUN_FLAG)
 
 # ── Kind — load images ────────────────────────────────────────────────────────
 

@@ -101,7 +101,7 @@ describe('ArticleCard', () => {
     it('shows delete button when current user is article owner', () => {
       useAuthStore.setState({ token: 'token', user: mockAuthor })  // id: 'author-1' matches authorId
       renderCard()
-      expect(screen.getByRole('button', { name: /trash/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /delete post/i })).toBeInTheDocument()
     })
 
     it('hides delete button when current user is not owner', () => {
@@ -110,13 +110,13 @@ describe('ArticleCard', () => {
         user: { ...mockAuthor, id: 'other-user' },
       })
       renderCard()
-      expect(screen.queryByRole('button', { name: /trash/i })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /delete post/i })).not.toBeInTheDocument()
     })
 
     it('hides delete button when not logged in', () => {
       useAuthStore.setState({ token: null, user: null })
       renderCard()
-      expect(screen.queryByRole('button', { name: /trash/i })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /delete post/i })).not.toBeInTheDocument()
     })
   })
 
@@ -142,7 +142,7 @@ describe('ArticleCard', () => {
     it('updates vote count optimistically on upvote', async () => {
       useAuthStore.setState({ token: 'token', user: mockAuthor })
       renderCard()
-      fireEvent.click(screen.getByRole('button', { name: /like/i }))
+      fireEvent.click(screen.getByRole('button', { name: 'Like' }))
       await waitFor(() => {
         expect(screen.getByText('11 votes')).toBeInTheDocument()
       })
@@ -151,7 +151,7 @@ describe('ArticleCard', () => {
     it('updates vote count optimistically on downvote', async () => {
       useAuthStore.setState({ token: 'token', user: mockAuthor })
       renderCard()
-      fireEvent.click(screen.getByRole('button', { name: /dislike/i }))
+      fireEvent.click(screen.getByRole('button', { name: 'Dislike' }))
       await waitFor(() => {
         expect(screen.getByText('9 votes')).toBeInTheDocument()
       })

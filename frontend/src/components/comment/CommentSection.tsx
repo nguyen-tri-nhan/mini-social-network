@@ -1,11 +1,16 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Send, Trash2 } from 'lucide-react'
+import Box from '@mui/material/Box'
+import MuiAvatar from '@mui/material/Avatar'
+import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
+import CircularProgress from '@mui/material/CircularProgress'
+import InputBase from '@mui/material/InputBase'
 import { commentsApi } from '../../api/interactions'
 import { useAuthStore } from '../../stores/authStore'
 import { qk } from '../../hooks/queryKeys'
 import { relativeTime } from '../../lib/utils'
-import { Avatar, Spinner } from '../ui'
 
 interface Props { targetId: string; targetType: string }
 
@@ -36,55 +41,66 @@ export function CommentSection({ targetId, targetType }: Props) {
   const comments = data?.items ?? []
 
   return (
-    <div className="border-t border-gray-100 px-4 pb-4">
-      {/* Existing comments */}
-      {isLoading && <div className="flex justify-center py-4"><Spinner /></div>}
+    <Box sx={{ px: 2, pb: 2 }}>
+      {isLoading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+          <CircularProgress size={20} />
+        </Box>
+      )}
 
-      <div className="mt-3 flex flex-col gap-3">
+      <Box sx={{ mt: 1.5, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         {comments.map((c) => (
-          <div key={c.id} className="flex gap-2">
-            <Avatar fallback="U" size="sm" />
-            <div className="flex-1">
-              <div className="rounded-2xl bg-gray-50 px-3 py-2">
-                <p className="text-xs font-semibold text-gray-700">User</p>
-                <p className="text-sm text-gray-800">{c.description}</p>
-              </div>
-              <div className="mt-0.5 flex items-center gap-3 px-1 text-xs text-gray-400">
-                <span>{relativeTime(c.createdAt)}</span>
+          <Box key={c.id} sx={{ display: 'flex', gap: 1 }}>
+            <MuiAvatar sx={{ width: 32, height: 32, fontSize: 12 }}>U</MuiAvatar>
+            <Box sx={{ flex: 1 }}>
+              <Box sx={{ bgcolor: 'grey.50', borderRadius: 3, px: 1.5, py: 1 }}>
+                <Typography variant="caption" fontWeight={600} color="text.secondary" component="p">User</Typography>
+                <Typography variant="body2">{c.description}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 0.5, mt: 0.25 }}>
+                <Typography variant="caption" color="text.disabled">{relativeTime(c.createdAt)}</Typography>
                 {user?.id === c.authorId && (
-                  <button
+                  <Box
+                    component="button"
                     onClick={() => del.mutate(c.id)}
-                    className="flex items-center gap-1 hover:text-red-500"
+                    sx={{
+                      display: 'flex', alignItems: 'center', gap: 0.5, border: 0, bgcolor: 'transparent',
+                      cursor: 'pointer', color: 'text.disabled', fontSize: 12, p: 0,
+                      '&:hover': { color: 'error.main' },
+                    }}
                   >
-                    <Trash2 className="h-3 w-3" /> Delete
-                  </button>
+                    <Trash2 size={12} /> Delete
+                  </Box>
                 )}
-              </div>
-            </div>
-          </div>
+              </Box>
+            </Box>
+          </Box>
         ))}
-      </div>
+      </Box>
 
-      {/* Input */}
-      <div className="mt-3 flex gap-2">
-        <Avatar fallback={fallback} src={user?.avatarUrl} size="sm" />
-        <div className="flex flex-1 items-center gap-2 rounded-full bg-gray-100 px-4 py-2">
-          <input
+      <Box sx={{ mt: 1.5, display: 'flex', gap: 1 }}>
+        <MuiAvatar src={user?.avatarUrl} sx={{ width: 32, height: 32, fontSize: 12 }}>
+          {!user?.avatarUrl && fallback}
+        </MuiAvatar>
+        <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 1, bgcolor: 'grey.100', borderRadius: 999, px: 2, py: 0.5 }}>
+          <InputBase
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && text.trim()) { e.preventDefault(); add.mutate() } }}
             placeholder="Write a comment..."
-            className="flex-1 bg-transparent text-sm outline-none placeholder-gray-400"
+            sx={{ flex: 1, fontSize: 14 }}
           />
-          <button
+          <IconButton
+            aria-label="Send comment"
+            size="small"
             onClick={() => add.mutate()}
             disabled={!text.trim() || add.isPending}
-            className="text-brand disabled:opacity-40"
+            sx={{ color: 'primary.main' }}
           >
-            {add.isPending ? <Spinner className="h-4 w-4" /> : <Send className="h-4 w-4" />}
-          </button>
-        </div>
-      </div>
-    </div>
+            {add.isPending ? <CircularProgress size={16} /> : <Send size={16} />}
+          </IconButton>
+        </Box>
+      </Box>
+    </Box>
   )
 }

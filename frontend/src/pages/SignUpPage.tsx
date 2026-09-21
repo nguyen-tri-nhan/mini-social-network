@@ -3,10 +3,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from 'react-router-dom'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import TextField from '@mui/material/TextField'
+import Button from '@mui/material/Button'
 import { authApi } from '../api/auth'
 import { usersApi } from '../api/articles'
 import { useAuthStore } from '../stores/authStore'
-import { Button, Input } from '../components/ui'
 
 const schema = z.object({
   firstname: z.string().min(1, 'Required'),
@@ -36,32 +39,36 @@ export function SignUpPage() {
   })
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm">
-        <div className="mb-6 text-center">
-          <div className="text-3xl font-bold text-brand">Social</div>
-          <h2 className="mt-1 text-lg font-semibold text-gray-700">Create your account</h2>
-        </div>
+    <Box sx={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default', p: 2 }}>
+      <Box sx={{ width: '100%', maxWidth: 448, borderRadius: 4, bgcolor: 'white', p: 4, boxShadow: 1 }}>
+        <Box sx={{ mb: 3, textAlign: 'center' }}>
+          <Typography variant="h5" fontWeight={700} color="primary.main">Social</Typography>
+          <Typography variant="subtitle1" fontWeight={600} color="text.secondary" sx={{ mt: 0.5 }}>
+            Create your account
+          </Typography>
+        </Box>
 
-        <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="flex flex-col gap-3">
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="First name" placeholder="Nhan" error={errors.firstname?.message} {...register('firstname')} />
-            <Input label="Last name"  placeholder="Nguyen" error={errors.lastname?.message}  {...register('lastname')} />
-          </div>
-          <Input label="Username"  placeholder="nhan123"        error={errors.username?.message} {...register('username')} />
-          <Input label="Email"     placeholder="nhan@mail.com"  error={errors.email?.message}    {...register('email')} />
-          <Input label="Password"  type="password" placeholder="••••••" error={errors.password?.message} {...register('password')} />
+        <Box component="form" onSubmit={handleSubmit((d) => mutation.mutate(d))} sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
+            <TextField label="First name" placeholder="Nhan" error={!!errors.firstname} helperText={errors.firstname?.message} {...register('firstname')} />
+            <TextField label="Last name" placeholder="Nguyen" error={!!errors.lastname} helperText={errors.lastname?.message} {...register('lastname')} />
+          </Box>
+          <TextField label="Username" placeholder="nhan123" fullWidth error={!!errors.username} helperText={errors.username?.message} {...register('username')} />
+          <TextField label="Email" placeholder="nhan@mail.com" fullWidth error={!!errors.email} helperText={errors.email?.message} {...register('email')} />
+          <TextField label="Password" type="password" placeholder="••••••" fullWidth error={!!errors.password} helperText={errors.password?.message} {...register('password')} />
 
-          <Button type="submit" size="lg" loading={mutation.isPending} className="mt-2 w-full">
-            Create account
+          <Button type="submit" size="large" variant="contained" fullWidth disabled={mutation.isPending} sx={{ mt: 1 }}>
+            {mutation.isPending ? 'Creating…' : 'Create account'}
           </Button>
-        </form>
+        </Box>
 
-        <p className="mt-5 text-center text-sm text-gray-500">
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2.5, textAlign: 'center' }}>
           Already have an account?{' '}
-          <Link to="/login" className="font-medium text-brand hover:underline">Sign in</Link>
-        </p>
-      </div>
-    </div>
+          <Typography component={Link} to="/login" variant="body2" fontWeight={500} sx={{ color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
+            Sign in
+          </Typography>
+        </Typography>
+      </Box>
+    </Box>
   )
 }

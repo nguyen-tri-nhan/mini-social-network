@@ -1,14 +1,21 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { MessageCircle, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import MuiAvatar from '@mui/material/Avatar'
+import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
+import ButtonBase from '@mui/material/ButtonBase'
+import CircularProgress from '@mui/material/CircularProgress'
+import Divider from '@mui/material/Divider'
 import { articlesApi, usersApi } from '../../api/articles'
 import { votesApi } from '../../api/interactions'
 import { useAuthStore } from '../../stores/authStore'
 import { qk } from '../../hooks/queryKeys'
 import { relativeTime } from '../../lib/utils'
-import { Avatar, Spinner } from '../ui'
 import { CommentSection } from '../comment/CommentSection'
-import type { Article, UserProfile } from '../../types'
+import type { Article } from '../../types'
 
 interface Props { article: Article }
 
@@ -24,7 +31,6 @@ export function ArticleCard({ article }: Props) {
     staleTime: 10 * 60_000,
   })
 
-  // Use author name from cache or placeholder
   const authorName = author ? `${author.firstname} ${author.lastname}` : 'User'
   const authorFallback = author ? `${author.firstname[0]}${author.lastname[0]}`.toUpperCase() : 'U'
 
@@ -42,65 +48,75 @@ export function ArticleCard({ article }: Props) {
   })
 
   return (
-    <div className="rounded-xl bg-white shadow-sm">
+    <Card>
       {/* Header */}
-      <div className="flex items-start justify-between p-4">
-        <div className="flex items-center gap-3">
-          <Avatar fallback={authorFallback} src={author?.avatarUrl} />
-          <div>
-            <p className="text-sm font-semibold text-gray-900">{authorName}</p>
-            <p className="text-xs text-gray-400">{relativeTime(article.createdAt)}</p>
-          </div>
-        </div>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', p: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <MuiAvatar src={author?.avatarUrl} sx={{ width: 40, height: 40, fontSize: 14 }}>
+            {!author?.avatarUrl && authorFallback}
+          </MuiAvatar>
+          <Box>
+            <Typography variant="body2" fontWeight={600}>{authorName}</Typography>
+            <Typography variant="caption" color="text.disabled">{relativeTime(article.createdAt)}</Typography>
+          </Box>
+        </Box>
         {isOwner && (
-          <button
+          <IconButton
+            aria-label="Delete post"
+            size="small"
             onClick={() => deleteMutation.mutate()}
             disabled={deleteMutation.isPending}
-            className="rounded-full p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
+            sx={{ color: 'text.disabled', '&:hover': { color: 'error.main', bgcolor: 'error.50' } }}
           >
-            {deleteMutation.isPending ? <Spinner className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
-          </button>
+            {deleteMutation.isPending ? <CircularProgress size={16} /> : <Trash2 size={16} />}
+          </IconButton>
         )}
-      </div>
+      </Box>
 
       {/* Content */}
       {article.description && (
-        <p className="px-4 pb-3 text-sm text-gray-800 leading-relaxed">{article.description}</p>
+        <Typography variant="body2" sx={{ px: 2, pb: 1.5, lineHeight: 1.6 }}>
+          {article.description}
+        </Typography>
       )}
       {article.imageUrl && (
-        <img src={article.imageUrl} alt="" className="max-h-96 w-full object-cover" />
+        <Box component="img" src={article.imageUrl} alt="" sx={{ maxHeight: 384, width: '100%', objectFit: 'cover' }} />
       )}
 
       {/* Counts */}
-      <div className="flex items-center gap-4 px-4 py-2 text-xs text-gray-400 border-t border-gray-50">
-        <span>{voteCount} votes</span>
-        <span>{article.commentCount} comments</span>
-      </div>
+      <Box sx={{ display: 'flex', gap: 2, px: 2, py: 1, borderTop: 1, borderColor: 'grey.100' }}>
+        <Typography variant="caption" color="text.disabled">{voteCount} votes</Typography>
+        <Typography variant="caption" color="text.disabled">{article.commentCount} comments</Typography>
+      </Box>
 
       {/* Actions */}
-      <div className="flex border-t border-gray-100">
-        <button
+      <Box sx={{ display: 'flex', borderTop: 1, borderColor: 'grey.100' }}>
+        <ButtonBase
           onClick={() => voteMutation.mutate(1)}
-          className="flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-brand"
+          sx={{ flex: 1, display: 'flex', gap: 1, py: 1.25, fontSize: 14, fontWeight: 500, color: 'text.secondary', '&:hover': { bgcolor: 'grey.50', color: 'primary.main' } }}
         >
-          <ThumbsUp className="h-4 w-4" /> Like
-        </button>
-        <button
+          <ThumbsUp size={16} /> Like
+        </ButtonBase>
+        <ButtonBase
           onClick={() => voteMutation.mutate(-1)}
-          className="flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-red-500"
+          sx={{ flex: 1, display: 'flex', gap: 1, py: 1.25, fontSize: 14, fontWeight: 500, color: 'text.secondary', '&:hover': { bgcolor: 'grey.50', color: 'error.main' } }}
         >
-          <ThumbsDown className="h-4 w-4" /> Dislike
-        </button>
-        <button
+          <ThumbsDown size={16} /> Dislike
+        </ButtonBase>
+        <ButtonBase
           onClick={() => setShowComments((v) => !v)}
-          className="flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-green-600"
+          sx={{ flex: 1, display: 'flex', gap: 1, py: 1.25, fontSize: 14, fontWeight: 500, color: 'text.secondary', '&:hover': { bgcolor: 'grey.50', color: 'success.main' } }}
         >
-          <MessageCircle className="h-4 w-4" /> Comment
-        </button>
-      </div>
+          <MessageCircle size={16} /> Comment
+        </ButtonBase>
+      </Box>
 
-      {/* Comments inline */}
-      {showComments && <CommentSection targetId={article.id} targetType="ARTICLE" />}
-    </div>
+      {showComments && (
+        <>
+          <Divider />
+          <CommentSection targetId={article.id} targetType="ARTICLE" />
+        </>
+      )}
+    </Card>
   )
 }

@@ -1,9 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Bell, CheckCheck } from 'lucide-react'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
+import ButtonBase from '@mui/material/ButtonBase'
 import { notificationsApi } from '../api/notifications'
 import { qk } from '../hooks/queryKeys'
-import { relativeTime, cn } from '../lib/utils'
-import { Button, Card, Spinner } from '../components/ui'
+import { relativeTime } from '../lib/utils'
 
 const TYPE_LABEL: Record<string, string> = {
   COMMENT_CREATED: 'commented on your post',
@@ -38,47 +43,59 @@ export function NotificationsPage() {
   const items = data?.items ?? []
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900">Notifications</h1>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography variant="h5" fontWeight={700}>Notifications</Typography>
         {items.some((n) => !n.seen) && (
-          <Button variant="ghost" size="sm" onClick={() => markAll.mutate()} loading={markAll.isPending}>
-            <CheckCheck className="h-4 w-4" /> Mark all read
+          <Button
+            size="small"
+            startIcon={<CheckCheck size={16} />}
+            onClick={() => markAll.mutate()}
+            disabled={markAll.isPending}
+          >
+            Mark all read
           </Button>
         )}
-      </div>
+      </Box>
 
-      {isLoading && <div className="flex justify-center py-12"><Spinner className="h-8 w-8" /></div>}
+      {isLoading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+          <CircularProgress size={32} />
+        </Box>
+      )}
 
       {!isLoading && items.length === 0 && (
-        <Card className="flex flex-col items-center py-16 text-gray-400">
-          <Bell className="mb-3 h-10 w-10" />
-          <p className="font-medium">No notifications yet</p>
+        <Card sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 8, color: 'text.disabled' }}>
+          <Bell size={40} style={{ marginBottom: 12 }} />
+          <Typography fontWeight={500}>No notifications yet</Typography>
         </Card>
       )}
 
-      <div className="flex flex-col gap-2">
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {items.map((n) => (
-          <button
+          <ButtonBase
             key={n.id}
             onClick={() => { if (!n.seen) markOne.mutate(n.id) }}
-            className={cn(
-              'flex items-start gap-3 rounded-xl p-4 text-left transition-colors',
-              n.seen ? 'bg-white shadow-sm' : 'bg-blue-50 shadow-sm',
-            )}
+            sx={{
+              display: 'flex', alignItems: 'flex-start', gap: 1.5, borderRadius: 3, p: 2,
+              justifyContent: 'flex-start', textAlign: 'left', boxShadow: 1,
+              bgcolor: n.seen ? 'white' : 'primary.50',
+            }}
           >
-            {!n.seen && <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-brand" />}
-            {n.seen  && <span className="mt-1.5 h-2.5 w-2.5 shrink-0" />}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm text-gray-800">
-                <span className="font-medium">Someone </span>
+            {!n.seen && <Box sx={{ mt: 0.75, height: 10, width: 10, flexShrink: 0, borderRadius: '50%', bgcolor: 'primary.main' }} />}
+            {n.seen && <Box sx={{ mt: 0.75, height: 10, width: 10, flexShrink: 0 }} />}
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography variant="body2">
+                <Typography component="span" fontWeight={500}>Someone </Typography>
                 {TYPE_LABEL[n.type] ?? n.type.toLowerCase()}
-              </p>
-              <p className="mt-0.5 text-xs text-gray-400">{relativeTime(n.createdAt)}</p>
-            </div>
-          </button>
+              </Typography>
+              <Typography variant="caption" color="text.disabled" sx={{ mt: 0.25, display: 'block' }}>
+                {relativeTime(n.createdAt)}
+              </Typography>
+            </Box>
+          </ButtonBase>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
