@@ -102,7 +102,7 @@ spec:
                     "database.dbname": "social",
                     "topic.prefix": "social",
                     "plugin.name": "pgoutput",
-                    "table.include.list": "interaction.outbox,post.outbox,auth.outbox",
+                    "table.include.list": "interaction.outbox,post.outbox,auth.outbox,users.outbox",
                     "transforms": "outbox",
                     "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
                     "transforms.outbox.table.field.event.id": "id",

@@ -2,11 +2,14 @@ package com.nhan.social.user.service
 
 import com.nhan.social.common.event.EventType
 import com.nhan.social.common.event.SocialEvent
+import com.nhan.social.common.event.userReadyEvent
 import com.nhan.social.exception.NotFoundException
 import com.nhan.social.user.dto.UpdateProfileRequest
 import com.nhan.social.user.dto.UserProfileDto
 import com.nhan.social.user.dto.toDto
+import com.nhan.social.user.entity.OutboxEntry
 import com.nhan.social.user.entity.UserProfile
+import com.nhan.social.user.repository.OutboxRepository
 import com.nhan.social.user.repository.UserProfileRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.quarkus.redis.datasource.RedisDataSource
@@ -19,6 +22,7 @@ import java.util.UUID
 @ApplicationScoped
 class UserService(
     private val repo: UserProfileRepository,
+    private val outboxRepo: OutboxRepository,
     private val redis: RedisDataSource,
     private val objectMapper: ObjectMapper,
 ) {
@@ -52,6 +56,18 @@ class UserService(
             lastname = payload["lastname"] ?: ""
             createdAt = Instant.now()
             updatedAt = Instant.now()
+        })
+
+        // Phải cùng transaction với persist(UserProfile) ở trên — đảm bảo
+        // USER_READY chỉ bắn sau khi user_profile chắc chắn ghi xong.
+        outboxRepo.persist(OutboxEntry().apply {
+            aggregateType = "user"
+            aggregateId = userId
+            eventType = EventType.USER_READY.name
+            // this.payload — "payload" trơn trùng tên val ở scope ngoài hàm.
+            this.payload = objectMapper.writeValueAsString(
+                userReadyEvent(userId.toString()).copy(eventId = this.id.toString()),
+            )
         })
     }
 

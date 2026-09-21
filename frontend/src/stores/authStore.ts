@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { UserProfile } from '../types'
+import { queryClient } from '../lib/queryClient'
 
 interface AuthState {
   token: string | null
@@ -32,6 +33,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     localStorage.removeItem('jwt')
     set({ token: null, user: null })
+    // qk.users.me / qk.notifications.* không scope theo user id — không clear
+    // thì data user cũ còn "fresh" trong staleTime, hiện lại tới khi refetch.
+    queryClient.clear()
   },
 }))
 

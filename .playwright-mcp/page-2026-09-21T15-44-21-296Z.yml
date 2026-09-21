@@ -1,0 +1,29 @@
+- generic [ref=e2]:
+  - generic [ref=e59]:
+    - generic [ref=e61]:
+      - paragraph [ref=e62]: S
+      - heading "Social" [level=4] [ref=e63]
+      - paragraph [ref=e64]: Connect and share moments
+    - generic [ref=e66]:
+      - heading "Sign in" [level=5] [ref=e67]
+      - generic [ref=e68]:
+        - generic [ref=e69]:
+          - generic: Username or email
+          - generic [ref=e70]:
+            - textbox "Username or email" [ref=e71]:
+              - /placeholder: username or email
+            - group [aria-hidden]:
+              - generic: Username or email
+        - generic [ref=e72]:
+          - generic: Password
+          - generic [ref=e73]:
+            - textbox "Password" [ref=e74]:
+              - /placeholder: ••••••
+            - group [aria-hidden]:
+              - generic: Password
+        - button "Sign in" [ref=e75] [cursor=pointer]
+      - paragraph [ref=e76]:
+        - text: No account?
+        - link "Sign up" [ref=e77] [cursor=pointer]:
+          - /url: /signup
+  - region "Notifications alt+T"

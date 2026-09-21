@@ -1,0 +1,5 @@
+- generic [ref=f1e2]:
+  - generic [ref=f1e3]:
+    - progressbar [ref=f1e28]
+    - paragraph [ref=f1e31]: Đang tạo tài khoản…
+  - region "Notifications alt+T"

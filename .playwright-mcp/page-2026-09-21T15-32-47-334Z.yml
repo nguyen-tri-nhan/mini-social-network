@@ -1,0 +1,43 @@
+- generic [ref=e2]:
+  - generic [ref=e32]:
+    - banner [ref=e33]:
+      - generic [ref=e34]:
+        - link "Social" [ref=e35] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e36]:
+          - link "Notifications" [ref=e37] [cursor=pointer]:
+            - /url: /notifications
+            - generic [ref=e38]: "0"
+          - link "Profile" [ref=e42] [cursor=pointer]:
+            - /url: /profile
+            - generic [ref=e43]: RT
+          - button "Logout" [ref=e44] [cursor=pointer]
+    - generic [ref=e48]:
+      - navigation [ref=e49]:
+        - list [ref=e50]:
+          - link "Feed" [ref=e51] [cursor=pointer]:
+            - /url: /
+          - link "Notifications" [ref=e58] [cursor=pointer]:
+            - /url: /notifications
+          - link "Profile" [ref=e65] [cursor=pointer]:
+            - /url: /profile
+      - main [ref=e72]:
+        - generic [ref=e73]:
+          - generic [ref=e75]:
+            - generic [ref=e76]: RT
+            - button "What's on your mind, Ready?" [ref=e77] [cursor=pointer]
+          - generic [ref=e78]:
+            - generic [ref=e80]:
+              - generic [ref=e81]: U
+              - generic [ref=e82]:
+                - paragraph [ref=e83]: User
+                - text: 29 minutes ago
+            - paragraph [ref=e84]: Who am I
+            - generic [ref=e85]:
+              - generic [ref=e86]: 0 votes
+              - generic [ref=e87]: 0 comments
+            - generic [ref=e88]:
+              - button "Like" [ref=e89] [cursor=pointer]
+              - button "Dislike" [ref=e92] [cursor=pointer]
+              - button "Comment" [ref=e95] [cursor=pointer]
+  - region "Notifications alt+T"

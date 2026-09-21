@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -7,9 +8,11 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import { authApi } from '../api/auth'
 import { usersApi } from '../api/articles'
 import { useAuthStore } from '../stores/authStore'
+import { waitForUserReady } from '../lib/waitForUserReady'
 
 const schema = z.object({
   firstname: z.string().min(1, 'Required'),
@@ -23,6 +26,7 @@ type Form = z.infer<typeof schema>
 export function SignUpPage() {
   const navigate   = useNavigate()
   const { setToken, setAuth } = useAuthStore()
+  const [settingUp, setSettingUp] = useState(false)
 
   const { register, handleSubmit, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
@@ -32,11 +36,23 @@ export function SignUpPage() {
     mutationFn: authApi.signup,
     onSuccess: async (auth) => {
       setToken(auth.accessToken)
+      setSettingUp(true)
+      // user_profile ghi async qua outbox — gọi /me ngay dễ 404 do race.
+      await waitForUserReady(auth.userId)
       const user = await usersApi.me()
       setAuth(auth.accessToken, user)
       navigate('/')
     },
   })
+
+  if (settingUp) {
+    return (
+      <Box sx={{ display: 'flex', minHeight: '100vh', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, bgcolor: 'background.default' }}>
+        <CircularProgress size={40} />
+        <Typography color="text.secondary">Đang tạo tài khoản…</Typography>
+      </Box>
+    )
+  }
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default', p: 2 }}>

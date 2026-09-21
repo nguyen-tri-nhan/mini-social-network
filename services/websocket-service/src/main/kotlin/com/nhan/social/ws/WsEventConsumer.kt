@@ -28,6 +28,28 @@ class WsEventConsumer(
         }
     }
 
+    @Incoming("user-events-in")
+    fun consumeUserEvent(message: String) {
+        try {
+            val event = objectMapper.readValue(message, SocialEvent::class.java)
+            if (event.eventType == EventType.USER_READY) handleUserReady(event)
+        } catch (e: Exception) {
+            log.errorf(e, "Failed to process user ws event: %s", message)
+        }
+    }
+
+    private fun handleUserReady(event: SocialEvent) {
+        val userId = event.payload["userId"] ?: return
+        wsPushService.push(
+            topic   = "user_${userId}_ready",
+            message = ServerMessage(
+                topic   = "user_${userId}_ready",
+                type    = "USER_READY",
+                payload = event.payload,
+            ),
+        )
+    }
+
     private fun handleComment(event: SocialEvent) {
         val payload = event.payload
         val articleId    = payload["articleId"]       ?: return

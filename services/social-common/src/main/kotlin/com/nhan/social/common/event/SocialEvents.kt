@@ -7,6 +7,9 @@ enum class EventType {
     USER_CREATED,
     USER_UPDATED,
 
+    // social.user
+    USER_READY,
+
     // social.post
     ARTICLE_CREATED,
     ARTICLE_DELETED,
@@ -68,6 +71,11 @@ fun userCreatedEvent(userId: String, username: String) = SocialEvent(
 
 fun userUpdatedEvent(userId: String) = SocialEvent(
     eventType = EventType.USER_UPDATED,
+    payload = mapOf("userId" to userId),
+)
+
+fun userReadyEvent(userId: String) = SocialEvent(
+    eventType = EventType.USER_READY,
     payload = mapOf("userId" to userId),
 )
 

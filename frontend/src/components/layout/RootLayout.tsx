@@ -10,9 +10,9 @@ import { usersApi } from '../../api/articles'
 import { qk } from '../../hooks/queryKeys'
 
 export function RootLayout() {
-  const { setUser } = useAuthStore()
+  const { setUser, logout } = useAuthStore()
 
-  const { data: me, isLoading } = useQuery({
+  const { data: me, isLoading, isError } = useQuery({
     queryKey: qk.users.me,
     queryFn: usersApi.me,
     enabled: isAuthenticated(),
@@ -20,6 +20,11 @@ export function RootLayout() {
   })
 
   useEffect(() => { if (me) setUser(me) }, [me, setUser])
+
+  // client.ts cố tình bỏ qua auto-logout cho 404 (đúng cho case xem profile
+  // người khác) — nhưng /me 404 nghĩa là token còn hợp lệ chữ ký mà user đã
+  // mất, nên tự logout ở đây thay vì để lại session "ma".
+  useEffect(() => { if (isError) logout() }, [isError, logout])
 
   if (!isAuthenticated()) return <Navigate to="/login" replace />
 

@@ -1,0 +1,34 @@
+- generic [ref=f2e2]:
+  - generic [ref=f2e107]:
+    - banner [ref=f2e108]:
+      - generic [ref=f2e109]:
+        - link "Social" [ref=f2e110] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f2e111]:
+          - link "Notifications" [ref=f2e112] [cursor=pointer]:
+            - /url: /notifications
+            - generic [ref=f2e113]: "0"
+          - link "Profile" [active] [ref=f2e117] [cursor=pointer]:
+            - /url: /profile
+            - generic [ref=f2e118]: TP
+          - button "Logout" [ref=f2e119] [cursor=pointer]
+    - generic [ref=f2e123]:
+      - navigation [ref=f2e124]:
+        - list [ref=f2e125]:
+          - link "Feed" [ref=f2e126] [cursor=pointer]:
+            - /url: /
+          - link "Notifications" [ref=f2e133] [cursor=pointer]:
+            - /url: /notifications
+          - link "Profile" [ref=f2e140] [cursor=pointer]:
+            - /url: /profile
+      - main [ref=f2e147]:
+        - generic [ref=f2e174]:
+          - generic [ref=f2e176]:
+            - generic [ref=f2e177]: TP
+            - generic [ref=f2e178]:
+              - heading "Third Person" [level=6] [ref=f2e179]
+              - paragraph [ref=f2e180]: "@thirdacc921"
+            - button "Edit" [ref=f2e181] [cursor=pointer]
+          - paragraph [ref=f2e182]: My posts
+          - paragraph [ref=f2e184]: No posts yet
+  - region "Notifications alt+T"
