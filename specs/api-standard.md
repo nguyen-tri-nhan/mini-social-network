@@ -22,6 +22,7 @@ Port per service:
 | post-service | 8083 |
 | interaction-service | 8084 |
 | notification-service | 8085 |
+| websocket-service | 8086 |
 
 ---
 
@@ -111,8 +112,8 @@ Query params chuẩn:
 
 | Param | Default | Max | Mô tả |
 |---|---|---|---|
-| `page` | `0` | — | 0-indexed |
-| `size` | `10` | `50` | Items per page |
+| `page` | `0` | — | 0-indexed · `< 0` → 400 |
+| `size` | `10` (articles) · `20` (comments, notifications) | `50` | Items per page · `< 1` → 400 · `> 50` bị kẹp về 50 (không lỗi) |
 
 ---
 
@@ -147,6 +148,7 @@ Format: `"{service}-{type}"` — mỗi phần là số.
 | `03` | post-service |
 | `04` | interaction-service |
 | `05` | notification-service |
+| `06` | websocket-service |
 
 ### Error type codes
 
@@ -169,8 +171,8 @@ Format: `"{service}-{type}"` — mỗi phần là số.
 | `03-0001` | post-service — article không tìm thấy |
 | `03-0004` | post-service — không phải owner |
 | `04-0001` | interaction-service — comment không tìm thấy |
-| `00-0006` | Validation error (từ bất kỳ service nào) |
-| `00-9999` | Internal error |
+| `01-0006` | auth-service — validation error (mỗi service dùng prefix của chính nó, không có prefix chung `00-`) |
+| `03-9999` | post-service — internal error |
 
 ---
 
@@ -340,24 +342,26 @@ Lấy pre-signed S3 URL để upload ảnh trực tiếp từ browser.
 
 ---
 
-### Comments — `GET /api/articles/{articleId}/comments`
+### Comments — `GET /api/comments`
 
-**Query:** `?page=0&size=20`
+**Query:** `?targetId=<uuid>&targetType=ARTICLE&page=0&size=20`
 
 **Response `200`:** `PageResponse<CommentDto>`
 
 ---
 
-### Comments — `POST /api/articles/{articleId}/comments`
+### Comments — `POST /api/comments`
 
 **Request:**
 ```json
 {
+  "targetId": "uuid",
+  "targetType": "ARTICLE",
   "description": "Great post!"
 }
 ```
 
-Max 1000 ký tự.
+`description` max 1000 ký tự.
 
 **Response `201`:** `CommentDto`
 
@@ -371,11 +375,13 @@ Chỉ author mới xoá được.
 
 ---
 
-### Votes — `POST /api/articles/{id}/vote`
+### Votes — `POST /api/votes`
 
 ```json
-{ "value": 1 }
+{ "targetId": "uuid", "targetType": "ARTICLE", "value": 1 }
 ```
+
+`targetType`: `ARTICLE` | `COMMENT` — cùng 1 endpoint cho cả hai.
 
 | value | Nghĩa |
 |---|---|
@@ -384,12 +390,6 @@ Chỉ author mới xoá được.
 | `-1` | Downvote |
 
 **Response `200`:** `VoteDto`
-
----
-
-### Votes — `POST /api/comments/{id}/vote`
-
-Same as article vote.
 
 ---
 
@@ -430,21 +430,24 @@ Same as article vote.
 | Field | Rule |
 |---|---|
 | `username` | NotBlank, max 50 chars |
-| `email` | Valid email format |
+| `email` | Valid email format, max 255 chars |
 | `password` | Min 6 chars |
+| `firstname`, `lastname` | NotBlank, max 100 chars — phải khớp cột `user_profile`; vượt quá mà không chặn ở signup thì profile được tạo async sẽ lỗi, tài khoản hỏng |
 | `description` (comment) | NotBlank, max 1000 chars |
 | `description` (article) | Max 2000 chars |
 | `page` | >= 0 |
-| `size` | 1–50 |
+| `size` | >= 1 (trên 50 bị kẹp, không lỗi) |
 | `vote.value` | -1, 0, or 1 |
 
-Validation error response:
+Validation error dùng đúng envelope ở §3.2, mã `{service}-0006`:
 ```json
 {
-  "errorCode": "VALIDATION_ERROR",
-  "errorMessage": "signup.request.password: size must be between 6 and 2147483647",
-  "traceId": "uuid",
-  "timestamp": "..."
+  "success": false,
+  "error": {
+    "errorCode": "01-0006",
+    "errorMessage": "signup.request.password: size must be between 6 and 2147483647",
+    "traceId": "4bf92f3577b34da6a3ce929d0e0e4736"
+  }
 }
 ```
 
@@ -454,7 +457,7 @@ Validation error response:
 
 - **URL path**: `kebab-case` — `/api/articles`, `/api/seen-all`
 - **JSON fields**: `camelCase` — `authorId`, `createdAt`, `imageUrl`
-- **Error codes**: `SCREAMING_SNAKE_CASE` — `NOT_FOUND`, `VALIDATION_ERROR`
+- **Error codes**: số dạng `{service}-{type}` — `03-0001`, `01-0006` (xem §5); tên hằng trong code (`ErrorType.NOT_FOUND`) chỉ là alias nội bộ
 - **Timestamps**: ISO-8601 UTC — `2026-06-03T10:00:00Z`
 - **IDs**: UUID v4
 
@@ -462,7 +465,7 @@ Validation error response:
 
 ## 9. TODO / Open Questions
 
-- [ ] Định nghĩa service-specific error codes (`AUTH_001`, `POST_001`...)
+- [x] ~~Định nghĩa service-specific error codes~~ — đã có: prefix service trong `app.service-code` + `ErrorType` (§5)
 - [ ] Token refresh endpoint (`POST /api/auth/refresh`)
 - [ ] Rate limiting strategy (Traefik middleware hay service level?)
 - [ ] File size limit cho image upload (hiện tại không enforce ở API layer)

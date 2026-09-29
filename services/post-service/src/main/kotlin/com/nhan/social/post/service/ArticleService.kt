@@ -52,7 +52,7 @@ class ArticleService(
         }
         repo.persist(article)
 
-        outboxRepo.persist(outbox(
+        outboxRepo.emit(outbox(
             aggregateType = "post",
             aggregateId   = article.id,
             event = SocialEvent(

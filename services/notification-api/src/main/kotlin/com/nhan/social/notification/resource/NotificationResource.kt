@@ -3,6 +3,7 @@ package com.nhan.social.notification.resource
 import com.nhan.social.common.dto.ApiResponse
 import com.nhan.social.notification.service.NotificationService
 import jakarta.annotation.security.RolesAllowed
+import jakarta.validation.constraints.Min
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
@@ -21,8 +22,8 @@ class NotificationResource(
     @GET
     @RolesAllowed("ROLE_USER")
     fun list(
-        @QueryParam("page") @DefaultValue("0") page: Int,
-        @QueryParam("size") @DefaultValue("20") size: Int,
+        @QueryParam("page") @DefaultValue("0") @Min(0) page: Int,
+        @QueryParam("size") @DefaultValue("20") @Min(1) size: Int,
     ): Response = Response.ok(ApiResponse.ok(service.list(currentUserId, page, size.coerceAtMost(50)))).build()
 
     @GET

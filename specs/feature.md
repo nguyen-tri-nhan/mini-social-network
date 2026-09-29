@@ -8,7 +8,7 @@
 
 | # | Feature | Status | Notes |
 |---|---|---|---|
-| 1.1 | Đăng ký tài khoản | ✅ | username · email · password (BCrypt) · trả về JWT ngay |
+| 1.1 | Đăng ký tài khoản | ✅ | username (≤50) · email · password (BCrypt, ≥6) · firstname/lastname (≤100, khớp cột `user_profile`) · trả về JWT ngay · FE chờ tín hiệu `USER_READY` qua WS trước khi gọi `/me` |
 | 1.2 | Đăng nhập | ✅ | `identifier` chấp nhận username hoặc email |
 | 1.3 | JWT access token | ✅ | RS256 · 7 ngày · claims: sub, username, roles |
 | 1.4 | Refresh token | ⬜ | `POST /api/auth/refresh` |
@@ -23,7 +23,7 @@
 |---|---|---|---|
 | 2.1 | Xem profile bản thân | ✅ | `GET /api/users/me` |
 | 2.2 | Xem profile người khác | ✅ | `GET /api/users/{id}` · Redis cache 10 min |
-| 2.3 | Cập nhật profile | ✅ | firstname · lastname · avatarUrl |
+| 2.3 | Cập nhật profile | ✅ | firstname · lastname · avatarUrl · bắn `USER_PROFILE_UPDATED` (outbox) để cache tên ở service khác cập nhật theo |
 | 2.4 | Upload avatar | ⬜ | S3 presigned URL (tương tự post image) |
 | 2.5 | Follow / Unfollow | ⬜ | — |
 
@@ -35,12 +35,12 @@
 |---|---|---|---|
 | 3.1 | Tạo bài đăng (text) | ✅ | `POST /api/articles` |
 | 3.2 | Tạo bài đăng (text + ảnh) | ✅ | S3 presigned URL upload |
-| 3.3 | Xem feed (tất cả bài) | ✅ | Paginated · real-time count từ Redis |
-| 3.4 | Xem chi tiết bài đăng | ✅ | `GET /api/articles/{id}` |
+| 3.3 | Xem feed (tất cả bài) | ✅ | Paginated · count từ Redis, flush về DB mỗi 30s (comment count bị hỏng từ trước tới 29/9/2026 — post-consumer đọc sai key `targetId`, đã sửa thành `articleId`) |
+| 3.4 | Xem chi tiết bài đăng | ✅ | `GET /api/articles/{id}` · FE route `/articles/:id` (`ArticleDetailPage.tsx`) |
 | 3.5 | Xoá bài đăng | ✅ | Soft delete · chỉ owner · `DELETE /api/articles/{id}` |
 | 3.6 | Sửa bài đăng | ⬜ | — |
 | 3.7 | Feed cá nhân (của 1 user) | ⬜ | `GET /api/users/{id}/articles` |
-| 3.8 | Tìm kiếm bài đăng | ⬜ | Full-text search |
+| 3.8 | Tìm kiếm bài đăng | ⬜ | Full-text search — xem `specs/search-plan.md` |
 
 ---
 
@@ -48,8 +48,8 @@
 
 | # | Feature | Status | Notes |
 |---|---|---|---|
-| 4.1 | Thêm bình luận | ✅ | `POST /api/articles/{id}/comments` · max 1000 ký tự |
-| 4.2 | Xem bình luận | ✅ | `GET /api/articles/{id}/comments` · paginated |
+| 4.1 | Thêm bình luận | ✅ | `POST /api/comments` (`targetId`, `targetType`, `description`) · max 1000 ký tự |
+| 4.2 | Xem bình luận | ✅ | `GET /api/comments?targetId=&targetType=` · paginated · tên tác giả enrich sẵn từ backend (ADR 0006) |
 | 4.3 | Xoá bình luận | ✅ | Soft delete · chỉ author · `DELETE /api/comments/{id}` |
 | 4.4 | Sửa bình luận | ⬜ | — |
 | 4.5 | Reply bình luận (nested) | ⬜ | — |
@@ -60,8 +60,8 @@
 
 | # | Feature | Status | Notes |
 |---|---|---|---|
-| 5.1 | Vote bài đăng | ✅ | `POST /api/articles/{id}/vote` · +1 / 0 / -1 · UNIQUE per user |
-| 5.2 | Vote bình luận | ✅ | `POST /api/votes` (payload chung article/comment, không phải `/api/comments/{id}/vote` như ghi trước — đã sửa theo code thật `InteractionResource.kt`) · cùng cơ chế |
+| 5.1 | Vote bài đăng | ✅ | `POST /api/votes` (`targetType=ARTICLE`) · +1 / 0 / -1 · UNIQUE per user |
+| 5.2 | Vote bình luận | ✅ | `POST /api/votes` (`targetType=COMMENT`) · backend hỗ trợ, FE chưa có nút vote cho comment |
 | 5.3 | Xem tổng vote | ✅ | Real-time từ Redis · flush về DB mỗi 30s |
 | 5.4 | Rút vote | ✅ | value = 0 |
 
@@ -71,13 +71,15 @@
 
 | # | Feature | Status | Notes |
 |---|---|---|---|
-| 6.1 | Nhận thông báo khi có comment | ✅ | Kafka async · topic: social.events |
+| 6.1 | Nhận thông báo khi có comment | ✅ | Kafka async · topic `social.interaction` |
 | 6.2 | Nhận thông báo khi có vote | ✅ | Kafka async |
 | 6.3 | Xem danh sách thông báo | ✅ | `GET /api/notifications` · paginated |
-| 6.4 | Đếm chưa đọc (badge) | ✅ | `GET /api/notifications/unread-count` · Redis counter |
+| 6.4 | Đếm chưa đọc (badge) | ✅ | `GET /api/notifications/unread-count` · Redis counter · poll 30s |
 | 6.5 | Đánh dấu đã đọc (1 cái) | ✅ | `PATCH /api/notifications/{id}/seen` |
 | 6.6 | Đánh dấu tất cả đã đọc | ✅ | `PATCH /api/notifications/seen-all` |
-| 6.7 | Push notification (web) | ✅ | `websocket-service` (`WsEndpoint.kt` — `@WebSocket(path="/ws")`), consume Kafka `social.interaction`, push qua `WsPushService`/`TopicRegistry` |
+| 6.7 | Push notification (web) | ✅ | `websocket-service` push `NOTIFICATION` · FE `useNotificationSocket` (kết nối sống suốt session, tự reconnect) hiện toast realtime |
+| 6.8 | Bấm vào notification → tới đích | ✅ | Toast (nút "View") và item trong list → `/articles/:id` (toast còn highlight đúng comment) · resolver dùng chung `lib/notificationTarget.ts` |
+| 6.9 | Hiện tên thật của actor | ✅ | Denormalized lúc tạo notification (ADR 0006) · noti tạo trước 21/9/2026 hiện "Someone" |
 
 ---
 
@@ -107,17 +109,18 @@
 | # | Feature | Status | Notes |
 |---|---|---|---|
 | 9.1 | Inline comments trong card | ✅ | `ArticleCard.tsx` nhúng thẳng `CommentSection` (toggle `showComments`), không phải modal |
-| 9.2 | Optimistic update (like/comment) | ⬜ | Không thấy pattern `onMutate`/rollback trong mutation hooks |
+| 9.2 | Optimistic update (like/comment) | 🔧 | Vote có optimistic + rollback (`ArticleCard.tsx` `onMutate`/`onError`); comment chưa |
 | 9.3 | Infinite scroll | ✅ | `FeedPage.tsx` dùng `useInfiniteQuery` (TanStack Query) + `useInView` (react-intersection-observer) |
-| 9.4 | Relative timestamp | ⬜ | `date-fns` có trong `package.json` nhưng không thấy dùng (`formatDistanceToNow`) trong pages/components |
-| 9.5 | Loading & skeleton states | 🔧 | Có `Spinner` (`components/ui`), chưa có skeleton card |
+| 9.4 | Relative timestamp | ✅ | `lib/utils.ts` `relativeTime()` (date-fns `formatDistanceToNow`), dùng trong `ArticleCard`/`CommentSection`/`NotificationsPage` |
+| 9.5 | Loading & skeleton states | 🔧 | Có spinner (MUI `CircularProgress`), chưa có skeleton card |
 | 9.6 | Empty states | ✅ | `FeedPage.tsx`, `ProfilePage.tsx` đã có empty state khi feed rỗng |
-| 9.7 | Responsive mobile layout | ✅ | `Sidebar.tsx` có `BottomNav` (`fixed bottom-0 ... lg:hidden`), dùng trong `RootLayout.tsx` |
+| 9.7 | Responsive mobile layout | ✅ | `Sidebar.tsx` có `BottomNav` (MUI, ẩn ở màn hình lớn), dùng trong `RootLayout.tsx` |
 | 9.8 | Image drag & drop + preview | 🔧 | `CreatePost.tsx` có preview ảnh sau khi chọn, nhưng chỉ qua `<input type=file>`, chưa có onDrop/dragover |
 | 9.9 | Image validation (client) | 🔧 | `CreatePost.tsx` check size ≤ 5MB có; check type chỉ qua `accept="image/*"` (lỏng hơn spec jpg/png/webp cụ thể) |
-| 9.10 | Form validation (Zod) | ✅ | `LoginPage.tsx`, `SignUpPage.tsx` dùng `useForm` + `zodResolver` + `z.object` |
+| 9.10 | Form validation (Zod) | ✅ | `LoginPage.tsx`, `SignUpPage.tsx`, `ProfilePage.tsx` dùng `useForm` + `zodResolver` + `z.object` |
 | 9.11 | Dark mode | ⬜ | Không có gì liên quan "dark" trong `frontend/src` |
 | 9.12 | PWA + offline support | ⬜ | Nice to have |
+| 9.13 | Màn hình chờ khi tạo tài khoản | ✅ | `SignUpPage.tsx` hiện loading trong lúc chờ `USER_READY` (`lib/waitForUserReady.ts`, timeout 8s) |
 
 ---
 
@@ -130,15 +133,15 @@
 | Post | 8 | 5 | 0 | 3 |
 | Comment | 5 | 3 | 0 | 2 |
 | Vote | 4 | 4 | 0 | 0 |
-| Notification | 7 | 7 | 0 | 0 |
+| Notification | 9 | 9 | 0 | 0 |
 | Image Upload | 3 | 1 | 0 | 2 |
 | Feed & Discovery | 4 | 1 | 0 | 3 |
-| Frontend UX | 12 | 5 | 3 | 4 |
-| **Total** | **54** | **32** | **3** | **19** |
+| Frontend UX | 13 | 7 | 4 | 2 |
+| **Total** | **57** | **36** | **4** | **17** |
 
-> Cập nhật 16/9/2026 — đối chiếu lại toàn bộ bảng với code thật (`grep @Path`
-> trong `*Resource.kt`, review `frontend/src/pages`+`components`), không phải
-> chỉnh tay theo cảm tính. Thay đổi so với bản gốc (đầu 6/2026): 6.7 (push
-> notification qua `websocket-service`) và 5/12 mục Frontend UX (9.1, 9.3,
-> 9.6, 9.7, 9.10) hoá ra đã làm xong nhưng bảng cũ ghi `⬜`; thêm 3 mục
-> `🔧 Partial` (9.5, 9.8, 9.9) trước đó gộp chung vào `⬜`.
+> Cập nhật 29/9/2026 — đối chiếu lại với code thật sau đợt audit specs ↔
+> implementation: sửa path cũ ở 4.1/4.2/5.1 (endpoint thật là `/api/comments`,
+> `/api/votes`), topic 6.1 (`social.interaction`, không phải `social.events`),
+> 9.2/9.4 hoá ra đã làm (bảng cũ ghi `⬜`), bỏ tham chiếu component/class
+> Tailwind đã xoá khi migrate sang MUI (9.5, 9.7); thêm 6.8, 6.9, 9.13 cho các
+> feature làm trong tháng 9. Bản trước: 16/9/2026.

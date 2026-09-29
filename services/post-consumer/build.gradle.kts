@@ -24,6 +24,9 @@ dependencies {
     implementation("io.quarkus:quarkus-opentelemetry")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    testImplementation("io.quarkus:quarkus-junit5")
+    testImplementation("io.mockk:mockk:1.13.10")
 }
 
 allOpen {

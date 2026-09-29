@@ -262,3 +262,60 @@ xem Plan A) → gọi `POST /api/conversations { targetUserId }` → điều hư
 | Lịch sử tin nhắn | REST phân trang, không qua Kafka | Kafka chỉ chở sự kiện *mới*, không phải nguồn đọc lịch sử — đúng pattern `COMMENT_ADDED` đã có |
 | Push realtime | Tái dùng `websocket-service` sẵn có | Không cần thêm service/kết nối mới, chỉ thêm 1 topic |
 | Phạm vi MVP | 1:1 only | Đơn giản hoá UI/UX, schema vẫn mở để lên group sau |
+
+---
+
+## 11. Review độ sẵn sàng (29/9/2026) — **chưa sẵn sàng**
+
+Phần lõi (schema, REST, outbox, lịch sử qua REST) đúng pattern project. Chặn lại
+bởi 1 quyết định thiết kế + vài chỗ plan giả định sai về code hiện tại.
+
+### Blocker — WebSocket không auth + tin nhắn riêng tư
+
+`websocket-service` public, ai cũng `SUBSCRIBE` được topic bất kỳ. Với
+`conversation_{id}_chat`, bảo vệ duy nhất là conversationId khó đoán — nhưng
+`WsEndpoint` log mọi topic được subscribe ở DEBUG (`com.nhan` đang để DEBUG,
+log đẩy lên Loki) → ai xem được Grafana là đọc được tin nhắn realtime. Cùng
+lỗ hổng đó đã tồn tại với `user_{id}_notification` (userId lộ trong mọi DTO,
+payload có tên actor từ ADR 0006).
+
+**Đề xuất (chưa chốt, cần ADR):**
+1. Xác thực lúc HTTP upgrade bằng JWT (browser không set được header
+   `Authorization` cho WebSocket → dùng cơ chế Quarkus websockets-next hỗ trợ
+   hoặc gửi token ở message đầu tiên; kiểm tra doc Quarkus lúc làm).
+2. Đổi topic chat thành theo người nhận: `user_{recipientId}_chat`. `chat-api`
+   nhúng `participantIds` vào event `CHAT_MESSAGE`, `websocket-service` fan-out
+   tới từng participant. Luật phân quyền SUBSCRIBE khi đó chỉ còn 1 dòng: topic
+   `user_{x}_*` chỉ cho phép khi `x == jwt.subject` — không cần tra participant.
+   Cùng luật này vá luôn lỗ hổng notification.
+3. Hạ log subscribe xuống TRACE hoặc bỏ topic name khỏi log.
+
+### Plan giả định sai / thiếu so với code hiện tại
+
+| # | Plan ghi | Thực tế | Cần làm |
+|---|---|---|---|
+| 1 | §6 "chỉ thêm 1 case trong `WsEventConsumer`" | Consumer chỉ nghe `social.interaction` và `social.user` | Thêm channel mới `chat-events-in` → `social.chat` |
+| 2 | §2 schema mới (ngầm định) | Schema tạo bằng init SQL (`k8s/infra/postgres.yaml`, `infra/postgres/init-schemas.sql`) — chỉ chạy khi volume mới | Thêm `CREATE SCHEMA chat`; cluster đang chạy phải tạo tay |
+| 3 | §7 điểm vào: nút trên `/profile/:userId` ("xem Plan A") | Chỉ có `/profile` (của mình); "Plan A" không tồn tại ở doc nào | Làm trang profile người khác trước, hoặc chọn điểm vào khác |
+| 4 | §7 hook "giống `useArticleSubscription`" | Không có hook đó; FE đang mở 1 WebSocket riêng cho mỗi tính năng (`useNotificationSocket`, `waitForUserReady`) | Gom thành 1 WS client dùng chung (1 kết nối, subscribe/unsubscribe) — nên làm trước, cũng là nơi gắn token ở blocker |
+| 5 | §4 "chat-api chỉ publish, không consume Kafka" | List conversation cần tên/avatar người kia — theo ADR 0006 là cache `user_ref` cục bộ qua `social.user` | Chốt: chat-api consume `social.user` (như interaction-service) hay FE tự fetch |
+| 6 | Ghi outbox (ngầm định `persist`) | Từ 29/9 mọi service dùng `OutboxRepository.emit()` (insert → flush → delete) | Dùng `emit()`; consumer (nếu có) cấu hình `failure-strategy=dead-letter-queue` |
+| 7 | §5 keyset `?before={messageId}` | Index chỉ `(conversation_id, created_at)` — 2 tin cùng timestamp sẽ lệch trang | Sắp xếp và index theo `(conversation_id, created_at, id)` |
+
+### Trả lời đề xuất cho câu hỏi §8
+
+- **Chống tạo trùng conversation 1:1:** cột `pair_key` trên `conversation`
+  (`"<uuid nhỏ>:<uuid lớn>"`, nullable để group chat sau không cần) +
+  `UNIQUE`, tạo bằng `INSERT ... ON CONFLICT (pair_key) DO NOTHING` rồi đọc
+  lại — đơn giản hơn `SELECT ... FOR UPDATE`.
+- **Độ dài `content`:** 2000 ký tự (bằng article), `@field:Size` + zod.
+- **Unread:** không tái dùng `NOTIFICATION` (làm ngập danh sách noti). Badge chat
+  riêng cần `last_read_at` — đang xếp ở Phase 2 → hoặc kéo `last_read_at` vào
+  Phase 1, hoặc MVP không có badge.
+
+### Checklist vận hành còn thiếu ở §9
+
+ADR 0007 (service mới + topic `social.chat` + đổi model WS), target Makefile
+`build-chat`/`load-chat`, thêm `chat-api` vào `scripts/deploy-sequential.sh`,
+`resources.requests/limits` + mount secret `jwt-keys` trong manifest, route
+Traefik, cập nhật `api-contract.md`/`service-dependencies.md`.

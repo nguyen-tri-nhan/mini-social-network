@@ -41,7 +41,7 @@ class AuthServiceTest {
         every { repo.existsByUsername(any()) } returns false
         every { repo.existsByEmail(any()) }    returns false
         every { repo.persist(any<Credentials>()) } just Runs
-        every { outboxRepo.persist(any<OutboxEntry>()) } just Runs
+        every { outboxRepo.emit(any<OutboxEntry>()) } just Runs
         every { jwtService.generateToken(any(), "nhan", any()) } returns "jwt-token"
 
         val result = service.signup(request)
@@ -50,7 +50,7 @@ class AuthServiceTest {
         assertEquals("nhan", result.username)
         assertNotNull(result.userId)
         verify { repo.persist(any<Credentials>()) }
-        verify { outboxRepo.persist(any<OutboxEntry>()) }
+        verify { outboxRepo.emit(any<OutboxEntry>()) }
     }
 
     // ── U-02 ──────────────────────────────────────────────────────────────────

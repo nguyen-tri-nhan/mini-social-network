@@ -149,9 +149,15 @@ GET /api/articles?filter=authorId=in=(<uuid1>,<uuid2>)
 {
   "id": "uuid", "description": "Great post!",
   "targetId": "uuid", "targetType": "ARTICLE",
-  "authorId": "uuid", "createdAt": "2026-06-03T10:00:00Z"
+  "authorId": "uuid",
+  "authorUsername": "nhan", "authorFirstname": "Nhan", "authorLastname": "Nguyen",
+  "authorAvatarUrl": "https://...",
+  "createdAt": "2026-06-03T10:00:00Z"
 }
 ```
+`author*` join từ cache `user_ref` cục bộ của interaction-service (ADR 0006) —
+có thể là chuỗi rỗng nếu cache chưa có user đó; `authorAvatarUrl` bị bỏ khỏi
+JSON khi null (`serialization-inclusion=non-null`).
 
 **VoteDto**
 ```json
@@ -174,11 +180,18 @@ GET /api/articles?filter=authorId=in=(<uuid1>,<uuid2>)
 **NotificationDto**
 ```json
 {
-  "id": "uuid", "type": "COMMENT",
-  "actorId": "uuid", "ownerId": "uuid", "articleId": "uuid",
+  "id": "uuid", "type": "COMMENT_CREATED",
+  "actorId": "uuid",
+  "actorUsername": "nhan", "actorFirstname": "Nhan", "actorLastname": "Nguyen",
+  "actorAvatarUrl": "https://...",
+  "ownerId": "uuid", "articleId": "uuid",
   "seen": false, "createdAt": "2026-06-03T10:00:00Z"
 }
 ```
+`type`: `COMMENT_CREATED` | `VOTE_CAST` (tên `EventType` gốc). `actor*` được
+đóng băng lúc tạo notification (ADR 0006) — không có ở notification tạo trước
+khi có ADR đó. `articleId` là đích điều hướng khi bấm vào notification (vote
+trên comment thì null).
 
 ---
 
@@ -187,8 +200,8 @@ GET /api/articles?filter=authorId=in=(<uuid1>,<uuid2>)
 Tất cả endpoint trả list đều dùng:
 
 ```
-?page=0   (0-indexed, default 0)
-?size=10  (default 10, max 50)
+?page=0   (0-indexed, default 0, < 0 → 400)
+?size=10  (default 10 cho articles, 20 cho comments/notifications; < 1 → 400; > 50 bị kẹp về 50)
 ```
 
 **PageResponse\<T\>**
@@ -212,6 +225,6 @@ Tất cả endpoint trả list đều dùng:
 | Endpoint | RSQL | Filter Fields | Sort Fields |
 |---|---|---|---|
 | `GET /api/articles` | ✅ | `authorId`, `createdAt` | `createdAt`, `voteCount`, `commentCount` |
-| `GET /api/articles/{id}/comments` | ⬜ | — | — |
+| `GET /api/comments` | ⬜ | — | — |
 | `GET /api/notifications` | ⬜ | — | — |
 | `GET /api/users` | ⬜ (endpoint chưa có) | — | — |

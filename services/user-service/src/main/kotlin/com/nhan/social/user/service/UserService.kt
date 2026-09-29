@@ -61,7 +61,7 @@ class UserService(
 
         // Phải cùng transaction với persist(UserProfile) ở trên — đảm bảo
         // USER_READY chỉ bắn sau khi user_profile chắc chắn ghi xong.
-        outboxRepo.persist(OutboxEntry().apply {
+        outboxRepo.emit(OutboxEntry().apply {
             aggregateType = "user"
             aggregateId = userId
             eventType = EventType.USER_READY.name
@@ -90,7 +90,7 @@ class UserService(
         // Trước đây update() không bắn event nào — materialized user-cache ở
         // các service khác (interaction-service) sẽ không bao giờ thấy tên
         // mới nếu thiếu bước này. Xem specs/decisions/0006.
-        outboxRepo.persist(OutboxEntry().apply {
+        outboxRepo.emit(OutboxEntry().apply {
             aggregateType = "user"
             aggregateId = id
             eventType = EventType.USER_PROFILE_UPDATED.name

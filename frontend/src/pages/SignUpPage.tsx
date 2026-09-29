@@ -15,8 +15,8 @@ import { useAuthStore } from '../stores/authStore'
 import { waitForUserReady } from '../lib/waitForUserReady'
 
 const schema = z.object({
-  firstname: z.string().min(1, 'Required'),
-  lastname:  z.string().min(1, 'Required'),
+  firstname: z.string().min(1, 'Required').max(100),
+  lastname:  z.string().min(1, 'Required').max(100),
   username:  z.string().min(1, 'Required').max(50),
   email:     z.string().email('Invalid email'),
   password:  z.string().min(6, 'Min 6 characters'),

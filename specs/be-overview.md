@@ -10,7 +10,7 @@ graph LR
     FE(["Browser\nReact SPA"])
     WSC(["Browser\nWebSocket"])
 
-    GW["Traefik :8080\nForwardAuth JWT · Routing"]
+    GW["Traefik :8080\nRouting only (JWT verify ở từng service)"]
 
     subgraph APIS["REST APIs"]
         Auth["auth-service\n:8081"]
@@ -21,12 +21,12 @@ graph LR
         WsSvc["websocket-service\n:8086"]
     end
 
-    subgraph DBS["PostgreSQL :5432"]
-        AuthDB[("auth_db")]
-        UserDB[("user_db")]
-        PostDB[("post_db")]
-        InterDB[("interaction_db")]
-        NotiDB[("notification_db")]
+    subgraph DBS["PostgreSQL :5432 — database social"]
+        AuthDB[("schema auth")]
+        UserDB[("schema users")]
+        PostDB[("schema post")]
+        InterDB[("schema interaction")]
+        NotiDB[("schema notification")]
     end
 
     S3["S3 / LocalStack\n:4566"]
@@ -34,7 +34,7 @@ graph LR
 
     subgraph MSG["Event Bus"]
         Debezium["Debezium\nCDC outbox → Kafka"]
-        Kafka["Kafka :9092\nsocial.auth · social.post\nsocial.interaction"]
+        Kafka["Kafka :9092\nsocial.auth · social.post\nsocial.interaction · social.user"]
     end
 
     subgraph CONS["Kafka Consumers"]
@@ -56,17 +56,23 @@ graph LR
     AuthDB  -->|"WAL"| Debezium
     PostDB  -->|"WAL"| Debezium
     InterDB -->|"WAL"| Debezium
+    UserDB  -->|"WAL"| Debezium
     Debezium --> Kafka
 
     Kafka -->|"social.auth"| UserCon
     Kafka -->|"social.interaction"| PostCon & NotiCon
-    Kafka -->|"social.interaction"| WsSvc
+    Kafka -->|"social.interaction · social.user"| WsSvc
+    Kafka -->|"social.user"| Inter
 
     UserCon --> UserDB & Redis
     PostCon --> PostDB & Redis
     NotiCon --> NotiDB & Redis
     WsSvc   -.-> Redis
+    Inter   -.->|"REST /internal/articles"| PostApi
 ```
+
+> Mũi tên nét đứt Inter → PostApi: coupling đồng bộ duy nhất giữa các service,
+> xem `service-dependencies.md`.
 
 ---
 
@@ -79,20 +85,21 @@ http://localhost:8080
         │
         ├── /api/users/**         → user-api              ┐
         ├── /api/articles/**      → post-api              │ PROTECTED
-        ├── /api/comments/**      → interaction-service   │ ForwardAuth JWT
-        ├── /api/votes/**         → interaction-service   │ → auth-service /api/auth/verify
-        ├── /api/notifications/** → notification-api      │ → inject X-User-Id header
+        ├── /api/comments/**      → interaction-service   │ Traefik chỉ route;
+        ├── /api/votes/**         → interaction-service   │ mỗi service tự verify JWT
+        ├── /api/notifications/** → notification-api      │ (@RolesAllowed)
         │                                                  ┘
         └── /ws/**                → websocket-service      (PUBLIC — no auth, pub/sub channels)
 ```
 
-**JWT verification flow (protected routes):**
+**JWT verification flow (protected routes)** — không có ForwardAuth (bỏ theo
+ADR 0005):
 ```
-Request → Traefik
-  → ForwardAuth: GET auth-service /api/auth/verify
-                 Authorization: Bearer <jwt>
-  → 200: inject X-User-Id header → forward to service
-  → 401: block, return 401 to client
+Request → Traefik (route theo path, không đụng token)
+  → Service nhận Authorization: Bearer <jwt>
+  → SmallRye JWT verify chữ ký RS256 bằng public key cục bộ
+    (mp.jwt.verify.publickey.location) + @RolesAllowed("ROLE_USER")
+  → hợp lệ: userId = jwt.subject · sai/thiếu: 401
 ```
 
 **Internal service-to-service:**
@@ -125,14 +132,11 @@ ServiceA → http://serviceB:8080/internal/**
 sequenceDiagram
     participant FE as Browser
     participant GW as Traefik :8080
-    participant AS as auth-service
     participant SVC as Any Service
 
     FE->>GW: GET /api/articles\nAuthorization: Bearer <jwt>
-    GW->>AS: ForwardAuth\nGET /api/auth/verify\nAuthorization: Bearer <jwt>
-    AS-->>GW: 200 OK\nX-User-Id: uuid
-    GW->>SVC: GET /api/articles\nX-User-Id: uuid
-    SVC->>SVC: reads X-User-Id header\n(KHÔNG verify JWT)
+    GW->>SVC: GET /api/articles\nAuthorization: Bearer <jwt> (chuyển nguyên)
+    SVC->>SVC: verify RS256 bằng public key cục bộ\n@RolesAllowed · userId = jwt.subject
     SVC-->>FE: 200 OK { data: [...] }
 ```
 
@@ -162,7 +166,12 @@ sequenceDiagram
 | `auth` | `social.auth` | auth-service |
 | `post` | `social.post` | post-api (via post-service) |
 | `interaction` | `social.interaction` | interaction-service |
+| `user` | `social.user` | user-consumer (`USER_READY`) · user-api (`USER_PROFILE_UPDATED`) |
 | `chat` | `social.chat` | websocket-service (Phase 3) |
+
+Service ghi outbox qua `OutboxRepository.emit()` (insert → flush → delete cùng
+transaction) nên bảng outbox luôn gần như rỗng — muốn xem event thì xem trên
+Kafka (Kafdrop), không query bảng outbox.
 
 ---
 
@@ -234,10 +243,19 @@ Browser  →  ws://host/ws   (public, no auth)
                 │     COMMENT_CREATED → push to "user_{authorId}_notification"
                 │                    → push to "article_{articleId}_comment_added"
                 │     VOTE_CAST      → push to "user_{targetAuthorId}_notification"
+                ├── Kafka consumer: social.user
+                │     USER_READY     → push to "user_{userId}_ready" (signup chờ profile)
                 │
-                └── Redis pub/sub (multi-instance fan-out)
-                      channel: ws:topic:{topicName}
+                └── Redis pub/sub (multi-instance fan-out) — CHƯA IMPLEMENT
+                      (TODO Phase 2 trong WsPushService.kt; hiện chỉ 1 instance,
+                       TopicRegistry là map in-memory)
 ```
+
+> ⚠️ Model "public, không auth" dựa trên giả định payload không nhạy cảm. Từ
+> ADR 0006, payload `NOTIFICATION` chứa tên actor, còn topic
+> `user_{userId}_notification` đoán được (userId lộ trong mọi ArticleDto/CommentDto)
+> → ai cũng subscribe được noti của người khác, kể cả biết ai vote bài họ. Chưa
+> quyết định cách sửa — đề xuất ở `messaging-plan.md` §11 (blocker của tính năng chat).
 
 **Topics FE subscribe:**
 
@@ -271,11 +289,14 @@ sequenceDiagram
 
 ---
 
-## 10. Database — DB per Service
+## 10. Database — Schema per Service
 
-Mỗi service sở hữu database riêng — không service nào được truy cập DB của service khác.  
-Local: 1 PostgreSQL instance, mỗi service dùng 1 database riêng.  
-Production: mỗi service có RDS instance riêng.
+Mỗi service sở hữu dữ liệu riêng — không service nào đọc/ghi bảng của service khác.  
+Local: 1 PostgreSQL instance, 1 database `social`, mỗi service 1 **schema** riêng
+(`auth`, `users`, `post`, `interaction`, `notification`) — Liquibase +
+Hibernate đặt `default-schema` theo từng service. Các khối dưới đặt tên `*_db`
+theo ý nghĩa logic, không phải database thật.  
+Production (dự kiến): mỗi service có RDS instance riêng.
 
 ```
 ┌─────────────────────────────────┐
@@ -330,7 +351,10 @@ Production: mỗi service có RDS instance riêng.
 └─────────────────────────────────┘
 ```
 
-> Cross-service data (vd. author name trong article feed) được resolve qua Redis cache hoặc embed vào Kafka event payload — **không có cross-DB query**.
+> Cross-service data (vd. tên tác giả) — **không có cross-DB query**. Comment/
+> notification: interaction-service giữ bảng cache `user_ref` (consume
+> `social.user`) và nhúng tên actor vào event payload (ADR 0006). Tác giả bài
+> viết trong feed: FE vẫn tự gọi `GET /api/users/{id}` (chưa chuyển sang cách trên).
 
 ---
 
@@ -350,8 +374,12 @@ Production: mỗi service có RDS instance riêng.
 | post-consumer | PostgreSQL | SQL | — | CounterFlushJob mỗi 30s |
 | notification-consumer | PostgreSQL | SQL | `social.interaction` | INSERT notification |
 | notification-consumer | Redis | Direct | — | INCR noti_unread |
-| websocket-service | Redis pub/sub | Direct | `social.interaction` | push to connected clients |
-| ServiceA → ServiceB | HTTP internal | `X-Service-Secret-Key` | k8s DNS | sync call `/internal/**` |
+| websocket-service | WS clients | Direct (in-memory `TopicRegistry`) | `social.interaction`, `social.user` | push to connected clients (Redis fan-out: chưa làm) |
+| user-consumer | PostgreSQL outbox | SQL | — | tạo user_profile → ghi outbox `USER_READY` |
+| user-api | PostgreSQL outbox | SQL | — | sửa profile → ghi outbox `USER_PROFILE_UPDATED` |
+| Debezium | Kafka `social.user` | CDC WAL | — | detect `users.outbox` INSERT |
+| interaction-service | PostgreSQL (`user_ref`) | SQL | `social.user` | upsert cache tên user (ADR 0006) |
+| interaction-service → post-api | HTTP internal | `X-Service-Secret-Key` | k8s DNS | sync call `/internal/articles/{id}` (secret: biến `INTERNAL_SECRET_KEY` ở cả 2 phía) |
 
 ---
 
@@ -377,7 +405,7 @@ services/
 ├── post-consumer          # Quarkus app: Kafka ← social.interaction + CounterFlushJob
 
 ├── interaction-service-dao  # Comment + Vote + OutboxEntry entity/repo + Liquibase
-├── interaction-service      # Quarkus app: REST (writes outbox, no direct Kafka)
+├── interaction-service      # Quarkus app: REST + outbox; consume social.user (cache user_ref)
 
 ├── notification-service-dao # Notification entity/repo + Liquibase
 ├── notification-service     # service logic lib
@@ -397,13 +425,13 @@ services/
 | Framework | Quarkus 3.25.x |
 | ORM | Hibernate ORM + Panache Kotlin |
 | DB Migration | Liquibase (per-schema changelogs) |
-| Auth (external) | SmallRye JWT RS256 · Traefik ForwardAuth |
+| Auth (external) | SmallRye JWT RS256 — mỗi service tự verify (ADR 0005, không ForwardAuth) |
 | Auth (internal) | X-Service-Secret-Key shared secret |
 | Messaging | Kafka via Debezium CDC (outbox pattern) |
-| Event Routing | Per-domain topics: `social.auth`, `social.post`, `social.interaction` |
+| Event Routing | Per-domain topics: `social.auth`, `social.post`, `social.interaction`, `social.user` |
 | Cache | Redis 7 (counters · profile cache TTL 10m · unread count) |
 | Image Storage | AWS S3 / LocalStack (presigned URL upload) |
-| API Gateway | Traefik v3 (ForwardAuth, per-route middleware) |
+| API Gateway | Traefik v3 (chỉ routing theo path) |
 | Build | Gradle 9 + Kotlin DSL + social-bom (version catalog) |
 | Container | Quarkus JIB (no Dockerfile) |
 | Local infra | Docker Compose + kind (k8s) |

@@ -1,5 +1,19 @@
 # Outbox Pattern & Debezium
 
+> **Trạng thái (29/9/2026):** đã implement — doc này viết lúc còn dual write,
+> §1 là bối cảnh lịch sử. Chỗ implementation thật khác doc:
+>
+> | Doc ghi | Thực tế |
+> |---|---|
+> | Debezium tự xoá row outbox | **Sai** — EventRouter không xoá gì. Mỗi service gọi `OutboxRepository.emit()`: insert → flush → delete trong cùng transaction; Debezium vẫn đọc INSERT từ WAL, SMT tự bỏ qua DELETE (xem §4) |
+> | Outbox ở auth, interaction, post | Thêm `users.outbox` (user-service publish `USER_READY`/`USER_PROFILE_UPDATED`) |
+> | Topic `social.${aggregate}.events` | `social.${aggregate}` — `route.topic.replacement=social.${routedByValue}` |
+> | Cột `payload` kiểu `jsonb` | `text`, kết hợp `table.expand.json.payload=true` |
+> | User riêng `debezium_user` (REPLICATION) | Connector đang dùng user `postgres` |
+> | Consumer at-least-once | Consumer ghi state dùng `failure-strategy=dead-letter-queue`; trước 29/9 mọi consumer catch-and-log nên event lỗi mất âm thầm |
+>
+> Config connector thật: `k8s/infra/debezium.yaml`.
+
 ---
 
 ## 1. Vấn đề hiện tại — Dual Write
@@ -126,7 +140,12 @@ CREATE TABLE outbox (
 
 Debezium đọc bảng này và:
 - Route mỗi row đến Kafka topic khác nhau dựa vào `aggregate_type`
-- **Tự DELETE row** sau khi publish (để bảng không phình to)
+- **Không** tự xoá row — việc giữ bảng không phình là của app. Cách Debezium
+  khuyến nghị (và mặc định trong extension `quarkus-debezium-outbox`,
+  `remove-after-insert=true`): insert rồi delete ngay trong cùng transaction.
+  Connector vẫn capture được INSERT từ WAL; SMT "automatically filters out
+  DELETE operations on an outbox table" nên delete không sinh message.
+  Phải flush INSERT trước khi delete, không thì Hibernate có thể huỷ cả hai.
 - Dùng `id` làm Kafka message key → deduplication
 
 ---
@@ -144,7 +163,8 @@ social (database)
 └── schema: post         → post.outbox
 ```
 
-*(user và notification không publish event nên không cần outbox)*
+*(notification không publish event nên không cần outbox. User ban đầu cũng
+không, nhưng từ 21/9/2026 có `users.outbox` — xem ghi chú đầu doc.)*
 
 **Liquibase changeset — ví dụ `interaction-service-dao`:**
 

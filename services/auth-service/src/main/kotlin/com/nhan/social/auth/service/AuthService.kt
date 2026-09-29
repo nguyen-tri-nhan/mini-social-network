@@ -44,7 +44,7 @@ class AuthService(
         }
         repo.persist(credentials)
 
-        outboxRepo.persist(outbox(
+        outboxRepo.emit(outbox(
             aggregateType = "auth",
             aggregateId   = userId,
             event = SocialEvent(

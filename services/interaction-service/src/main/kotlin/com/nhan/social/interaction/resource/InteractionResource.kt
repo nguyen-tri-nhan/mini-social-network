@@ -6,6 +6,7 @@ import com.nhan.social.interaction.dto.CreateCommentRequest
 import com.nhan.social.interaction.service.InteractionService
 import jakarta.annotation.security.RolesAllowed
 import jakarta.validation.Valid
+import jakarta.validation.constraints.Min
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
@@ -29,8 +30,8 @@ class InteractionResource(
     fun listComments(
         @QueryParam("targetId")   targetId: UUID,
         @QueryParam("targetType") targetType: String,
-        @QueryParam("page") @DefaultValue("0")  page: Int,
-        @QueryParam("size") @DefaultValue("20") size: Int,
+        @QueryParam("page") @DefaultValue("0")  @Min(0) page: Int,
+        @QueryParam("size") @DefaultValue("20") @Min(1) size: Int,
     ): Response = Response.ok(ApiResponse.ok(
         service.listComments(targetId, targetType.uppercase(), page, size.coerceAtMost(50))
     )).build()

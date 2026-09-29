@@ -47,7 +47,7 @@ class InteractionServiceTest {
 
     private fun capturedEvent(): SocialEvent {
         val slot = slot<OutboxEntry>()
-        verify { outboxRepo.persist(capture(slot)) }
+        verify { outboxRepo.emit(capture(slot)) }
         return objectMapper.readValue(slot.captured.payload, SocialEvent::class.java)
     }
 
@@ -58,7 +58,7 @@ class InteractionServiceTest {
         val authorId  = UUID.randomUUID()
         val articleId = UUID.randomUUID()
         every { commentRepo.persist(any<Comment>()) } just Runs
-        every { outboxRepo.persist(any<OutboxEntry>()) } just Runs
+        every { outboxRepo.emit(any<OutboxEntry>()) } just Runs
         every { postApiClient.getArticle(articleId) } returns ArticleRef("owner-1")
 
         service.addComment(authorId, CreateCommentRequest(articleId, "ARTICLE", "Nice!"))
@@ -114,7 +114,7 @@ class InteractionServiceTest {
         val articleId = UUID.randomUUID()
         every { voteRepo.findByUserAndTarget(userId, articleId, "ARTICLE") } returns null
         every { voteRepo.persist(any<Vote>()) } just Runs
-        every { outboxRepo.persist(any<OutboxEntry>()) } just Runs
+        every { outboxRepo.emit(any<OutboxEntry>()) } just Runs
         every { postApiClient.getArticle(articleId) } returns ArticleRef("owner-1")
 
         service.castVote(userId, CastVoteRequest(articleId, "ARTICLE", 1))
@@ -140,7 +140,7 @@ class InteractionServiceTest {
             this.createdAt  = Instant.now()
         }
         every { voteRepo.findByUserAndTarget(userId, articleId, "ARTICLE") } returns existing
-        every { outboxRepo.persist(any<OutboxEntry>()) } just Runs
+        every { outboxRepo.emit(any<OutboxEntry>()) } just Runs
         every { postApiClient.getArticle(articleId) } returns ArticleRef("owner-1")
 
         // change from +1 to -1: delta = -1 - 1 = -2
@@ -166,7 +166,7 @@ class InteractionServiceTest {
             this.createdAt  = Instant.now()
         }
         every { voteRepo.findByUserAndTarget(userId, articleId, "ARTICLE") } returns existing
-        every { outboxRepo.persist(any<OutboxEntry>()) } just Runs
+        every { outboxRepo.emit(any<OutboxEntry>()) } just Runs
         every { postApiClient.getArticle(articleId) } returns ArticleRef("owner-1")
 
         service.castVote(userId, CastVoteRequest(articleId, "ARTICLE", 0))

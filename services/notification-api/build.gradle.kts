@@ -20,6 +20,7 @@ dependencies {
     implementation("io.quarkus:quarkus-liquibase")
     implementation("io.quarkus:quarkus-jdbc-postgresql")
     implementation("io.quarkus:quarkus-smallrye-jwt")
+    implementation("io.quarkus:quarkus-hibernate-validator")
     implementation("io.quarkus:quarkus-redis-client")
     implementation("io.quarkus:quarkus-container-image-jib")
     implementation("io.quarkus:quarkus-opentelemetry")

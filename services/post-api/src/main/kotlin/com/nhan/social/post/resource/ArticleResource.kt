@@ -24,7 +24,7 @@ class ArticleResource(
 
     @GET
     @RolesAllowed("ROLE_USER")
-    fun list(@BeanParam params: ArticleListParams): Response =
+    fun list(@Valid @BeanParam params: ArticleListParams): Response =
         Response.ok(ApiResponse.ok(articleService.listArticles(params.toQuery()))).build()
 
     @GET

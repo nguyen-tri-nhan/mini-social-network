@@ -17,8 +17,8 @@ import { qk } from '../hooks/queryKeys'
 import { ArticleCard } from '../components/article/ArticleCard'
 
 const schema = z.object({
-  firstname: z.string().min(1),
-  lastname:  z.string().min(1),
+  firstname: z.string().min(1).max(100),
+  lastname:  z.string().min(1).max(100),
 })
 type Form = z.infer<typeof schema>
 

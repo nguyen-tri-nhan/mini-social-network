@@ -1,6 +1,7 @@
 package com.nhan.social.post.resource
 
 import com.nhan.social.post.dto.ArticleQuery
+import jakarta.validation.constraints.Min
 import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.QueryParam
 
@@ -8,10 +9,12 @@ class ArticleListParams {
 
     @QueryParam("page")
     @DefaultValue("0")
+    @field:Min(0)
     var page: Int = 0
 
     @QueryParam("size")
     @DefaultValue("10")
+    @field:Min(1)
     var size: Int = 10
 
     @QueryParam("filter")

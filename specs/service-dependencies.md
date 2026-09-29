@@ -26,25 +26,31 @@ Tầng 3 — Consumer, phụ thuộc Kafka + hưởng lợi khi producer đã t�
 
 Tầng 4 — Debezium / kafka-connect
   Cần outbox table tồn tại (Liquibase của auth-service/post-api/
-  interaction-service đã chạy) — Makefile đã đúng thứ tự này sẵn
-  (deploy-debezium chạy sau deploy-services).
+  interaction-service/user-api đã chạy) — Makefile đã đúng thứ tự này sẵn
+  (deploy-debezium chạy sau deploy-services). `table.include.list` của
+  connector phải liệt kê đủ 4 bảng: auth, post, interaction, users.
 
 Tầng 5 — Traefik routes
 ```
 
-## Bảng phụ thuộc chi tiết (grep trực tiếp từ code, 16/9/2026)
+## Bảng phụ thuộc chi tiết (grep trực tiếp từ code, cập nhật 29/9/2026)
 
-| Service | Postgres | Redis | Kafka consume (topic) | S3 | Gọi service khác |
-|---|---|---|---|---|---|
-| `auth-service` | ✅ | — | — | — | — |
-| `post-api` | ✅ | ✅ | — | ✅ | — |
-| `user-api` | ✅ | ✅ | — | — | — |
-| `notification-api` | ✅ | ✅ | — | — | — |
-| `websocket-service` | — | ✅ | `social.interaction` | — | — |
-| `interaction-service` | ✅ | — | — | — | **`post-api`** (REST, `/internal/articles/{id}`) |
-| `user-consumer` | ✅ | ✅ (transitive qua `user-service`) | `social.auth` | — | — |
-| `post-consumer` | ✅ | ✅ | `social.interaction` | — | — |
-| `notification-consumer` | ✅ | ✅ | `social.interaction` | — | — |
+| Service | Postgres | Redis | Kafka consume (topic) | Publish (qua outbox) | S3 | Gọi service khác |
+|---|---|---|---|---|---|---|
+| `auth-service` | ✅ | — | — | `social.auth` | — | — |
+| `post-api` | ✅ | ✅ | — | `social.post` | ✅ | — |
+| `user-api` | ✅ | ✅ | — | `social.user` (`USER_PROFILE_UPDATED`) | — | — |
+| `notification-api` | ✅ | ✅ | — | — | — | — |
+| `websocket-service` | — | ✅ | `social.interaction`, `social.user` | — | — | — |
+| `interaction-service` | ✅ | — | `social.user` (cache `user_ref`, ADR 0006) | `social.interaction` | — | **`post-api`** (REST, `/internal/articles/{id}`) |
+| `user-consumer` | ✅ | ✅ (transitive qua `user-service`) | `social.auth` | `social.user` (`USER_READY`) | — | — |
+| `post-consumer` | ✅ | ✅ | `social.interaction` | — | — | — |
+| `notification-consumer` | ✅ | ✅ | `social.interaction` | — | — | — |
+
+Consumer ghi state (user-consumer, post-consumer, notification-consumer,
+interaction-service) dùng `failure-strategy=dead-letter-queue`: event lỗi đi
+sang topic `dead-letter-topic-<channel>` thay vì bị nuốt. `websocket-service`
+cố tình giữ best-effort (push toast cũ phát lại sau là vô nghĩa).
 
 Tất cả service REST đã có sẵn `readinessProbe: httpGet /q/health/ready` trong
 `k8s/services/*.yaml` — dùng được thẳng làm tín hiệu "Ready" cho script deploy
@@ -67,7 +73,10 @@ val authorId = try {
 
 **Đã tự graceful-degrade** — nếu `post-api` không reachable, comment/vote vẫn
 thành công, chỉ mất thông tin `authorId` trong notification (log warning, không
-throw). Đây là điểm coupling đồng bộ **duy nhất** trong toàn hệ thống; mọi
+throw). Lưu ý: vì degrade êm như vậy nên lỗi cấu hình secret (`INTERNAL_SECRET_KEY`
+lệch giữa 2 service → `/internal` trả 401) sẽ không làm vỡ request nào mà chỉ
+khiến **không còn notification nào được tạo** — kiểm tra log warning này khi
+đổi secret. Đây là điểm coupling đồng bộ **duy nhất** trong toàn hệ thống; mọi
 giao tiếp còn lại giữa các service đều qua Kafka/outbox pattern (async, đúng
 chủ đích thiết kế ban đầu — xem `specs/outbox-pattern.md`).
 

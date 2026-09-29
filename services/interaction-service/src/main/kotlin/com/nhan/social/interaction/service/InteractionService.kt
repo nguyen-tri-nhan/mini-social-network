@@ -62,7 +62,7 @@ class InteractionService(
         val (ownerIdStr, articleIdStr) = resolveOwner(request.targetId, comment.targetType)
         val actor = userRefRepo.findById(authorId)
 
-        outboxRepo.persist(outbox(
+        outboxRepo.emit(outbox(
             aggregateType = "interaction",
             aggregateId   = comment.id,
             event = SocialEvent(
@@ -116,7 +116,7 @@ class InteractionService(
         val (ownerIdStr, articleIdStr) = resolveOwner(targetId, targetType)
         val actor = userRefRepo.findById(userId)
 
-        outboxRepo.persist(outbox(
+        outboxRepo.emit(outbox(
             aggregateType = "interaction",
             aggregateId   = vote.id,
             event = SocialEvent(
