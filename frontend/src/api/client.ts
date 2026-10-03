@@ -1,13 +1,15 @@
 import axios from 'axios'
 import { toast } from 'sonner'
+import { useAuthStore } from '../stores/authStore'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? ''  // vite proxy '/api' → localhost:8080/api
 
 export const client = axios.create({ baseURL: BASE_URL })
 
-// Attach JWT from localStorage on every request
+// Token của chính tab này, không đọc lại localStorage: localStorage dùng chung giữa các tab,
+// tab khác đăng nhập acc khác là request ở đây đổi danh tính ngay trong khi UI vẫn là người cũ.
 client.interceptors.request.use((config) => {
-  const token = localStorage.getItem('jwt')
+  const token = useAuthStore.getState().token
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })

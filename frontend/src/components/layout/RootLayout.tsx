@@ -1,6 +1,7 @@
 import { Outlet, Navigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { isAxiosError } from 'axios'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import { Navbar } from './Navbar'
@@ -19,6 +20,12 @@ export function RootLayout() {
     queryFn: usersApi.me,
     enabled: isAuthenticated(),
     staleTime: 5 * 60_000,
+    // Profile của acc vừa signup được tạo async (outbox → Kafka → user-consumer): tab khác cùng
+    // trình duyệt reload sang acc đó có thể gặp 404 tạm thời. Logout ở đây xoá jwt dùng chung →
+    // kéo luôn tab đang signup ra ngoài, nên chờ đủ lâu (~8s, như waitForUserReady) mới coi là session ma.
+    retry: (failureCount, error) =>
+      failureCount < (isAxiosError(error) && error.response?.status === 404 ? 5 : 1),
+    retryDelay: 1600,
   })
 
   useEffect(() => { if (me) setUser(me) }, [me, setUser])

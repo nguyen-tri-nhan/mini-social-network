@@ -19,6 +19,12 @@ export class WsClient {
   private attempts = 0
   private wanted = false
   private everOpened = false
+  private tokenProvider: () => string | null = () => localStorage.getItem('jwt')
+
+  // authStore import wsClient nên wsClient không import ngược lại được — store tự đăng ký vào đây.
+  setTokenProvider(provider: () => string | null): void {
+    this.tokenProvider = provider
+  }
 
   subscribe(topic: string, handler: Handler): () => void {
     let set = this.handlers.get(topic)
@@ -59,7 +65,7 @@ export class WsClient {
   }
 
   private connect(): void {
-    const token = localStorage.getItem('jwt')
+    const token = this.tokenProvider()
     if (!token) return
 
     const protocol = location.protocol === 'https:' ? 'wss' : 'ws'
