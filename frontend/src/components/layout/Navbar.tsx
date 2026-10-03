@@ -11,6 +11,7 @@ import Typography from '@mui/material/Typography'
 import { notificationsApi } from '../../api/notifications'
 import { useAuthStore } from '../../stores/authStore'
 import { qk } from '../../hooks/queryKeys'
+import { ChatMenu } from '../chat/ChatMenu'
 
 export function Navbar() {
   const { user, logout } = useAuthStore()
@@ -50,6 +51,7 @@ export function Navbar() {
         <Box sx={{ flex: 1 }} />
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <ChatMenu />
           <IconButton aria-label="Notifications" component={Link} to="/notifications" size="small">
             <Badge badgeContent={count > 9 ? '9+' : count} color="error" invisible={count === 0}>
               <Bell size={20} />

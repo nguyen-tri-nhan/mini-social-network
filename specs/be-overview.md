@@ -254,8 +254,9 @@ Browser  →  ws://host/ws   (public, no auth)
 > ⚠️ Model "public, không auth" dựa trên giả định payload không nhạy cảm. Từ
 > ADR 0006, payload `NOTIFICATION` chứa tên actor, còn topic
 > `user_{userId}_notification` đoán được (userId lộ trong mọi ArticleDto/CommentDto)
-> → ai cũng subscribe được noti của người khác, kể cả biết ai vote bài họ. Chưa
-> quyết định cách sửa — đề xuất ở `messaging-plan.md` §11 (blocker của tính năng chat).
+> → ai cũng subscribe được noti của người khác, kể cả biết ai vote bài họ. **Đã chốt
+> cách sửa (ADR 0009, chưa implement):** JWT qua `Sec-WebSocket-Protocol` + chỉ subscribe
+> topic `user_{x}_*` khi `x == jwt.subject` — xem `messaging-plan.md` §9 Bước 0.
 
 **Topics FE subscribe:**
 

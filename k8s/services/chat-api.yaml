@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-api
+  namespace: social
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: chat-api }
+  template:
+    metadata:
+      labels: { app: chat-api }
+    spec:
+      containers:
+        - name: chat-api
+          image: nhan/chat-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://lgtm:4317
+            - name: DB_URL
+              value: jdbc:postgresql://postgres:5432/social
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: kafka:9092
+            - name: JWT_ISSUER
+              value: https://social.nhan.dev
+            - name: JWT_PUBLIC_KEY_LOCATION
+              value: /etc/jwt/public-key.pem
+            - name: KMS_ENDPOINT
+              value: http://localstack:4566
+            - name: CHAT_KMS_KEY_ID
+              value: alias/social-chat
+          volumeMounts:
+            - name: jwt-keys
+              mountPath: /etc/jwt
+              readOnly: true
+          readinessProbe:
+            httpGet: { path: /q/health/ready, port: 8080 }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /q/health/live, port: 8080 }
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: jwt-keys
+          secret:
+            secretName: jwt-keys
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-api
+  namespace: social
+spec:
+  selector: { app: chat-api }
+  ports:
+    - port: 8080

@@ -150,10 +150,11 @@ Frontend đang được viết lại (tất cả files dưới `frontend/src/` l
 | Post | 5/8 | Edit post, user feed, search |
 | Comment | 3/5 | Edit comment, nested reply |
 | Vote | 4/4 | **Complete** |
-| Notification | 6/7 | Push notification (SSE/WebSocket) |
+| Notification | 10/10 | — |
 | Image Upload | 1/3 | Delete image on post delete, client resize |
 | Feed & Discovery | 1/4 | Follow-based feed, trending, user search |
 | Frontend UX | 0/12 | Tất cả UX features chưa làm |
+| Chat | 7/12 | Read receipt, typing, group chat, đính kèm ảnh, chặn người dùng |
 
 ---
 
@@ -208,11 +209,20 @@ Frontend đang được viết lại (tất cả files dưới `frontend/src/` l
   6. Paging `page<0`/`size<1` trả 500 (`Page` của Panache ném `IllegalArgumentException`) → thêm `@Min` + `@Valid @BeanParam` → 400; thêm `quarkus-hibernate-validator` cho `notification-api` (trước chỉ có transitive runtime).
   Verify: `./gradlew build` 19 module xanh, 43 test pass (13 mới); FE typecheck + 32/32 vitest. **Chưa verify live** (cluster tắt) — khi bật lại cần check: (a) event vẫn chảy sau đổi sang insert+delete, bảng outbox rỗng; (b) `?size=0` → 400; (c) interaction→post-api `/internal` vẫn 200; (d) comment count tăng đúng; (e) topic `dead-letter-topic-*` được tạo khi có event lỗi. Docs đồng bộ lại: `feature.md` (path, topic, 9.2/9.4 hoá ra đã làm, thêm 6.8/6.9/9.13, tổng 57), `api-contract`, `api-standard` (tự mâu thuẫn §5/§7/§8), `service-dependencies`, `outbox-pattern` (bảng khác biệt đầu doc), `be-overview` (bỏ ForwardAuth, schema-per-service, Redis fan-out chưa làm, cảnh báo WS auth). **Chưa sửa:** WS public để lộ noti của người khác (payload có tên actor từ ADR 0006) — là quyết định thiết kế, đề xuất cách sửa ở `specs/messaging-plan.md` §11.
 
+- [x] **Xác thực WebSocket (ADR 0009) + chat 1:1 có mã hoá (ADR 0007/0008) — `specs/messaging-plan.md` Bước 0 + Phase 1 (2/10/2026)** — branch `feature/chat-messaging`.
+  - **WS auth:** `websocket-service` verify JWT (`quarkus-smallrye-jwt`, token qua `Sec-WebSocket-Protocol` → `propagate-subprotocol-headers`), `@Authenticated`, `TopicAuthorizer` chỉ cho subscribe `user_{x}_*` khi `x == jwt.subject` (+ `article_*_comment_added`), sai → `ERROR forbidden`. FE `lib/wsClient.ts`: 1 kết nối/tab, refcount topic, backoff, phát "reconnected", đóng khi logout; `useNotificationSocket`/`waitForUserReady` chuyển sang dùng nó.
+  - **Backend chat:** `social-common` `Uuid7`; module mới `chat-crypto` (`ChatCipher` AES-256-GCM + AAD, `DataKeyProvider` KMS + cache 5 phút), `chat-service-dao` (schema `chat`, 5 bảng + outbox), `chat-api` (`ConversationResource`, `ChatService`, `UserRefEventConsumer`); `websocket-service` thêm `ChatEventConsumer` (`social.chat` → giải mã → push `user_{id}_chat` cho mọi participant). Danh sách conversation 1 query/trang (`JOIN LATERAL … LIMIT 1`), unread 1 query.
+  - **Infra:** LocalStack `s3,kms` + init hook tạo CMK `alias/social-chat` với **id + key material cố định** (Community không persist → restart sẽ ra CMK mới, mọi DEK cũ thành rác); limit 384Mi → 768Mi (bật KMS bị OOMKilled lúc khởi động); mount init bằng `subPath` (mount cả thư mục thì LocalStack chạy cả bản trong `..data/` → chạy 2 lần). Schema `chat`, `chat.outbox` vào Debezium, route Traefik `/api/conversations` + `/openapi/chat`, `k8s/services/chat-api.yaml`, Makefile `build-chat`/`load-chat`/`up-chat`, deploy order.
+  - **FE:** `/users/:id` (nút "Message", tên tác giả ở bài/comment thành link), `/messages[/:id]` (`ConversationList`, `MessageThread`, `MessageInput` zod ≤ 4.096), `ChatMenu` cạnh chuông, `useChatSocket`, link Messages ở sidebar.
+  - **Verify:** backend 77 test (mới: Uuid7 4, chat-crypto 11, ChatService 11, TopicAuthorizer 5, ChatEventConsumer 3), FE typecheck + 49 vitest. **Live trên kind:** 20/20 check API+WS (không token → bị từ chối; subscribe topic người khác → forbidden; 2 phía mở ra cùng conversation; người ngoài 404; 4.097 ký tự 400; gửi lại cùng `clientMessageId` → cùng tin, không push lần 2; unread/mark read) · DB chỉ có bytea (34 byte = 18 byte UTF-8 + 16 tag), Kafka `social.chat` không có bản thường, mọi bảng outbox rỗng · restart LocalStack + chat-api rồi đọc lịch sử cũ → `kms.Decrypt` 200, giải được · UI Playwright 2 trình duyệt: profile → Message → gửi (hiện 1 lần, pending → xác nhận) → badge bên kia = 1 không cần reload → dropdown → mở thread → badge về 0 → trả lời hiện realtime. Kèm theo verify 4/5 mục còn treo của đợt audit 29/9: `?size=0`/`page=-1` → 400, `/internal` qua secret vẫn chạy (notification tạo đúng, không có warning), comment count tăng sau flush, outbox rỗng — **còn (e) DLQ chưa thử**.
+  - **Sự cố build:** `make up` fail "docker load … short read" — cache layer Jib nằm trong `$TMPDIR` (`/var/folders/…/T/jib-core-application-layers-cache`), macOS dọn file cũ nhưng giữ thư mục → Jib tưởng có cache. Xoá thư mục đó là hết; sẽ tái diễn sau vài ngày không build.
+
 ### Ưu tiên cao
-- [ ] **Spin up kind cluster** — apply toàn bộ k8s manifests, test happy path
+- [x] **Spin up kind cluster** — apply toàn bộ k8s manifests, test happy path (2/10/2026, `make up`, 10 service + Debezium Ready)
 - [ ] **Commit frontend** — add tất cả untracked frontend files vào git
 
 ### Ưu tiên trung bình
+- [ ] **Config AWS SDK đúng cho môi trường thật** — chat-api/websocket-service đang ép `quarkus.kms.endpoint-override` + static creds `test` ở mọi profile (lên AWS sẽ gọi `localhost:4566`); post-api ngược lại: S3 override chỉ ở `%dev` nên trong kind có thể không dùng LocalStack (chưa verify upload ảnh). Hướng sửa: default đúng cho AWS, LocalStack khai qua env `QUARKUS_*_ENDPOINT_OVERRIDE` + `AWS_ACCESS_KEY_ID` trong manifest kind; thêm `software.amazon.awssdk:sts` nếu dùng IRSA; ghi mục vận hành KMS trên AWS vào ADR 0007.
 - [ ] **Frontend: wire API thật** — kiểm tra từng page gọi đúng endpoint
 - [ ] **Frontend: loading/error states** — skeleton cards, error toast (Sonner)
 - [ ] **Frontend: inline comments** — thay modal bằng inline trong card
@@ -223,7 +233,6 @@ Frontend đang được viết lại (tất cả files dưới `frontend/src/` l
 - [ ] Refresh token endpoint (`POST /api/auth/refresh`)
 - [ ] Delete image on S3 khi xóa bài
 - [ ] Upload avatar
-- [ ] Notification qua SSE/WebSocket
 - [ ] CI/CD GitHub Actions
 - [ ] EKS production setup
 

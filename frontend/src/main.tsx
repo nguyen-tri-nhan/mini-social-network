@@ -16,6 +16,8 @@ import { FeedPage } from './pages/FeedPage'
 import { NotificationsPage } from './pages/NotificationsPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { ArticleDetailPage } from './pages/ArticleDetailPage'
+import { UserProfilePage } from './pages/UserProfilePage'
+import { MessagesPage } from './pages/MessagesPage'
 
 const router = createBrowserRouter([
   { path: '/login',  element: <LoginPage /> },
@@ -27,6 +29,9 @@ const router = createBrowserRouter([
       { path: '/articles/:id',  element: <ArticleDetailPage /> },
       { path: '/notifications', element: <NotificationsPage /> },
       { path: '/profile',       element: <ProfilePage /> },
+      { path: '/users/:id',     element: <UserProfilePage /> },
+      { path: '/messages',      element: <MessagesPage /> },
+      { path: '/messages/:conversationId', element: <MessagesPage /> },
     ],
   },
 ])

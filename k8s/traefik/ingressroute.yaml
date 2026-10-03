@@ -50,6 +50,12 @@ spec:
         - name: notification-api
           port: 8080
 
+    - match: PathPrefix(`/api/conversations`)
+      kind: Rule
+      services:
+        - name: chat-api
+          port: 8080
+
     - match: PathPrefix(`/ws`)
       kind: Rule
       services:
@@ -85,4 +91,10 @@ spec:
       kind: Rule
       services:
         - name: notification-api
+          port: 8080
+
+    - match: PathPrefix(`/openapi/chat`)
+      kind: Rule
+      services:
+        - name: chat-api
           port: 8080

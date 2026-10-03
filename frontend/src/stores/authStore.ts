@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { UserProfile } from '../types'
 import { queryClient } from '../lib/queryClient'
+import { wsClient } from '../lib/wsClient'
 
 interface AuthState {
   token: string | null
@@ -36,6 +37,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     // qk.users.me / qk.notifications.* không scope theo user id — không clear
     // thì data user cũ còn "fresh" trong staleTime, hiện lại tới khi refetch.
     queryClient.clear()
+    // Kết nối WS mang token cũ — user kế tiếp trong cùng tab phải mở kết nối mới.
+    wsClient.close()
   },
 }))
 

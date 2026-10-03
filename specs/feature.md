@@ -80,6 +80,7 @@
 | 6.7 | Push notification (web) | ✅ | `websocket-service` push `NOTIFICATION` · FE `useNotificationSocket` (kết nối sống suốt session, tự reconnect) hiện toast realtime |
 | 6.8 | Bấm vào notification → tới đích | ✅ | Toast (nút "View") và item trong list → `/articles/:id` (toast còn highlight đúng comment) · resolver dùng chung `lib/notificationTarget.ts` |
 | 6.9 | Hiện tên thật của actor | ✅ | Denormalized lúc tạo notification (ADR 0006) · noti tạo trước 21/9/2026 hiện "Someone" |
+| 6.10 | Xác thực WebSocket | ✅ | JWT qua `Sec-WebSocket-Protocol` · chỉ subscribe được `user_{x}_*` của chính mình (ADR 0009) · FE dùng chung 1 kết nối `lib/wsClient.ts` |
 
 ---
 
@@ -124,6 +125,25 @@
 
 ---
 
+## 10. Nhắn tin (Chat) — `specs/messaging-plan.md`
+
+| # | Feature | Status | Notes |
+|---|---|---|---|
+| 10.1 | Nhắn tin 1:1 | ✅ | `chat-api` · `POST /api/conversations/{id}/messages` · tin ≤ 4.096 ký tự (ADR 0008) |
+| 10.2 | Mở chat từ profile người khác | ✅ | FE route `/users/:id` + nút "Message" · tên/avatar tác giả ở bài viết/comment là link · conversation ID tất định, mở lại luôn ra cùng 1 |
+| 10.3 | Danh sách conversation | ✅ | `/messages` · mới nhất trước · ẩn conversation chưa có tin · xem trước tin cuối |
+| 10.4 | Nhận tin realtime | ✅ | WS topic `user_{id}_chat` · tải lại khi reconnect |
+| 10.5 | Icon chat + badge chưa đọc | ✅ | Tách khỏi chuông notification · đếm số conversation chưa đọc · đánh dấu đã đọc khi mở thread / tab hiện lại |
+| 10.6 | Mã hoá tin nhắn | ✅ | Envelope encryption qua KMS (LocalStack) · AES-256-GCM · chỉ bản mã trong DB lẫn trên Kafka (ADR 0007) |
+| 10.7 | Chống gửi trùng + gửi lại | ✅ | `clientMessageId` · tin hiện ngay ở trạng thái "Sending…", lỗi thì nút retry |
+| 10.8 | Read receipt ("đã xem") | ⬜ | Phase 2 |
+| 10.9 | Typing indicator | ⬜ | Phase 2 |
+| 10.10 | Group chat | ⬜ | Phase 2 |
+| 10.11 | Đính kèm ảnh | ⬜ | Phase 2 |
+| 10.12 | Chặn người dùng / tin nhắn chờ | ⬜ | Phase 2 — MVP ai cũng nhắn được cho ai |
+
+---
+
 ## Summary
 
 | | Tổng | Done | Partial | Planned |
@@ -133,13 +153,17 @@
 | Post | 8 | 5 | 0 | 3 |
 | Comment | 5 | 3 | 0 | 2 |
 | Vote | 4 | 4 | 0 | 0 |
-| Notification | 9 | 9 | 0 | 0 |
+| Notification | 10 | 10 | 0 | 0 |
 | Image Upload | 3 | 1 | 0 | 2 |
 | Feed & Discovery | 4 | 1 | 0 | 3 |
 | Frontend UX | 13 | 7 | 4 | 2 |
-| **Total** | **57** | **36** | **4** | **17** |
+| Chat | 12 | 7 | 0 | 5 |
+| **Total** | **70** | **44** | **4** | **22** |
 
-> Cập nhật 29/9/2026 — đối chiếu lại với code thật sau đợt audit specs ↔
+> Cập nhật 2/10/2026 — thêm mục 10 (chat 1:1, messaging-plan Phase 1) và 6.10 (xác thực WS,
+> ADR 0009), verify live trên kind cluster.
+>
+> Bản 29/9/2026 — đối chiếu lại với code thật sau đợt audit specs ↔
 > implementation: sửa path cũ ở 4.1/4.2/5.1 (endpoint thật là `/api/comments`,
 > `/api/votes`), topic 6.1 (`social.interaction`, không phải `social.events`),
 > 9.2/9.4 hoá ra đã làm (bảng cũ ghi `⬜`), bỏ tham chiếu component/class

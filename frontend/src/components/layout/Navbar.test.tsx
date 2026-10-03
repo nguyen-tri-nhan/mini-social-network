@@ -11,6 +11,10 @@ vi.mock('../../api/notifications', () => ({
   notificationsApi: { unreadCount: vi.fn() },
 }))
 
+vi.mock('../../api/chat', () => ({
+  chatApi: { unreadCount: vi.fn().mockResolvedValue({ count: 0 }), list: vi.fn() },
+}))
+
 const mockUser: UserProfile = {
   id: 'user-1',
   username: 'nhan',

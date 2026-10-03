@@ -16,7 +16,8 @@ Tầng 0 — Infra
   Postgres, Redis, Kafka, LocalStack, LGTM (song song được, deploy-infra)
 
 Tầng 1 — App service chỉ cần infra, không gọi service khác
-  auth-service · post-api · user-api · notification-api · websocket-service
+  auth-service · post-api · user-api · notification-api · websocket-service · chat-api
+  (chat-api + websocket-service cần LocalStack KMS có key alias/social-chat — init hook tạo sẵn)
 
 Tầng 2 — App service gọi service khác (đồng bộ, qua REST)
   interaction-service  →  cần post-api đã lên (soft dependency, xem dưới)
@@ -26,9 +27,9 @@ Tầng 3 — Consumer, phụ thuộc Kafka + hưởng lợi khi producer đã t�
 
 Tầng 4 — Debezium / kafka-connect
   Cần outbox table tồn tại (Liquibase của auth-service/post-api/
-  interaction-service/user-api đã chạy) — Makefile đã đúng thứ tự này sẵn
+  interaction-service/user-api/chat-api đã chạy) — Makefile đã đúng thứ tự này sẵn
   (deploy-debezium chạy sau deploy-services). `table.include.list` của
-  connector phải liệt kê đủ 4 bảng: auth, post, interaction, users.
+  connector phải liệt kê đủ 5 bảng: auth, post, interaction, users, chat.
 
 Tầng 5 — Traefik routes
 ```
@@ -41,14 +42,15 @@ Tầng 5 — Traefik routes
 | `post-api` | ✅ | ✅ | — | `social.post` | ✅ | — |
 | `user-api` | ✅ | ✅ | — | `social.user` (`USER_PROFILE_UPDATED`) | — | — |
 | `notification-api` | ✅ | ✅ | — | — | — | — |
-| `websocket-service` | — | ✅ | `social.interaction`, `social.user` | — | — | — |
+| `websocket-service` | — | ✅ | `social.interaction`, `social.user`, `social.chat` | — | — | — (KMS Decrypt qua LocalStack) |
 | `interaction-service` | ✅ | — | `social.user` (cache `user_ref`, ADR 0006) | `social.interaction` | — | **`post-api`** (REST, `/internal/articles/{id}`) |
+| `chat-api` | ✅ | — | `social.user` (cache `user_ref`, ADR 0006) | `social.chat` | — | — (KMS qua LocalStack, ADR 0007) |
 | `user-consumer` | ✅ | ✅ (transitive qua `user-service`) | `social.auth` | `social.user` (`USER_READY`) | — | — |
 | `post-consumer` | ✅ | ✅ | `social.interaction` | — | — | — |
 | `notification-consumer` | ✅ | ✅ | `social.interaction` | — | — | — |
 
 Consumer ghi state (user-consumer, post-consumer, notification-consumer,
-interaction-service) dùng `failure-strategy=dead-letter-queue`: event lỗi đi
+interaction-service, chat-api) dùng `failure-strategy=dead-letter-queue`: event lỗi đi
 sang topic `dead-letter-topic-<channel>` thay vì bị nuốt. `websocket-service`
 cố tình giữ best-effort (push toast cũ phát lại sau là vô nghĩa).
 
@@ -94,11 +96,12 @@ không phải vấn đề kiến trúc cần sửa.
 4. notification-api
 5. websocket-service
 6. interaction-service   ← sau post-api
-7. user-consumer
-8. post-consumer
-9. notification-consumer
+7. chat-api
+8. user-consumer
+9. post-consumer
+10. notification-consumer
 ```
 
-(1-5 không phụ thuộc lẫn nhau, thứ tự trong nhóm không quan trọng; 7-9 tương
+(1-5 không phụ thuộc lẫn nhau, thứ tự trong nhóm không quan trọng; 8-10 tương
 tự.) Tự động hoá bằng `scripts/deploy-sequential.sh` / `make deploy-services-
 sequential` — xem README của Makefile (`make help`).

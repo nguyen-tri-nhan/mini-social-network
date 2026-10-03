@@ -36,4 +36,9 @@ include(
 
     // WebSocket (realtime push gateway)
     "websocket-service",
+
+    // Chat 1:1 (specs/messaging-plan.md)
+    "chat-crypto",          // shared lib: AES-GCM + KMS envelope (chat-api + websocket-service)
+    "chat-service-dao",
+    "chat-api",             // Quarkus: REST + outbox + consume social.user
 )

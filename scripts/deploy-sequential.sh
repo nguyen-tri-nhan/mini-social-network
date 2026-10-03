@@ -20,6 +20,7 @@ ORDER=(
   notification-api
   websocket-service
   interaction-service
+  chat-api
   user-consumer
   post-consumer
   notification-consumer
@@ -41,7 +42,7 @@ done
 
 echo "================================================"
 if [ ${#FAILED[@]} -eq 0 ]; then
-  echo "✅ Tất cả 9 service đã Ready."
+  echo "✅ Tất cả ${#ORDER[@]} service đã Ready."
 else
   echo "⚠️  ${#FAILED[@]} service chưa Ready: ${FAILED[*]}"
   echo "   Kiểm tra: kubectl logs -n $NAMESPACE deployment/<tên> --tail=50"

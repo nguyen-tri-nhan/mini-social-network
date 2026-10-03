@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Send, Trash2 } from 'lucide-react'
 import Box from '@mui/material/Box'
 import MuiAvatar from '@mui/material/Avatar'
+import { Link } from 'react-router-dom'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -117,7 +118,16 @@ function CommentItem({ comment, highlighted, highlightRef, canDelete, onDelete }
       </MuiAvatar>
       <Box sx={{ flex: 1 }}>
         <Box sx={{ bgcolor: highlighted ? 'action.selected' : 'grey.50', borderRadius: 3, px: 1.5, py: 1 }}>
-          <Typography variant="caption" fontWeight={600} color="text.secondary" component="p">{authorName}</Typography>
+          <Typography
+            variant="caption"
+            fontWeight={600}
+            color="text.secondary"
+            component={Link}
+            to={`/users/${comment.authorId}`}
+            sx={{ display: 'block', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+          >
+            {authorName}
+          </Typography>
           <Typography variant="body2">{comment.description}</Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 0.5, mt: 0.25 }}>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import { MessageCircle, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -51,7 +52,11 @@ export function ArticleCard({ article, defaultShowComments = false, highlightCom
     <Card>
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', p: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box
+          component={Link}
+          to={`/users/${article.authorId}`}
+          sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: 'inherit', textDecoration: 'none' }}
+        >
           <MuiAvatar src={author?.avatarUrl} sx={{ width: 40, height: 40, fontSize: 14 }}>
             {!author?.avatarUrl && authorFallback}
           </MuiAvatar>

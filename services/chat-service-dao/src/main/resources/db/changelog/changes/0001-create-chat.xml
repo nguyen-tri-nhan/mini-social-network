@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="0001" author="nhan">
+        <!-- id tất định từ cặp user (messaging-plan §13.1) — không có default -->
+        <createTable tableName="conversation">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamptz" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="conversation_participant">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="conversation_id" type="uuid"><constraints nullable="false"/></column>
+            <column name="user_id" type="uuid"><constraints nullable="false"/></column>
+            <column name="last_read_message_id" type="uuid"/>
+            <column name="joined_at" type="timestamptz" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="conversation_participant"
+                             columnNames="conversation_id, user_id"
+                             constraintName="uq_participant_conversation_user"/>
+        <createIndex tableName="conversation_participant" indexName="idx_participant_user">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createTable tableName="user_ref">
+            <column name="id" type="uuid"><constraints primaryKey="true" nullable="false"/></column>
+            <column name="username" type="varchar(50)"><constraints nullable="false"/></column>
+            <column name="firstname" type="varchar(100)"><constraints nullable="false"/></column>
+            <column name="lastname" type="varchar(100)"><constraints nullable="false"/></column>
+            <column name="avatar_url" type="text"/>
+            <column name="updated_at" type="timestamptz" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="conversation_key">
+            <column name="conversation_id" type="uuid"><constraints nullable="false"/></column>
+            <column name="version" type="int"><constraints nullable="false"/></column>
+            <column name="encrypted_data_key" type="bytea"><constraints nullable="false"/></column>
+            <column name="created_at" type="timestamptz" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="conversation_key" columnNames="conversation_id, version"/>
+
+        <!-- Không có cột nội dung dạng thường (ADR 0007); id là UUIDv7 app sinh -->
+        <createTable tableName="chat_message">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="conversation_id" type="uuid"><constraints nullable="false"/></column>
+            <column name="sender_id" type="uuid"><constraints nullable="false"/></column>
+            <column name="client_message_id" type="uuid"><constraints nullable="false"/></column>
+            <column name="key_version" type="int"><constraints nullable="false"/></column>
+            <column name="nonce" type="bytea"><constraints nullable="false"/></column>
+            <column name="ciphertext" type="bytea"><constraints nullable="false"/></column>
+            <column name="created_at" type="timestamptz" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex tableName="chat_message" indexName="idx_message_conversation_id">
+            <column name="conversation_id"/>
+            <column name="id"/>
+        </createIndex>
+        <addUniqueConstraint tableName="chat_message"
+                             columnNames="sender_id, client_message_id"
+                             constraintName="uq_message_sender_client_id"/>
+
+        <createTable tableName="outbox">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="aggregate_type" type="varchar(50)"><constraints nullable="false"/></column>
+            <column name="aggregate_id" type="uuid"><constraints nullable="false"/></column>
+            <column name="event_type" type="varchar(50)"><constraints nullable="false"/></column>
+            <column name="payload" type="text"><constraints nullable="false"/></column>
+            <column name="created_at" type="timestamptz" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

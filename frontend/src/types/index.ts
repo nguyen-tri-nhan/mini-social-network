@@ -73,3 +73,32 @@ export interface ApiResponse<T> {
   data?: T
   error?: { errorCode: string; errorMessage: string; traceId: string }
 }
+
+export interface ChatUser {
+  id: string
+  username?: string
+  firstname?: string
+  lastname?: string
+  avatarUrl?: string
+}
+
+export interface ChatMessage {
+  id: string
+  clientMessageId: string
+  conversationId: string
+  senderId: string
+  content: string
+  createdAt: string
+}
+
+export interface Conversation {
+  id: string
+  otherUser: ChatUser
+  lastMessage?: ChatMessage
+  unread: boolean
+}
+
+export interface CursorPage<T> {
+  items: T[]
+  hasMore: boolean
+}

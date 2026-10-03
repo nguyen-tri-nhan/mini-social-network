@@ -195,6 +195,44 @@ trên comment thì null).
 
 ---
 
+## 5b. chat-api — `:8087` (messaging-plan.md, ADR 0007/0008)
+
+| Method | Path | Auth | Body / Params | Response | Status |
+|---|---|---|---|---|---|
+| POST | `/api/conversations` | Required | `{ targetUserId }` | `ConversationDto` — idempotent, cùng cặp user luôn ra cùng id | ✅ |
+| GET | `/api/conversations` | Required | `?before=<lastMessage.id>&size=20` | `CursorPage<ConversationDto>` — chỉ conversation đã có tin, mới nhất trước | ✅ |
+| GET | `/api/conversations/unread-count` | Required | — | `{ count: n }` — số **conversation** chưa đọc | ✅ |
+| GET | `/api/conversations/{id}` | Required | — | `ConversationDto` | ✅ |
+| POST | `/api/conversations/{id}/read` | Required | `{ messageId }` | `204` — chỉ tiến lên | ✅ |
+| GET | `/api/conversations/{id}/messages` | Required | `?before=<messageId>&size=30` (≤ 100) | `CursorPage<MessageDto>` — mới nhất trước | ✅ |
+| POST | `/api/conversations/{id}/messages` | Required | `{ clientMessageId, content }` (content 1–4.096 ký tự) | `201 MessageDto` — gửi lại cùng `clientMessageId` trả tin cũ | ✅ |
+
+Không phải participant → `404` (không lộ conversation tồn tại). `targetUserId` là chính mình → `400`;
+không có trong `user_ref` → `404`. `clientMessageId` đã dùng ở conversation khác → `409`.
+
+**ConversationDto**
+```json
+{
+  "id": "uuid",
+  "otherUser": { "id": "uuid", "username": "an", "firstname": "An", "lastname": "Le", "avatarUrl": "https://..." },
+  "lastMessage": { "...": "MessageDto, content cắt ~100 ký tự" },
+  "unread": true
+}
+```
+
+**MessageDto** — `id` là UUIDv7 (thứ tự theo giờ server)
+```json
+{ "id": "uuid", "clientMessageId": "uuid", "conversationId": "uuid", "senderId": "uuid",
+  "content": "Hey!", "createdAt": "2026-10-02T10:00:00Z" }
+```
+
+**CursorPage\<T\>** — phân trang keyset, trang sau truyền `before` = id cuối của trang hiện tại
+```json
+{ "items": [ ... ], "hasMore": true }
+```
+
+---
+
 ## 6. Shared — Pagination
 
 Tất cả endpoint trả list đều dùng:

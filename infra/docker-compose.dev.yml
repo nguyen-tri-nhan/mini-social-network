@@ -3,6 +3,7 @@
 #   docker compose --profile post           up -d   → postgres + redis + kafka + localstack
 #   docker compose --profile interaction    up -d   → postgres + kafka
 #   docker compose --profile notification   up -d   → postgres + redis + kafka
+#   docker compose --profile chat           up -d   → postgres + kafka + localstack (KMS)
 #   docker compose --profile observability  up -d   → grafana LGTM (traces + metrics + logs)
 #   docker compose --profile all            up -d   → tất cả
 #   docker compose --profile gateway        up -d   → traefik
@@ -41,7 +42,7 @@ services:
   # Tất cả services đều cần postgres
   postgres:
     image: postgres:15-alpine
-    profiles: [auth, user, post, interaction, notification, all]
+    profiles: [auth, user, post, interaction, notification, chat, all]
     environment:
       POSTGRES_DB: social
       POSTGRES_USER: postgres
@@ -63,7 +64,7 @@ services:
   # post, interaction, notification cần kafka
   kafka:
     image: confluentinc/cp-kafka:7.6.0
-    profiles: [post, interaction, notification, all]
+    profiles: [post, interaction, notification, chat, all]
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
@@ -78,16 +79,17 @@ services:
     ports: ["9092:9092"]
 
   # ── Storage ──────────────────────────────────────────────────────────────────
-  # chỉ post cần localstack (S3 image upload)
+  # post: S3 image upload; chat: KMS envelope encryption (ADR 0007)
   localstack:
     image: localstack/localstack:3
-    profiles: [post, all]
+    profiles: [post, chat, all]
     environment:
-      SERVICES: s3
+      SERVICES: s3,kms
       DEFAULT_REGION: us-east-1
     ports: ["4566:4566"]
     volumes:
       - ./localstack/init.sh:/etc/localstack/init/ready.d/init.sh
+      - ./localstack/init-kms.sh:/etc/localstack/init/ready.d/init-kms.sh
 
 volumes:
   postgres-data:

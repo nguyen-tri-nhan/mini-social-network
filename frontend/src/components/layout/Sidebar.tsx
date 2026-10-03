@@ -1,4 +1,4 @@
-import { Bell, Home, User } from 'lucide-react'
+import { Bell, Home, MessageCircle, User } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import List from '@mui/material/List'
@@ -11,6 +11,7 @@ import BottomNavigationAction from '@mui/material/BottomNavigationAction'
 
 const links = [
   { to: '/',              icon: Home,  label: 'Feed' },
+  { to: '/messages',      icon: MessageCircle, label: 'Messages' },
   { to: '/notifications', icon: Bell,  label: 'Notifications' },
   { to: '/profile',       icon: User,  label: 'Profile' },
 ]

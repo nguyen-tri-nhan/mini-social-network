@@ -11,6 +11,13 @@ export const qk = {
     list: ['notifications'] as const,
     unread: ['notifications', 'unread'] as const,
   },
+  chat: {
+    all: ['chat'] as const,
+    conversations: ['chat', 'conversations'] as const,
+    unread: ['chat', 'unread'] as const,
+    conversation: (id: string) => ['chat', 'conversation', id] as const,
+    messages: (id: string) => ['chat', 'messages', id] as const,
+  },
   users: {
     me: ['users', 'me'] as const,
     detail: (id: string) => ['users', id] as const,

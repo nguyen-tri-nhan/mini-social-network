@@ -13,7 +13,7 @@ else
 ARCH := linux/amd64
 endif
 
-SERVICES  := auth-service user-api post-api interaction-service notification-api websocket-service
+SERVICES  := auth-service user-api post-api interaction-service notification-api websocket-service chat-api
 CONSUMERS := post-consumer user-consumer notification-consumer
 
 # make build RERUN=1 — ép Gradle chạy lại toàn bộ task graph, bỏ qua up-to-date
@@ -29,7 +29,7 @@ endif
 
 # ── Build ─────────────────────────────────────────────────────────────────────
 
-.PHONY: build build-auth build-user build-post build-interaction build-notification build-websocket
+.PHONY: build build-auth build-user build-post build-interaction build-notification build-websocket build-chat
 
 ## Build tất cả service + consumer images (JIB — không cần Dockerfile)
 build:
@@ -60,9 +60,12 @@ build-notification:
 build-websocket:
 	cd services && gradle :websocket-service:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH) $(RERUN_FLAG)
 
+build-chat:
+	cd services && gradle :chat-api:build -Dquarkus.container-image.build=true -Dquarkus.jib.platforms=$(ARCH) $(RERUN_FLAG)
+
 # ── Kind — load images ────────────────────────────────────────────────────────
 
-.PHONY: load load-auth load-user load-post load-interaction load-notification load-websocket
+.PHONY: load load-auth load-user load-post load-interaction load-notification load-websocket load-chat
 
 ## Load tất cả images vào kind cluster (kind không pull từ local Docker tự động)
 load:
@@ -91,6 +94,9 @@ load-notification:
 
 load-websocket:
 	kind load docker-image $(GROUP)/websocket-service:$(TAG) --name $(CLUSTER)
+
+load-chat:
+	kind load docker-image $(GROUP)/chat-api:$(TAG) --name $(CLUSTER)
 
 # ── Deploy ────────────────────────────────────────────────────────────────────
 
@@ -232,6 +238,7 @@ DEPLOYS_post         := post-api post-consumer
 DEPLOYS_interaction  := interaction-service
 DEPLOYS_notification := notification-api notification-consumer
 DEPLOYS_websocket    := websocket-service
+DEPLOYS_chat         := chat-api
 
 ## Build + load + restart 1 service: make up-post
 up-%: build-% load-%

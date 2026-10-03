@@ -9,6 +9,7 @@ import { useAuthStore, isAuthenticated } from '../../stores/authStore'
 import { usersApi } from '../../api/articles'
 import { qk } from '../../hooks/queryKeys'
 import { useNotificationSocket } from '../../hooks/useNotificationSocket'
+import { useChatSocket } from '../../hooks/useChatSocket'
 
 export function RootLayout() {
   const { setUser, logout } = useAuthStore()
@@ -28,6 +29,7 @@ export function RootLayout() {
   useEffect(() => { if (isError) logout() }, [isError, logout])
 
   useNotificationSocket(me?.id)
+  useChatSocket(me?.id)
 
   if (!isAuthenticated()) return <Navigate to="/login" replace />
 

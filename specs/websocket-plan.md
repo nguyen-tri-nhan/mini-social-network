@@ -105,9 +105,9 @@ Pub/sub channel model — FE tự subscribe vào topic cần, server route theo 
 |---|---|---|
 | `user_{userId}_notification` | Luôn luôn khi login — FE dùng userId từ JWT đã decode client-side | `NOTIFICATION` — comment/vote vào bài của mình |
 | `article_{articleId}_comment_added` | FE mở bài và expand comment section | `COMMENT_ADDED` — live comments |
-| `room_{roomId}_chat` | FE vào chat room (Phase 3) | `CHAT_MESSAGE` |
+| `user_{userId}_chat` | Luôn luôn khi login — tin của mọi conversation (messaging-plan §6) | `CHAT_MESSAGE` |
 
-> **Security note:** topic name là guessable — ai biết userId của user B có thể subscribe `user_B_notification`. Data trong notification (ai comment vào bài nào) không nhạy cảm, chấp nhận được ở scale này.
+> **Security:** từ ADR 0009, kết nối WS phải có JWT và chỉ subscribe được `user_{x}_*` khi `x` là chính mình (`TopicAuthorizer`); `article_*_comment_added` mở cho mọi user đã đăng nhập, topic khác bị từ chối.
 
 ---
 
@@ -118,7 +118,7 @@ Pub/sub channel model — FE tự subscribe vào topic cần, server route theo 
 | WS framework | `quarkus-websockets-next` | Reactive, built-in với Quarkus 3.x, tích hợp Mutiny |
 | Kafka consumer | SmallRye Reactive Messaging (đã có) | Tái dùng pattern từ notification-consumer |
 | Redis fan-out | `quarkus-redis-client` (đã có) | Đã cài trong infra, pub/sub API đơn giản |
-| Auth | Không có — WS là public route | Topic name không chứa data nhạy cảm |
+| Auth | ~~Không có — WS là public route~~ → JWT, xem ADR 0009 | ~~Topic name không chứa data nhạy cảm~~ — tiền đề sai: userId lộ trong DTO, payload có tên actor |
 
 ---
 
@@ -225,14 +225,12 @@ Không cần token. FE connect xong thì gửi SUBSCRIBE messages.
   }
 }
 
-// Topic: room_{roomId}_chat  (Phase 3)
+// Topic: user_{userId}_chat  (Phase 3 — payload đầy đủ ở messaging-plan §6)
 {
-  "topic": "room_{roomId}_chat",
+  "topic": "user_{userId}_chat",
   "type": "CHAT_MESSAGE",
-  "payload": {
-    "roomId": "uuid",
-    "message": { "id": "uuid", "content": "Hey!", "senderId": "uuid" }
-  }
+  "payload": { "id": "uuid", "clientMessageId": "uuid", "conversationId": "uuid",
+               "senderId": "uuid", "content": "Hey!", "createdAt": "..." }
 }
 ```
 
@@ -270,9 +268,8 @@ websocket-service consumes VOTE_CAST { targetId, targetType, actorId=B, delta }
 ### Phase 3 — Chat
 
 Kế hoạch chi tiết (schema, service, REST API, WS protocol) đã chuyển sang
-[messaging-plan.md](messaging-plan.md) — bản đó có tên topic đã đổi thành
-`conversation_{id}_chat` (không phải `room_{roomId}_chat` như phác thảo dưới đây, giữ "room"
-dự phòng cho group chat sau này). `EventType.CHAT_MESSAGE` đã có sẵn trong `social-common`.
+[messaging-plan.md](messaging-plan.md) — topic theo **người nhận** `user_{id}_chat`
+(không theo phòng/conversation — conversationId 1:1 tính được từ 2 userId public, ADR 0008).
 
 ---
 
@@ -408,10 +405,7 @@ export function useArticleSubscription(articleId: string) {
 - [ ] Đảm bảo `COMMENT_ADDED` push đúng vào `article_{id}_comment_added`
 
 ### Phase 3 — Chat
-- [ ] Thêm `EventType.CHAT_MESSAGE` vào `social-common`
-- [ ] `chat-service-dao` — `chat_message`, `chat_room` tables
-- [ ] `chat-api` — REST: create room, send message, history
-- [ ] `websocket-service` consume `social.chat` → push to `room_{roomId}_chat`
+- [x] 1:1 chat — làm theo checklist ở [messaging-plan.md §9](messaging-plan.md)
 - [ ] Redis fan-out cho multi-instance
 
 ---
@@ -422,7 +416,7 @@ export function useArticleSubscription(articleId: string) {
 |---|---|---|
 | WS vs SSE | WebSocket | Chat và live comments cần bidirectional, SSE chỉ 1 chiều |
 | Service riêng vs nhét vào notification-api | Service riêng | Scale độc lập, scope rõ ràng |
-| Auth model | Public — không auth WS | Topic name không chứa data nhạy cảm; FE tự biết userId từ JWT client-side |
+| Auth model | ~~Public — không auth WS~~ → **superseded bởi ADR 0009** (JWT qua `Sec-WebSocket-Protocol`, chỉ subscribe topic của mình) | Tiền đề "topic không nhạy cảm" sai — xem ADR 0009 |
 | Routing model | Pub/sub by topic name | Đơn giản hơn userId-routing; scale tự nhiên; FE tự chọn topic cần |
 | Fan-out mechanism | Redis pub/sub | Đã có Redis trong infra, pub/sub API đơn giản |
 | Internal auth | `X-Service-Secret-Key` shared secret | Đơn giản, không cần mTLS ở scale này |

@@ -10,6 +10,7 @@ data:
     CREATE SCHEMA IF NOT EXISTS post;
     CREATE SCHEMA IF NOT EXISTS interaction;
     CREATE SCHEMA IF NOT EXISTS notification;
+    CREATE SCHEMA IF NOT EXISTS chat;
 
 ---
 apiVersion: apps/v1

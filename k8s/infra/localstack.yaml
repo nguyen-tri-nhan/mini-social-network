@@ -1,3 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: localstack-init
+  namespace: social
+data:
+  # Bản sao của infra/localstack/init-kms.sh
+  init-kms.sh: |
+    #!/bin/bash
+    # CMK cho chat (ADR 0007). LocalStack Community không persist state → cố định cả key id
+    # lẫn key material để sau khi restart, các DEK đã bọc trong DB vẫn giải được.
+    # Key material này chỉ dùng cho LocalStack dev, không phải bí mật.
+    set -e
+    KEY_ID=3e400d0b-a89a-4381-8943-a0b887e888c0
+    if ! awslocal kms describe-key --key-id "$KEY_ID" >/dev/null 2>&1; then
+      awslocal kms create-key --tags \
+        "[{\"TagKey\":\"_custom_id_\",\"TagValue\":\"$KEY_ID\"},{\"TagKey\":\"_custom_key_material_\",\"TagValue\":\"KouExPdFoCA28gf30JzN7RBuKQhxmbbB5Dms9AhEcMM=\"}]" >/dev/null
+    fi
+    awslocal kms create-alias --alias-name alias/social-chat --target-key-id "$KEY_ID" 2>/dev/null || true
+    echo "LocalStack KMS key alias/social-chat ready"
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,13 +37,24 @@ spec:
         - name: localstack
           image: localstack/localstack:3
           env:
-            - { name: SERVICES,       value: s3 }
+            - { name: SERVICES,       value: "s3,kms" }
             - { name: DEFAULT_REGION, value: us-east-1 }
           ports:
             - containerPort: 4566
+          volumeMounts:
+            # subPath: mount cả thư mục thì LocalStack chạy cả bản trong ..data/ của ConfigMap (2 lần)
+            - name: init
+              mountPath: /etc/localstack/init/ready.d/init-kms.sh
+              subPath: init-kms.sh
           resources:
             requests: { memory: "128Mi", cpu: "50m" }
-            limits: { memory: "384Mi", cpu: "250m" }
+            # KMS + init hook (awslocal là Python CLI chạy trong container) vượt 384Mi → OOMKilled
+            limits: { memory: "768Mi", cpu: "500m" }
+      volumes:
+        - name: init
+          configMap:
+            name: localstack-init
+            defaultMode: 0755
 
 ---
 apiVersion: v1
